@@ -8122,6 +8122,17 @@ tailwind.config = {
   const LOCAL_STATE_KEY = 'df_state_v1';
   const FIREBASE_CONFIG_KEY = 'df_firebase_config';
 
+  // ─── Default Firebase config (built-in, dipakai otomatis jika user belum override) ───
+  const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBw0OPiTuW4WyiznWljNodA6z-lQq0IOGs",
+    authDomain: "hutmail-356cc.firebaseapp.com",
+    projectId: "hutmail-356cc",
+    storageBucket: "hutmail-356cc.firebasestorage.app",
+    messagingSenderId: "897556091337",
+    appId: "1:897556091337:web:e6965dbbf111ba1acc5818",
+    measurementId: "G-RVD0YJBRW7"
+  };
+
   // ─── State persistence (local fallback) ───
   function saveStateLocal(){
     try {
@@ -8479,12 +8490,18 @@ tailwind.config = {
 
   // ─── Restore saved Firebase config & state on load ───
   (function bootstrapAuth(){
-    // Restore Firebase config if previously saved
+    // Restore Firebase config: pakai yang user simpan, atau fallback ke DEFAULT_FIREBASE_CONFIG
     try {
       const savedConfig = localStorage.getItem(FIREBASE_CONFIG_KEY);
+      let cfg = null;
       if (savedConfig){
-        const cfg = JSON.parse(savedConfig);
-        // Show saved config in the textarea for transparency
+        cfg = JSON.parse(savedConfig);
+      } else if (DEFAULT_FIREBASE_CONFIG && DEFAULT_FIREBASE_CONFIG.apiKey){
+        // Belum ada config tersimpan → gunakan default bawaan
+        cfg = DEFAULT_FIREBASE_CONFIG;
+      }
+      if (cfg){
+        // Tampilkan config di textarea untuk transparansi
         const ta = document.getElementById('firebase-config-input');
         if (ta) ta.value = JSON.stringify(cfg, null, 2);
         initFirebase(cfg);
