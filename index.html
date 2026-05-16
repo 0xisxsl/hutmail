@@ -122,6 +122,7 @@ tailwind.config = {
     transition: all 0.2s ease;
     position: relative;
     color: var(--text-soft);
+    cursor: pointer;
   }
   .nav-item:hover { background: var(--bg-tint); color: var(--text-strong); }
   .nav-item.active {
@@ -216,7 +217,7 @@ tailwind.config = {
   }
 
   /* ─── Strategy comparison cards (click to activate) ─── */
-  .strat-card { position: relative; }
+  .strat-card { position: relative; cursor: pointer; }
   .strat-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
@@ -355,16 +356,21 @@ tailwind.config = {
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25);
     transition: all 0.18s ease;
+    cursor: pointer;
+    border: none;
   }
   .btn-primary:hover { background: var(--primary-deep); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.30); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
   .btn-ghost {
     background: var(--bg-surface);
     color: var(--text-soft);
     border: 1px solid var(--border);
     transition: all 0.18s ease;
+    cursor: pointer;
   }
   .btn-ghost:hover { background: var(--bg-tint); color: var(--text-strong); border-color: var(--border-strong); }
+  .btn-ghost:disabled { opacity: 0.55; cursor: not-allowed; }
 
   /* Progress bar segments */
   .seg-bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--bg-tint); }
@@ -1869,7 +1875,7 @@ tailwind.config = {
       </button>
 
       <div class="min-w-0">
-        <div class="num-prefix mb-0.5 header-prefix">DASHBOARD · 12 MEI 2026</div>
+        <div class="num-prefix mb-0.5 header-prefix" id="header-date-prefix">DASHBOARD · 17 MEI 2026</div>
         <h1 id="page-title" class="display text-lg lg:text-xl font-medium truncate">Selamat siang, Rizky.</h1>
       </div>
       <div class="flex-1"></div>
@@ -2446,7 +2452,7 @@ tailwind.config = {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div>
                 <label class="text-xs text-ink-300">Tanggal Pembayaran</label>
-                <input id="pay-date" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="2026-05-13">
+                <input id="pay-date" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="2026-05-17">
               </div>
               <div>
                 <label class="text-xs text-ink-300">Metode Pembayaran</label>
@@ -5507,7 +5513,7 @@ tailwind.config = {
   lucide.createIcons();
 
   // ───── Helpers ─────
-  const TODAY = new Date('2026-05-13'); // demo "today"
+  const TODAY = new Date('2026-05-17'); // demo "today" — updated to match actual deployment date
   const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const monthsFull = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const daysShort = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -5639,8 +5645,9 @@ tailwind.config = {
     editActionPanel: 'tambah',
     calMode: 'week',
     calRefDate: new Date(TODAY),
-    calSelected: '2026-05-15',
+    calSelected: '2026-05-17',
     currencyDisplay: 'rp', // 'rp' | 'idr' | 'rupiah' | 'plain'
+    dashSort: { key: null, dir: null }, // dir: 'asc'|'desc'|null
   };
 
   // ───── Logo color map ─────
@@ -5797,7 +5804,6 @@ tailwind.config = {
 
   // ── Dashboard hutang aktif list ──
   // Sort state for HUTANG AKTIF table on dashboard
-  if (!state.dashSort) state.dashSort = { key: null, dir: null }; // dir: 'asc'|'desc'|null
 
   function _dashSortValue(d, key){
     switch (key){
@@ -6051,7 +6057,12 @@ tailwind.config = {
     renderPaymentSource();
     renderPaymentUpcoming();
     renderPaymentHistory();
+    // Always sync date input to current demo today
+    const dateEl = document.getElementById('pay-date');
+    if (dateEl && !dateEl.dataset.userEdited) dateEl.value = fmtKey(TODAY);
   }
+  // Alias used by calendar modal pay buttons
+  const renderPaymentSelect = renderPaymentView;
 
   function renderPaymentSummary(){
     const must = totalMinPayment();
@@ -6596,7 +6607,7 @@ tailwind.config = {
           if (target.status === 'paid'){
             // Just navigate to debts view
             closeDayDetailModal();
-            switchView('hutang');
+            switchView('daftar');
             return;
           }
           state.paySelectedId = id;
@@ -6629,14 +6640,7 @@ tailwind.config = {
   function closeDayDetailModal(){
     document.getElementById('day-detail-modal')?.classList.remove('active');
   }
-  // Close handlers
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('ddm-close')?.addEventListener('click', closeDayDetailModal);
-    document.getElementById('day-detail-modal')?.addEventListener('click', e => {
-      if (e.target.id === 'day-detail-modal') closeDayDetailModal();
-    });
-  });
-  // Also attach immediately in case DOMContentLoaded already fired
+  // Close handlers — attached once via setTimeout so they run after DOM parse
   setTimeout(() => {
     document.getElementById('ddm-close')?.addEventListener('click', closeDayDetailModal);
     document.getElementById('day-detail-modal')?.addEventListener('click', e => {
@@ -6837,10 +6841,10 @@ tailwind.config = {
 
   function confirmPayment(){
     const d = getDebt(state.paySelectedId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     const input = document.getElementById('pay-amount');
     const amt = parseIDR(input?.value || 0);
-    if (amt <= 0){ alert('Nominal pembayaran harus lebih dari 0.'); return; }
+    if (amt <= 0){ flash('⚠ Nominal pembayaran harus lebih dari 0.'); return; }
     if (amt > d.sisa + 1000){
       if (!confirm(`Nominal pembayaran (${fmtIDR(amt)}) lebih besar dari sisa hutang (${fmtIDR(d.sisa)}). Lanjutkan dengan membayar sisa saja?`)){
         return;
@@ -6848,7 +6852,7 @@ tailwind.config = {
     }
     const dateEl = document.getElementById('pay-date');
     const methodEl = document.getElementById('pay-method');
-    const date = dateEl?.value || fmtKey(TODAY);
+    const date = (dateEl?.value && dateEl.value.length === 10) ? dateEl.value : fmtKey(TODAY);
     const method = methodEl?.value || 'Transfer Bank';
     const actualAmt = Math.min(amt, d.sisa);
     const willLunas = actualAmt >= d.sisa;
@@ -6906,8 +6910,8 @@ tailwind.config = {
     const startDate  = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
     const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
 
-    if (!company){ alert('Nama perusahaan/kreditur wajib diisi.'); return; }
-    if (nominal <= 0){ alert('Nominal awal harus lebih dari 0.'); return; }
+    if (!company){ flash('⚠ Nama perusahaan/kreditur wajib diisi.'); return; }
+    if (nominal <= 0){ flash('⚠ Nominal awal harus lebih dari 0.'); return; }
 
     const isCC = category === 'Kartu Kredit';
     const id = 'd' + (state.nextDebtId++) + '_' + Math.random().toString(36).slice(2,6);
@@ -6957,14 +6961,14 @@ tailwind.config = {
 
   function confirmAddTransaction(){
     const d = getDebt(state.editAccountId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     const dateEl = document.querySelector('.edit-action-panel[data-panel="tambah"] input[type="date"]');
     const typeEl = document.getElementById('trx-type');
     const descEl = document.querySelector('.edit-action-panel[data-panel="tambah"] input[type="text"]:not(#trx-amount)') ||
                    document.querySelector('.edit-action-panel[data-panel="tambah"] input[placeholder*="Tokopedia"]');
     const amtEl = document.getElementById('trx-amount');
     const amt = parseIDR(amtEl?.value || 0);
-    if (amt <= 0){ alert('Nominal transaksi harus lebih dari 0.'); return; }
+    if (amt <= 0){ flash('⚠ Nominal transaksi harus lebih dari 0.'); return; }
     const date = dateEl?.value || fmtKey(TODAY);
     const typeRaw = typeEl?.value || 'Belanja / Charge';
     const typeMap = {
@@ -7009,7 +7013,7 @@ tailwind.config = {
 
   function confirmEditDetail(){
     const d = getDebt(state.editAccountId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     const panel = document.querySelector('.edit-action-panel[data-panel="detail"]');
     if (!panel) return;
     const inputs = panel.querySelectorAll('input, select');
@@ -7024,7 +7028,7 @@ tailwind.config = {
 
   function confirmDeleteDebt(){
     const d = getDebt(state.editAccountId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     if (d.sisa > 0 && !confirm(`${d.company} ${d.product} masih punya sisa hutang ${fmtIDR(d.sisa)}. Hapus tetap?`)){
       return;
     }
@@ -7115,21 +7119,23 @@ tailwind.config = {
   function renderAddFormPreview(){
     const f = document.getElementById('add-form');
     if (!f) return;
-    const nominal = parseIDR(f.querySelector('[name="nominalAwal"]')?.value);
+    const nominal = parseIDR(f.querySelector('[name="nominalAwal"]')?.value) || 0;
     let biaya = 0;
     document.querySelectorAll('#fee-list .fee-row').forEach(row => {
-      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value);
+      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value) || 0;
       const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
       biaya += unit === '%' ? Math.round(nominal * v / 100) : v;
     });
     const startDate = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
-    const bunga = parseFloat(f.querySelector('[name="bunga"]')?.value || '0');
+    const bunga = parseFloat(f.querySelector('[name="bunga"]')?.value || '0') || 0;
     const bungaUnit = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
     const days = Math.max(0, diffDays(TODAY, parseKey(startDate)));
     let bungaBerjalan = 0;
-    if (bungaUnit === 'bln') bungaBerjalan = nominal * (bunga/100) * (days/30);
-    else if (bungaUnit === 'thn') bungaBerjalan = nominal * (bunga/100) * (days/365);
-    else bungaBerjalan = nominal * (bunga/100) * days;
+    if (nominal > 0) {
+      if (bungaUnit === 'bln') bungaBerjalan = nominal * (bunga/100) * (days/30);
+      else if (bungaUnit === 'thn') bungaBerjalan = nominal * (bunga/100) * (days/365);
+      else bungaBerjalan = nominal * (bunga/100) * days;
+    }
     setHTML('preview-nominal', fmtIDRc(nominal));
     setHTML('preview-biaya', fmtIDRc(biaya, {sign:'+'}));
     setHTML('preview-bunga', fmtIDRc(bungaBerjalan, {sign:'+'}));
@@ -7152,12 +7158,16 @@ tailwind.config = {
       bar.style.cssText = `position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
         background:#FFFFFF; color:#2563EB; border:1px solid rgba(37,99,235,0.30);
         padding:10px 18px; border-radius:8px; font-size:13px; z-index:9999;
-        box-shadow:0 8px 24px rgba(30,58,138,0.18); max-width:90vw; text-align:center;`;
+        box-shadow:0 8px 24px rgba(30,58,138,0.18); max-width:90vw; text-align:center;
+        transition: opacity 0.4s ease;`;
       document.body.appendChild(bar);
     }
+    // On mobile (bottom nav visible) push flash bar up above the nav
+    const mobileNav = document.querySelector('.mobile-bottom-nav');
+    const navH = (mobileNav && getComputedStyle(mobileNav).display !== 'none') ? (mobileNav.offsetHeight + 8) : 20;
+    bar.style.bottom = navH + 'px';
     bar.textContent = msg;
     bar.style.opacity = '1';
-    bar.style.transition = 'opacity 0.4s ease';
     clearTimeout(bar._timer);
     bar._timer = setTimeout(() => { bar.style.opacity = '0'; }, 3000);
   }
@@ -7203,6 +7213,9 @@ tailwind.config = {
   sidebarCloseBtn?.addEventListener('click', closeSidebar);
   sidebarToggleBtn?.addEventListener('click', toggleSidebarCollapsed);
   overlay?.addEventListener('click', closeSidebar);
+  // ARIA: ensure open/close buttons are keyboard accessible
+  if (sidebarOpenBtn && !sidebarOpenBtn.getAttribute('aria-label')) sidebarOpenBtn.setAttribute('aria-label', 'Buka sidebar');
+  if (sidebarCloseBtn && !sidebarCloseBtn.getAttribute('aria-label')) sidebarCloseBtn.setAttribute('aria-label', 'Tutup sidebar');
 
   // ═════════════════════════════════════════════════════════════════
   // COLLAPSIBLE CARDS — minimize/expand with persistence
@@ -7386,10 +7399,23 @@ tailwind.config = {
     state.payMode = 'cicil';
     renderPaymentSourceDetail();
   });
+  // Mark date as user-edited so we don't auto-reset it
+  document.getElementById('pay-date')?.addEventListener('change', e => {
+    e.target.dataset.userEdited = '1';
+  });
   document.getElementById('pay-amount')?.addEventListener('input', e => {
-    // Re-format with thousand separators
+    // Re-format with thousand separators; guard against NaN
     const raw = parseIDR(e.target.value);
-    e.target.value = raw ? raw.toLocaleString('id-ID') : '';
+    if (!isNaN(raw) && raw > 0) {
+      const pos = e.target.selectionStart;
+      const oldLen = e.target.value.length;
+      e.target.value = raw.toLocaleString('id-ID');
+      // Restore cursor position approximately
+      const newLen = e.target.value.length;
+      e.target.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
+    } else if (!raw) {
+      e.target.value = '';
+    }
     state.payMode = 'custom';
     setActiveTab('pay-mode-lunas', false);
     setActiveTab('pay-mode-cicil', false);
@@ -8281,12 +8307,12 @@ tailwind.config = {
   }
 
   // ─── UI: sync status badge ───
-  function updateSyncBadge(state, text){
+  function updateSyncBadge(syncState, text){
     document.querySelectorAll('.firebase-status-pill').forEach(el => {
-      el.classList.toggle('connected', state === 'connected');
-      el.classList.toggle('local', state !== 'connected');
+      el.classList.toggle('connected', syncState === 'connected');
+      el.classList.toggle('local', syncState !== 'connected');
       const t = el.querySelector('.status-text');
-      if (t) t.textContent = state === 'connected' ? 'SYNCED' : 'LOCAL';
+      if (t) t.textContent = syncState === 'connected' ? 'SYNCED' : 'LOCAL';
     });
     const msg = document.getElementById('firebase-config-msg');
     if (msg && text) msg.textContent = text;
@@ -8385,6 +8411,8 @@ tailwind.config = {
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     if (!name || !email || !password){ flash('Semua field wajib diisi.'); return; }
+    // Basic email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ flash('Format email tidak valid.'); return; }
     if (password.length < 6){ flash('Password minimal 6 karakter.'); return; }
     try {
       const cred = await AUTH._signUp(AUTH.auth, email, password);
