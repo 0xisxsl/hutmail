@@ -5124,6 +5124,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     currencyDisplay: 'rp', // 'rp' | 'idr' | 'rupiah' | 'plain'
     dashSort: { key: null, dir: null }, // dir: 'asc'|'desc'|null
     demoLoaded: false,
+    allowEmptySync: false, // becomes true only when user explicitly clears data
   };
 
   // ───── Demo data load / clear ─────
@@ -5150,6 +5151,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     state.editCompanyId = null;
     state.editAccountId = null;
     state.demoLoaded = false;
+    state.allowEmptySync = true; // user explicitly cleared → allow empty to propagate to cloud
     if (typeof renderAll === 'function') renderAll();
     if (typeof updateSidebarUserUI === 'function') updateSidebarUserUI();
     if (typeof flash === 'function') flash('Semua data dikosongkan.');
@@ -7972,6 +7974,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     unsubSnap: null,
     config: null,
     isConnected: false,
+    remoteLoading: false,       // true while fetching cloud data on login (blocks accidental empty overwrite)
   };
   window.AUTH = AUTH;
   if (typeof refreshDemoButton === 'function') refreshDemoButton();
@@ -8018,6 +8021,29 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     } catch(e){ return false; }
   }
 
+  // One-time recovery: older builds saved local data under 'df_state_v1'.
+  // If the new key is empty but the old one has data, migrate it forward —
+  // UNLESS it is the pristine, untouched demo seed (so demo doesn't resurface).
+  function migrateOldLocalState(){
+    try {
+      if (localStorage.getItem(LOCAL_STATE_KEY)) return; // already on new key
+      const oldRaw = localStorage.getItem('df_state_v1');
+      if (!oldRaw) return;
+      const old = JSON.parse(oldRaw);
+      const debts = Array.isArray(old.debts) ? old.debts : [];
+      const DEMO_IDS = ['bca','mandiri','cimb','shopee','bri','kredivo','danamon'];
+      const DEMO_SISA = { bca:42300000, mandiri:67500000, cimb:28750000, shopee:4200000, bri:44700000, kredivo:8000000, danamon:12000000 };
+      const isPristineDemo =
+        debts.length === DEMO_IDS.length &&
+        debts.every(d => DEMO_IDS.includes(d.id) && DEMO_SISA[d.id] === d.sisa) &&
+        (old.user ? (old.user.email === 'rizky.aditya@email.com') : true);
+      if (debts.length > 0 && !isPristineDemo){
+        // Real user data — carry it forward to the new key.
+        localStorage.setItem(LOCAL_STATE_KEY, oldRaw);
+      }
+    } catch(e){ /* ignore — migration is best-effort */ }
+  }
+
   // Auto-save state after every mutation by patching renderAll
   const _origRenderAll = renderAll;
   renderAll = function(){
@@ -8030,6 +8056,12 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   // ─── Firebase remote sync ───
   async function saveStateRemote(){
     if (!AUTH.db || !AUTH.user) return;
+    // Don't write while a remote load is in progress (login) — prevents the
+    // empty default state from clobbering the user's real cloud data.
+    if (AUTH.remoteLoading) return;
+    // Never silently overwrite the cloud with a completely empty portfolio
+    // unless the user explicitly cleared their data.
+    if ((!state.debts || state.debts.length === 0) && !state.allowEmptySync) return;
     try {
       const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
       const ref = doc(AUTH.db, 'users', AUTH.user.uid);
@@ -8054,30 +8086,49 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       const { doc, getDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
       const ref = doc(AUTH.db, 'users', AUTH.user.uid);
       const snap = await getDoc(ref);
-      if (snap.exists()){
+      const remoteHasDebts = snap.exists()
+        && Array.isArray(snap.data().debts) && snap.data().debts.length > 0;
+      if (remoteHasDebts){
         const data = snap.data();
-        if (data.debts) state.debts = data.debts;
-        if (data.payments) state.payments = data.payments;
-        if (data.transactions) state.transactions = data.transactions;
+        state.debts = data.debts;
+        if (Array.isArray(data.payments)) state.payments = data.payments;
+        if (Array.isArray(data.transactions)) state.transactions = data.transactions;
         if (data.user) state.user = { ...state.user, ...data.user };
         if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
+      } else if (snap.exists()){
+        // Cloud doc exists but has no portfolio. Keep whatever we already have
+        // locally (don't wipe the screen) and merge any saved profile prefs.
+        const data = snap.data();
+        if (data.user) state.user = { ...state.user, ...data.user };
+        if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
+      }
+      // Done loading — future renders are allowed to sync again.
+      AUTH.remoteLoading = false;
+      // If the cloud had nothing but this device has real data, push it up so
+      // the account gets seeded instead of the data appearing to vanish.
+      if (!remoteHasDebts && state.debts && state.debts.length > 0){
+        saveStateRemote();
       }
       // Realtime listen — pick up changes from other devices
       if (AUTH.unsubSnap) AUTH.unsubSnap();
       AUTH.unsubSnap = onSnapshot(ref, ds => {
         if (!ds.exists()) return;
         const data = ds.data();
-        // Only update if remote is newer than what we have
-        if (data.debts) state.debts = data.debts;
-        if (data.payments) state.payments = data.payments;
-        if (data.transactions) state.transactions = data.transactions;
-        _origRenderAll();
-        updateSyncBadge('connected', '↻ Update masuk dari device lain');
+        // Only adopt remote portfolio if it actually has debts — never let an
+        // empty/partial remote snapshot wipe non-empty local data.
+        if (Array.isArray(data.debts) && data.debts.length > 0){
+          state.debts = data.debts;
+          if (Array.isArray(data.payments)) state.payments = data.payments;
+          if (Array.isArray(data.transactions)) state.transactions = data.transactions;
+          _origRenderAll();
+          updateSyncBadge('connected', '↻ Update masuk dari device lain');
+        }
       });
       _origRenderAll();
       return true;
     } catch(e){
       console.warn('Remote load failed', e);
+      AUTH.remoteLoading = false;
       return false;
     }
   }
@@ -8113,7 +8164,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           };
           state.user.name = AUTH.user.displayName;
           state.user.email = AUTH.user.email;
+          AUTH.remoteLoading = true;   // block auto-save until cloud data is fetched
           await loadStateRemote();
+          AUTH.remoteLoading = false;
           updateSyncBadge('connected', 'Tersinkron antar perangkat');
           updateSidebarUserUI();
           updateLoginUI();
@@ -8374,7 +8427,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       }
     } catch(e){}
 
-    // Restore state from localStorage
+    // Restore state from localStorage (recovering pre-v2 data if present)
+    migrateOldLocalState();
     if (loadStateLocal()){
       _origRenderAll();
     }
