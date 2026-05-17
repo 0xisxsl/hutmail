@@ -62,19 +62,20 @@ tailwind.config = {
      ═══════════════════════════════════════════════════════════════ */
 
   :root {
-    --bg-page:        #F5F8FE;
+    /* Modernized palette — softer page, cleaner whites, refined borders */
+    --bg-page:        #FAFBFC;
     --bg-surface:     #FFFFFF;
-    --bg-surface-2:   #F8FAFD;
-    --bg-tint:        #EFF4FB;
-    --bg-tint-blue:   #EBF2FE;
-    --border-soft:    #E3EAF4;
-    --border:         #D8E2F0;
-    --border-strong:  #C2CEE2;
-    --text-mute:      #7A8AA6;
-    --text-soft:      #5E7090;
-    --text:           #1F2E48;
-    --text-strong:    #0A1628;
-    --primary:        #2563EB;   /* blue-600 */
+    --bg-surface-2:   #F7F8FA;
+    --bg-tint:        #F2F4F8;
+    --bg-tint-blue:   #EEF3FC;
+    --border-soft:    #EBEEF3;
+    --border:         #DCE1EA;
+    --border-strong:  #C6CDDB;
+    --text-mute:      #8893A8;
+    --text-soft:      #5C6779;
+    --text:           #2A3447;
+    --text-strong:    #0F172A;
+    --primary:        #2563EB;
     --primary-deep:   #1D4ED8;
     --primary-soft:   #DBEAFE;
     --primary-tint:   #EFF6FF;
@@ -82,10 +83,14 @@ tailwind.config = {
     --amber:          #D97706;
     --coral:          #DC2626;
     --violet:         #7C3AED;
-    --shadow-sm:      0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow:         0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow-md:      0 4px 12px rgba(30, 58, 138, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
-    --shadow-lg:      0 12px 32px rgba(30, 58, 138, 0.10), 0 4px 8px rgba(15, 23, 42, 0.04);
+    /* Softer, more modern shadows — less blue cast */
+    --shadow-sm:      0 1px 2px rgba(15, 23, 42, 0.03);
+    --shadow:         0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+    --shadow-md:      0 2px 8px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03);
+    --shadow-lg:      0 8px 24px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.03);
+    --radius-sm:      6px;
+    --radius:         10px;
+    --radius-lg:      14px;
   }
 
   body {
@@ -1666,6 +1671,517 @@ tailwind.config = {
     #view-pembayaran .card .num-prefix { font-size: 9px !important; }
   }
 
+  /* ═══════════════════════════════════════════════════════════════
+     ✦ MODERNIZATION LAYER ✦
+     Layered overrides for a cleaner, more modern aesthetic.
+     Same DOM, same JS hooks, just refined visuals.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Remove the grid pattern bg — cleaner, calmer look */
+  .grid-bg {
+    background-image: none;
+    background-color: var(--bg-page);
+  }
+
+  /* Subtle gradient overlay on the page instead — very faint */
+  main.app-main {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37, 99, 235, 0.025), transparent 70%),
+      var(--bg-page);
+  }
+
+  /* Remove decorative corner marks for a cleaner look */
+  .corner-mark::before, .corner-mark::after { display: none !important; }
+
+  /* Soften the colored blob backgrounds in cards (was too saturated) */
+  .card .absolute.-right-6.-top-6.w-32.h-32 {
+    opacity: 0.55;
+    filter: blur(28px);
+  }
+
+  /* Card refinement — flatter, more modern */
+  .card {
+    border-radius: var(--radius) !important;
+    border-color: var(--border-soft);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card.rounded-xl { border-radius: var(--radius-lg) !important; }
+  .card:hover { box-shadow: var(--shadow); }
+  .card-elev { border-color: var(--border-soft); box-shadow: var(--shadow); }
+
+  /* Typography refinement */
+  body { font-size: 14px; line-height: 1.55; }
+  .display { letter-spacing: -0.022em; font-weight: 500; }
+  .num-prefix {
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--text-mute);
+    font-size: 10px;
+    letter-spacing: 0.10em;
+  }
+
+  /* ─── SIDEBAR: cleaner, more modern ─── */
+  aside.app-sidebar {
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-soft);
+    box-shadow: none;
+  }
+  aside.app-sidebar .sidebar-brand-block {
+    padding: 18px 18px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  aside.app-sidebar .sidebar-brand-text .text-base {
+    font-size: 17px;
+    letter-spacing: -0.025em;
+    color: var(--text-strong);
+  }
+  aside.app-sidebar .sidebar-brand-text .text-base .text-accent-lime {
+    color: var(--primary) !important;
+  }
+  /* Brand "D" logo modernized */
+  aside.app-sidebar .sidebar-brand-block .w-9.h-9.bg-accent-lime\/10 {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  }
+  aside.app-sidebar .sidebar-brand-block .display.text-accent-lime {
+    color: #FFFFFF !important;
+  }
+  aside.app-sidebar .sidebar-brand-block .pulse-dot {
+    background: #10B981 !important;
+  }
+
+  /* Sidebar user card */
+  aside.app-sidebar .sidebar-user-card {
+    border-radius: var(--radius) !important;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-soft);
+    transition: all 0.18s ease;
+  }
+  aside.app-sidebar .sidebar-user-card:hover {
+    background: var(--primary-tint);
+    border-color: rgba(37, 99, 235, 0.25);
+  }
+
+  /* Section labels */
+  aside.app-sidebar nav .num-prefix {
+    font-size: 10px;
+    color: var(--text-mute);
+    padding-left: 12px;
+    font-weight: 600;
+  }
+
+  /* Nav item — softer, more modern */
+  .nav-item {
+    border-radius: 8px !important;
+    margin: 1px 0;
+    font-size: 13.5px;
+    font-weight: 450;
+    transition: all 0.15s ease;
+  }
+  .nav-item:hover {
+    background: var(--bg-tint);
+    color: var(--text-strong);
+  }
+  .nav-item.active {
+    background: var(--primary-tint);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .nav-item.active::before {
+    width: 3px;
+    background: var(--primary);
+    border-radius: 0 4px 4px 0;
+    top: 8px;
+    bottom: 8px;
+  }
+  .nav-item .ml-auto.mono {
+    background: transparent;
+    border: 1px solid var(--border-soft);
+    color: var(--text-mute);
+    font-weight: 600;
+  }
+  .nav-item.active .ml-auto.mono {
+    background: rgba(37, 99, 235, 0.10);
+    border-color: rgba(37, 99, 235, 0.20);
+    color: var(--primary);
+  }
+
+  /* ─── HEADER: cleaner top bar ─── */
+  header.app-header {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border-soft);
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+  header.app-header .display {
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  @media (min-width: 1024px) {
+    header.app-header .display { font-size: 20px; }
+  }
+  header.app-header .input-field {
+    background: var(--bg-surface-2);
+    border-color: var(--border-soft);
+    font-size: 13px;
+  }
+  header.app-header .input-field:focus {
+    background: #FFFFFF;
+  }
+
+  /* ─── BUTTONS: refined ─── */
+  .btn-primary {
+    background: var(--primary);
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    border-radius: 8px !important;
+    letter-spacing: -0.005em;
+  }
+  .btn-primary:hover {
+    background: var(--primary-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+  }
+  .btn-ghost {
+    background: var(--bg-surface);
+    border-color: var(--border-soft);
+    border-radius: 8px !important;
+    font-weight: 500;
+  }
+  .btn-ghost:hover {
+    background: var(--bg-tint);
+    border-color: var(--border);
+    color: var(--text-strong);
+  }
+
+  /* Sidebar toggle button — cleaner */
+  .sidebar-collapse-btn {
+    background: var(--bg-tint);
+    border-color: var(--border-soft);
+    color: var(--text-soft);
+    border-radius: 8px;
+  }
+  .sidebar-collapse-btn:hover {
+    background: var(--primary);
+    color: #FFFFFF;
+    border-color: var(--primary);
+    transform: none;
+  }
+
+  /* ─── PILLS: softer, rounder ─── */
+  .pill {
+    padding: 4px 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: 999px;
+  }
+
+  /* ─── INPUTS ─── */
+  .input-field {
+    border-radius: 8px;
+    background: var(--bg-surface);
+    border-color: var(--border-soft);
+    font-size: 13.5px;
+    transition: all 0.15s ease;
+  }
+  .input-field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+  }
+
+  /* ─── DROPZONE: cleaner ─── */
+  .dropzone {
+    background:
+      radial-gradient(ellipse at center, rgba(37, 99, 235, 0.025) 0%, transparent 60%);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .dropzone:hover {
+    border-color: var(--primary);
+    background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.05) 0%, transparent 60%);
+  }
+
+  /* ─── TABLES: cleaner ─── */
+  thead.bg-ink-900\/60, thead .bg-ink-900\/60 {
+    background: var(--bg-surface-2) !important;
+    color: var(--text-mute) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10.5px;
+    font-weight: 600;
+  }
+  tbody tr td { font-size: 13px; }
+  .row-hover:hover { background: var(--bg-tint); }
+
+  /* ─── BADGES & DOTS ─── */
+  .nav-dot { width: 6px; height: 6px; }
+
+  /* Calendar refinement */
+  .calendar-day {
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+  }
+  .calendar-day:hover {
+    background: var(--bg-tint);
+    border-color: var(--border);
+  }
+  .calendar-day.today {
+    background: var(--primary-tint);
+    border-color: var(--primary);
+  }
+
+  /* ─── MOBILE BOTTOM NAV: refined ─── */
+  .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-soft);
+  }
+  .mobile-bottom-nav .mbn-item.active {
+    background: var(--primary-tint);
+  }
+
+  /* ─── SETTINGS sub-nav ─── */
+  .sub-nav-item {
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .sub-nav-item.active {
+    background: var(--primary-tint);
+    color: var(--primary);
+  }
+
+  /* ─── TOGGLES: refined ─── */
+  .toggle-slider {
+    background: #CBD5E1;
+  }
+
+  /* ─── HUTANG AKTIF table: rounded card edges ─── */
+  .table-scroll {
+    border-radius: var(--radius);
+    border-color: var(--border-soft);
+  }
+
+  /* ─── DAY GROUP cards (calendar detail) ─── */
+  .day-group {
+    border-radius: var(--radius);
+    border-color: var(--border-soft);
+  }
+
+  /* ─── ROADMAP cards ─── */
+  .roadmap-month {
+    border-radius: var(--radius);
+    border-color: var(--border-soft);
+  }
+
+  /* ─── STRATEGY tabs ─── */
+  .strategy-tab { border-radius: 7px; font-weight: 500; }
+
+  /* ─── LOGIN MODAL ─── */
+  .login-card {
+    border-radius: var(--radius-lg);
+    border-color: var(--border-soft);
+  }
+
+  /* Subtle scrollbar */
+  ::-webkit-scrollbar-thumb { background: #E2E8F0; border: 2px solid var(--bg-page); }
+  ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+  /* ─── REMOVE excessive glows that look dated ─── */
+  .glow-lime, .glow-coral { box-shadow: var(--shadow); }
+
+  /* Hide the very subtle gradient backgrounds inside AI advisor — too busy */
+  #dash-advisor-bg { opacity: 0.4; }
+
+  /* Currency symbol gets a subtle treatment */
+  .currency-symbol {
+    color: var(--text-mute);
+    font-weight: 500;
+  }
+
+  /* Greeting heading clean */
+  #page-title { color: var(--text-strong); font-weight: 500; }
+  .header-prefix { color: var(--text-mute); font-weight: 500; }
+
+  /* Hero number style */
+  .display.text-3xl { font-weight: 500; letter-spacing: -0.025em; }
+
+  /* Ensure consistent spacing on mobile */
+  @media (max-width: 640px) {
+    .display.text-3xl { font-size: 1.625rem !important; }
+    .card.rounded-xl { border-radius: var(--radius); }
+    header.app-header .display { font-size: 16px; }
+  }
+
+  /* ─── Focus-visible accessibility ─── */
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .nav-item:focus-visible { outline-offset: -2px; }
+
+  /* ─── Smooth animations for view switching ─── */
+  .view.active {
+    animation: viewFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes viewFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── PILL refinement on light bg ─── */
+  .pill-active { background: rgba(37, 99, 235, 0.09); color: var(--primary); border-color: rgba(37, 99, 235, 0.18); }
+  .pill-warn   { background: rgba(217, 119, 6, 0.09); color: var(--amber); border-color: rgba(217, 119, 6, 0.20); }
+  .pill-danger { background: rgba(220, 38, 38, 0.09); color: var(--coral); border-color: rgba(220, 38, 38, 0.20); }
+  .pill-info   { background: rgba(124, 58, 237, 0.09); color: var(--violet); border-color: rgba(124, 58, 237, 0.20); }
+
+  /* ─── KBD shortcut style ─── */
+  .desktop-search span.mono {
+    background: var(--bg-tint);
+    border: 1px solid var(--border-soft) !important;
+    color: var(--text-mute);
+    font-weight: 600;
+  }
+
+  /* Make the notification dot more visible */
+  .btn-ghost.relative > .absolute.bg-accent-coral {
+    width: 8px !important; height: 8px !important;
+    box-shadow: 0 0 0 2px var(--bg-surface);
+  }
+
+  /* ─── Sidebar status footer-ish "Tap untuk login" text ─── */
+  #sidebar-user-status { color: var(--text-mute); font-weight: 500; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     NEW: Header search dropdown
+     ═══════════════════════════════════════════════════════════════ */
+  .search-dropdown {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    max-height: 360px; overflow-y: auto;
+    z-index: 60;
+    display: none;
+  }
+  .search-dropdown.visible { display: block; }
+  .search-result {
+    padding: 10px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.15s ease;
+  }
+  .search-result:hover { background: var(--bg-tint); }
+  .search-result:last-child { border-bottom: none; }
+  .search-result-logo {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .search-result-info { flex: 1; min-width: 0; }
+  .search-result-name { font-size: 13px; font-weight: 500; color: var(--text-strong); }
+  .search-result-meta { font-size: 11px; color: var(--text-soft); margin-top: 1px; }
+  .search-result-amount { font-family: 'Geist Mono', monospace; font-size: 11.5px; color: var(--coral); }
+  .search-empty { padding: 20px; text-align: center; color: var(--text-mute); font-size: 12.5px; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     NEW: Generic help modal (Bantuan)
+     ═══════════════════════════════════════════════════════════════ */
+  .help-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.50);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+    padding: 16px; backdrop-filter: blur(4px);
+  }
+  .help-modal-backdrop.active { display: flex; }
+  .help-modal-card {
+    background: var(--bg-surface);
+    border-radius: 14px;
+    width: 100%; max-width: 640px; max-height: 86vh;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-lg);
+  }
+  .help-modal-head {
+    padding: 18px 22px; border-bottom: 1px solid var(--border-soft);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .help-modal-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .help-modal-title { font-family: 'Fraunces', serif; font-size: 19px; color: var(--text-strong); letter-spacing: -0.01em; flex: 1; }
+  .help-modal-close {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-soft); padding: 6px; border-radius: 6px;
+  }
+  .help-modal-close:hover { background: var(--bg-tint); }
+  .help-modal-body { padding: 20px 22px; overflow-y: auto; font-size: 13.5px; line-height: 1.65; color: var(--text); }
+  .help-modal-body h4 { font-size: 14px; font-weight: 600; color: var(--text-strong); margin-top: 18px; margin-bottom: 6px; }
+  .help-modal-body h4:first-child { margin-top: 0; }
+  .help-modal-body ul { padding-left: 22px; margin: 6px 0; }
+  .help-modal-body li { margin-bottom: 4px; }
+  .help-modal-body code { background: var(--bg-tint); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .help-modal-body .tip {
+    background: var(--primary-tint); border: 1px solid var(--primary-soft);
+    border-radius: 8px; padding: 10px 12px; margin-top: 10px;
+    font-size: 12.5px; color: var(--primary-deep);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     NEW: Toast container (replacing fragile flash() positioning)
+     Keeps existing flash() function; just better stack handling
+     ═══════════════════════════════════════════════════════════════ */
+  .upload-preview-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--primary-tint); border: 1px solid var(--primary-soft);
+    color: var(--primary-deep); font-size: 12px; margin-top: 8px;
+  }
+  .upload-preview-chip .remove-btn {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--coral); padding: 0; font-size: 14px; line-height: 1;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     NEW: Print styles — for PDF export via window.print()
+     ═══════════════════════════════════════════════════════════════ */
+  @media print {
+    body { background: white !important; padding: 0 !important; }
+    .app-sidebar, .app-header, .mobile-bottom-nav,
+    .floating-bar, .modal-backdrop, .help-modal-backdrop,
+    .search-dropdown, #toast-container, footer,
+    .card-collapse-btn, .card-head-actions button,
+    button[data-print-hide] {
+      display: none !important;
+    }
+    .app-main { width: 100% !important; }
+    .grid-bg { background: white !important; }
+    .card, .card-elev {
+      border: 1px solid #ddd !important;
+      box-shadow: none !important;
+      page-break-inside: avoid;
+    }
+    .view { display: none !important; padding: 0 !important; }
+    .view.print-active, .view.print-active * { display: revert !important; }
+    .view.print-active { display: block !important; padding: 20px !important; }
+    .print-only { display: block !important; }
+    canvas { max-width: 100% !important; height: auto !important; }
+    .table-scroll { overflow: visible !important; }
+    table { font-size: 11px !important; page-break-inside: auto; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    thead { display: table-header-group; }
+    .num-prefix { color: #666 !important; }
+    a[href]:after { content: ""; }
+  }
+  .print-only { display: none; }
+
 </style>
 
 <body class="min-h-screen">
@@ -1770,7 +2286,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       <a href="#" data-view="pengaturan" data-tip="Pengaturan" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-md text-sm text-ink-200">
         <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
         <span>Pengaturan</span>
-        <span class="ml-auto mono text-[10px] text-ink-400">12</span>
+        <span class="ml-auto mono text-[10px] text-ink-400">6</span>
       </a>
 
     </nav>
@@ -1795,15 +2311,16 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
       <div class="relative desktop-search">
         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"></i>
-        <input type="text" placeholder="Cari hutang, perusahaan, transaksi…" class="input-field rounded-md pl-9 pr-4 py-2 text-sm w-72">
+        <input id="header-search-input" type="text" placeholder="Cari hutang, perusahaan, transaksi…" class="input-field rounded-md pl-9 pr-4 py-2 text-sm w-72" autocomplete="off">
         <span class="mono text-[10px] absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 border border-ink-600 rounded px-1.5 py-0.5">⌘K</span>
+        <div id="header-search-dropdown" class="search-dropdown"></div>
       </div>
 
-      <button class="btn-ghost p-2 rounded-md relative">
+      <button class="btn-ghost p-2 rounded-md relative" id="header-bell-btn" title="Notifikasi (belum aktif)">
         <i data-lucide="bell" class="w-4 h-4"></i>
         <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-accent-coral rounded-full"></span>
       </button>
-      <button class="btn-primary px-3 lg:px-4 py-2 rounded-md text-sm flex items-center gap-2">
+      <button class="btn-primary px-3 lg:px-4 py-2 rounded-md text-sm flex items-center gap-2" id="header-scan-btn">
         <i data-lucide="scan-line" class="w-4 h-4"></i>
         <span class="btn-cta-text">Scan Statement</span>
       </button>
@@ -2075,11 +2592,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <h2 class="display text-xl font-medium mt-1">Total Hutang × 12 Bulan</h2>
           </div>
           <div class="flex items-center gap-2 card-head-actions">
-            <div class="flex gap-1 p-1 bg-ink-800/60 rounded-md text-xs">
-              <button class="px-3 py-1 rounded text-ink-400 hover:text-ink-100">3M</button>
-              <button class="px-3 py-1 rounded text-ink-400 hover:text-ink-100">6M</button>
-              <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">12M</button>
-              <button class="px-3 py-1 rounded text-ink-400 hover:text-ink-100">All</button>
+            <div class="flex gap-1 p-1 bg-ink-800/60 rounded-md text-xs" id="progress-period-btns">
+              <button class="px-3 py-1 rounded text-ink-400 hover:text-ink-100" data-period="3">3M</button>
+              <button class="px-3 py-1 rounded text-ink-400 hover:text-ink-100" data-period="6">6M</button>
+              <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime" data-period="12">12M</button>
+              <button class="px-3 py-1 rounded text-ink-400 hover:text-ink-100" data-period="all">All</button>
             </div>
             <button class="card-collapse-btn" data-card-collapse title="Minimize"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
           </div>
@@ -2386,11 +2903,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <button id="pay-confirm-btn" class="btn-primary px-5 py-2.5 rounded-md text-sm flex items-center gap-2">
                 <i data-lucide="check-circle" class="w-4 h-4"></i> Konfirmasi Pembayaran
               </button>
-              <button class="btn-ghost px-4 py-2.5 rounded-md text-sm flex items-center gap-2">
+              <button id="pay-upload-bukti-btn" class="btn-ghost px-4 py-2.5 rounded-md text-sm flex items-center gap-2">
                 <i data-lucide="scan-line" class="w-4 h-4"></i> Upload Bukti Transfer
               </button>
+              <input type="file" id="pay-upload-bukti-input" accept="image/*,.pdf" class="hidden">
               <button id="pay-cancel-btn" class="btn-ghost px-4 py-2.5 rounded-md text-sm">Batal</button>
             </div>
+            <div id="pay-bukti-preview" class="mt-2"></div>
           </div>
 
 
@@ -2401,7 +2920,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <div class="num-prefix">RIWAYAT PEMBAYARAN</div>
                 <h2 class="display text-lg lg:text-xl font-medium mt-1"><span id="hist-count">12</span> Pembayaran Terakhir</h2>
               </div>
-              <button class="btn-ghost px-3 py-1.5 rounded-md text-xs flex items-center gap-1.5">
+              <button id="pay-history-export-btn" class="btn-ghost px-3 py-1.5 rounded-md text-xs flex items-center gap-1.5">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
               </button>
             </div>
@@ -2460,7 +2979,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="text-xs text-ink-200 leading-relaxed mb-3">
               Upload e-statement terbaru → AI otomatis update saldo, bunga, biaya, dan riwayat pembayaran.
             </div>
-            <button class="btn-ghost w-full py-2 rounded-md text-sm flex items-center justify-center gap-2 border-dashed">
+            <button id="pay-scan-statement-btn" class="btn-ghost w-full py-2 rounded-md text-sm flex items-center justify-center gap-2 border-dashed">
               <i data-lucide="upload-cloud" class="w-4 h-4"></i> Scan Statement
             </button>
             <div class="text-[10px] text-ink-400 mt-2 leading-relaxed">
@@ -2478,17 +2997,17 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       <!-- Mode tabs -->
       <div class="card rounded-xl p-4">
         <div class="num-prefix mb-3">MODE OPERASI</div>
-        <div class="flex flex-wrap gap-2">
-          <button class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2">
+        <div class="flex flex-wrap gap-2" id="tambah-mode-tabs">
+          <button class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2" data-tambah-mode="new">
             <i data-lucide="plus" class="w-4 h-4"></i> Tambah Baru
           </button>
-          <button class="btn-ghost px-4 py-2 rounded-md text-sm flex items-center gap-2">
+          <button class="btn-ghost px-4 py-2 rounded-md text-sm flex items-center gap-2" data-tambah-mode="edit">
             <i data-lucide="edit-3" class="w-4 h-4"></i> Edit Hutang Existing
           </button>
           <button class="btn-ghost px-4 py-2 rounded-md text-sm flex items-center gap-2" data-go="pembayaran">
             <i data-lucide="wallet" class="w-4 h-4"></i> Cicil / Bayar
           </button>
-          <button class="btn-ghost px-4 py-2 rounded-md text-sm flex items-center gap-2">
+          <button class="btn-ghost px-4 py-2 rounded-md text-sm flex items-center gap-2" data-tambah-mode="statement">
             <i data-lucide="refresh-cw" class="w-4 h-4"></i> Update dari Statement
           </button>
           <div class="ml-auto flex items-center gap-2 text-xs text-ink-400">
@@ -2854,7 +3373,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
             <div class="flex justify-between items-center mt-3">
               <div class="text-[11px] text-ink-400">Menampilkan 7 dari 32 transaksi · 30 hari terakhir</div>
-              <button class="btn-ghost px-3 py-1.5 rounded text-xs flex items-center gap-1.5">
+              <button id="tambah-export-riwayat-btn" class="btn-ghost px-3 py-1.5 rounded text-xs flex items-center gap-1.5">
                 <i data-lucide="download" class="w-3 h-3"></i> Export Riwayat
               </button>
             </div>
@@ -3171,7 +3690,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <div class="flex items-center gap-2 text-sm"><i data-lucide="sparkles" class="w-4 h-4 text-ink-400"></i>AI Insight</div>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-ink-400"></i>
               </a>
-              <a href="#" class="flex items-center justify-between p-2.5 rounded-md row-hover">
+              <a href="#" data-view="whatsapp" class="nav-link flex items-center justify-between p-2.5 rounded-md row-hover">
                 <div class="flex items-center gap-2 text-sm"><i data-lucide="message-circle" class="w-4 h-4 text-ink-400"></i>Notify ke WhatsApp</div>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-ink-400"></i>
               </a>
@@ -3295,7 +3814,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
                 <span>Terapkan Strategi <span id="insight-apply-label">Avalanche</span></span>
               </button>
-              <button class="btn-ghost px-3 py-2 rounded-md text-xs flex items-center gap-1.5">
+              <button id="insight-export-roadmap-btn" class="btn-ghost px-3 py-2 rounded-md text-xs flex items-center gap-1.5">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Roadmap PDF
               </button>
             </div>
@@ -3569,49 +4088,23 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               </div>
               <div class="sub-nav-item" data-panel="tampilan">
                 <i data-lucide="palette" class="w-4 h-4"></i>
-                <span>Tampilan & Bahasa</span>
-              </div>
-              <div class="sub-nav-item" data-panel="keamanan">
-                <i data-lucide="shield" class="w-4 h-4"></i>
-                <span>Keamanan</span>
+                <span>Tampilan</span>
               </div>
 
               <div class="sub-nav-group">FITUR INTI</div>
-              <div class="sub-nav-item" data-panel="ocr">
-                <i data-lucide="scan-line" class="w-4 h-4"></i>
-                <span>OCR AI Engine</span>
-              </div>
               <div class="sub-nav-item" data-panel="interest">
                 <i data-lucide="percent" class="w-4 h-4"></i>
                 <span>Dynamic Interest</span>
-              </div>
-              <div class="sub-nav-item" data-panel="biaya">
-                <i data-lucide="receipt" class="w-4 h-4"></i>
-                <span>Komponen Biaya</span>
               </div>
               <div class="sub-nav-item" data-panel="insight">
                 <i data-lucide="sparkles" class="w-4 h-4"></i>
                 <span>AI Insight & Strategi</span>
               </div>
 
-              <div class="sub-nav-group">INTEGRASI</div>
-              <div class="sub-nav-item" data-panel="notifikasi">
-                <i data-lucide="bell" class="w-4 h-4"></i>
-                <span>Notifikasi</span>
-              </div>
-              <div class="sub-nav-item" data-panel="whatsapp">
-                <i data-lucide="message-circle" class="w-4 h-4"></i>
-                <span>WhatsApp Bot</span>
-                <span class="ml-auto w-1.5 h-1.5 bg-accent-mint rounded-full"></span>
-              </div>
-              <div class="sub-nav-item" data-panel="telegram">
-                <i data-lucide="send" class="w-4 h-4"></i>
-                <span>Telegram Bot</span>
-                <span class="ml-auto w-1.5 h-1.5 bg-accent-mint rounded-full"></span>
-              </div>
+              <div class="sub-nav-group">DATA</div>
               <div class="sub-nav-item" data-panel="export">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                <span>Export & Data</span>
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span>Data Management</span>
               </div>
 
               <div class="sub-nav-group">SISTEM</div>
@@ -3641,14 +4134,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <div class="flex-1">
                   <div id="settings-akun-name" class="font-medium">Rizky Aditya</div>
                   <div id="settings-akun-email" class="text-xs text-ink-400 mt-0.5">rizky.aditya@email.com</div>
-                  <div class="mt-2 flex gap-2">
-                    <button id="settings-akun-photo" class="btn-ghost px-2.5 py-1 rounded text-[11px]">Ganti foto</button>
-                    <button id="settings-akun-photo-remove" class="btn-ghost px-2.5 py-1 rounded text-[11px] text-accent-coral">Hapus</button>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <span class="pill pill-active"><i data-lucide="crown" class="w-3 h-3"></i>PREMIUM</span>
-                  <div class="mono text-[10px] text-ink-400 mt-2">Berlaku s/d 14 Mar 2027</div>
+                  <div class="text-[10px] text-ink-400 mt-2">Avatar otomatis dibuat dari inisial nama Anda.</div>
                 </div>
               </div>
 
@@ -3699,62 +4185,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           </div>
 
 
-          <!-- ═══ PANEL: Tampilan & Bahasa ═══ -->
+          <!-- ═══ PANEL: Tampilan ═══ -->
           <div class="settings-panel" data-panel="tampilan">
             <div class="card rounded-xl p-6">
               <div class="num-prefix">PROFIL · 002</div>
-              <h2 class="display text-2xl font-medium mt-1">Tampilan & Bahasa</h2>
-              <p class="text-sm text-ink-300 mt-1">Sesuaikan tema, bahasa, dan format angka sesuai preferensi.</p>
+              <h2 class="display text-2xl font-medium mt-1">Tampilan</h2>
+              <p class="text-sm text-ink-300 mt-1">Sesuaikan format mata uang yang muncul di seluruh dashboard.</p>
 
-              <!-- Theme -->
-              <div class="mt-6">
-                <div class="text-xs text-ink-300 mb-3">Tema Tampilan</div>
-                <div class="grid grid-cols-3 gap-3">
-                  <label class="radio-card selected">
-                    <input type="radio" name="theme" checked>
-                    <div class="h-16 rounded-md bg-gradient-to-br from-ink-900 to-ink-850 border border-ink-700/40 mb-3"></div>
-                    <div class="text-sm font-medium">Dark</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Default · saat ini</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="theme">
-                    <div class="h-16 rounded-md bg-gradient-to-br from-ink-100 to-ink-200 border border-ink-700/40 mb-3"></div>
-                    <div class="text-sm font-medium">Light</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Hemat baterai saat siang</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="theme">
-                    <div class="h-16 rounded-md bg-gradient-to-r from-ink-900 via-ink-500 to-ink-100 border border-ink-700/40 mb-3"></div>
-                    <div class="text-sm font-medium">Auto</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Ikut sistem</div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Settings rows -->
               <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Bahasa Aplikasi</div>
-                    <div class="desc">Bahasa antarmuka, label form, dan output AI.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>Bahasa Indonesia</option>
-                    <option>English</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Format Angka</div>
-                    <div class="desc">Pemisah ribuan dan desimal untuk semua nominal.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>1.000.000,00 (ID)</option>
-                    <option>1,000,000.00 (EN)</option>
-                  </select>
-                </div>
-
                 <div class="setting-row">
                   <div class="meta">
                     <div class="label">Tampilan Mata Uang</div>
@@ -3767,261 +4205,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                     <option value="plain">1.000.000 (angka saja)</option>
                   </select>
                 </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Format Tanggal</div>
-                    <div class="desc">Cara tampil tanggal di laporan dan tabel.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>15 Mei 2026</option>
-                    <option>15/05/2026</option>
-                    <option>2026-05-15</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Singkat Nominal Besar</div>
-                    <div class="desc">Tampilkan "42jt" alih-alih "42.300.000" di kartu summary.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Density Layout</div>
-                    <div class="desc">Atur kepadatan informasi di dashboard.</div>
-                  </div>
-                  <div class="flex p-1 bg-ink-800/60 rounded-md text-xs">
-                    <button class="px-3 py-1 rounded text-ink-400">Compact</button>
-                    <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">Comfortable</button>
-                    <button class="px-3 py-1 rounded text-ink-400">Spacious</button>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Animasi & Motion</div>
-                    <div class="desc">Nonaktifkan untuk performa lebih cepat di device lawas.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ═══ PANEL: Keamanan ═══ -->
-          <div class="settings-panel" data-panel="keamanan">
-            <div class="card rounded-xl p-6">
-              <div class="num-prefix">PROFIL · 003</div>
-              <h2 class="display text-2xl font-medium mt-1">Keamanan & Autentikasi</h2>
-              <p class="text-sm text-ink-300 mt-1">Lindungi akses ke data keuangan Anda dengan lapisan keamanan ekstra.</p>
-
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Kata Sandi</div>
-                    <div class="desc">Terakhir diubah 28 hari lalu · disarankan diperbarui tiap 90 hari.</div>
-                  </div>
-                  <button class="btn-ghost px-3 py-1.5 rounded-md text-xs">Ubah Password</button>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Two-Factor Authentication (2FA)</div>
-                    <div class="desc">Wajib kode dari Authenticator app untuk login dari device baru.</div>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="pill pill-active">AKTIF</span>
-                    <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Biometric Login</div>
-                    <div class="desc">Login dengan sidik jari / Face ID di perangkat mobile.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">PIN Akses Cepat</div>
-                    <div class="desc">6 digit PIN untuk membuka aplikasi tanpa login penuh.</div>
-                  </div>
-                  <button class="btn-ghost px-3 py-1.5 rounded-md text-xs">Atur PIN</button>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Auto-logout setelah idle</div>
-                    <div class="desc">Otomatis keluar setelah tidak ada aktivitas.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-40">
-                    <option>5 menit</option>
-                    <option selected>15 menit</option>
-                    <option>30 menit</option>
-                    <option>1 jam</option>
-                    <option>Tidak pernah</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Active sessions -->
-              <div class="mt-6 pt-6 border-t border-ink-700/40">
-                <div class="num-prefix mb-3">SESI AKTIF</div>
-                <div class="space-y-2">
-                  <div class="p-3 rounded-md bg-ink-900/40 border border-ink-700/30 flex items-center gap-3">
-                    <i data-lucide="monitor" class="w-5 h-5 text-accent-lime"></i>
-                    <div class="flex-1">
-                      <div class="text-sm">Chrome · macOS Sonoma <span class="pill pill-active ml-2">DEVICE INI</span></div>
-                      <div class="text-[10px] text-ink-400 mt-0.5 mono">Bristol, VA · IP 173.252.×.× · login 12 Mei 09:14</div>
-                    </div>
-                  </div>
-                  <div class="p-3 rounded-md bg-ink-900/40 border border-ink-700/30 flex items-center gap-3">
-                    <i data-lucide="smartphone" class="w-5 h-5 text-ink-300"></i>
-                    <div class="flex-1">
-                      <div class="text-sm">Safari · iPhone 15 Pro</div>
-                      <div class="text-[10px] text-ink-400 mt-0.5 mono">Jakarta · IP 36.74.×.× · login 11 Mei 22:08</div>
-                    </div>
-                    <button class="text-[11px] text-accent-coral hover:underline">Keluarkan</button>
-                  </div>
-                </div>
-                <button class="btn-ghost w-full mt-3 py-2 rounded-md text-xs text-accent-coral">
-                  Keluarkan dari semua perangkat lain
-                </button>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ═══ PANEL: OCR AI Engine ═══ -->
-          <div class="settings-panel" data-panel="ocr">
-            <div class="card rounded-xl p-6">
-              <div class="num-prefix">FITUR INTI · 004</div>
-              <h2 class="display text-2xl font-medium mt-1">OCR AI Engine</h2>
-              <p class="text-sm text-ink-300 mt-1">Pilih provider AI Vision untuk membaca statement, tagihan, dan dokumen kredit.</p>
-
-              <!-- Provider selection -->
-              <div class="mt-6">
-                <div class="text-xs text-ink-300 mb-3">Pilih Provider AI</div>
-                <div class="grid grid-cols-3 gap-3">
-                  <label class="radio-card selected">
-                    <input type="radio" name="ocr-engine" checked>
-                    <div class="flex items-center gap-2 mb-2">
-                      <div class="w-8 h-8 rounded bg-accent-mint/15 flex items-center justify-center">
-                        <i data-lucide="sparkles" class="w-4 h-4 text-accent-mint"></i>
-                      </div>
-                      <span class="text-sm font-medium">Claude Vision</span>
-                    </div>
-                    <div class="text-[10px] text-ink-400 leading-relaxed">Akurasi terbaik untuk dokumen Bahasa Indonesia. Direkomendasikan.</div>
-                    <div class="mt-2 mono text-[10px] text-accent-lime">Akurasi 96.4%</div>
-                  </label>
-
-                  <label class="radio-card">
-                    <input type="radio" name="ocr-engine">
-                    <div class="flex items-center gap-2 mb-2">
-                      <div class="w-8 h-8 rounded bg-accent-violet/15 flex items-center justify-center">
-                        <i data-lucide="cpu" class="w-4 h-4 text-accent-violet"></i>
-                      </div>
-                      <span class="text-sm font-medium">OpenAI Vision</span>
-                    </div>
-                    <div class="text-[10px] text-ink-400 leading-relaxed">GPT-4o dengan kapabilitas vision. Cocok untuk format kompleks.</div>
-                    <div class="mt-2 mono text-[10px] text-ink-300">Akurasi 94.1%</div>
-                  </label>
-
-                  <label class="radio-card">
-                    <input type="radio" name="ocr-engine">
-                    <div class="flex items-center gap-2 mb-2">
-                      <div class="w-8 h-8 rounded bg-accent-amber/15 flex items-center justify-center">
-                        <i data-lucide="eye" class="w-4 h-4 text-accent-amber"></i>
-                      </div>
-                      <span class="text-sm font-medium">Google Vision</span>
-                    </div>
-                    <div class="text-[10px] text-ink-400 leading-relaxed">Cepat dan murah untuk volume tinggi. Khusus teks terstruktur.</div>
-                    <div class="mt-2 mono text-[10px] text-ink-300">Akurasi 91.7%</div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- API keys -->
-              <div class="mt-6 p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
-                <div class="text-xs text-ink-300 mb-3">API Keys</div>
-                <div class="space-y-3">
-                  <div class="flex items-center gap-2">
-                    <div class="text-xs w-32 text-ink-400">Anthropic API</div>
-                    <input class="input-field flex-1 px-3 py-1.5 rounded-md text-xs mono" value="sk-ant-api03-••••••••••••••••aQ4f" type="password">
-                    <button class="btn-ghost px-2.5 py-1.5 rounded text-xs">Test</button>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div class="text-xs w-32 text-ink-400">OpenAI API</div>
-                    <input class="input-field flex-1 px-3 py-1.5 rounded-md text-xs mono" placeholder="sk-proj-..." type="password">
-                    <button class="btn-ghost px-2.5 py-1.5 rounded text-xs">Test</button>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div class="text-xs w-32 text-ink-400">Google Cloud</div>
-                    <input class="input-field flex-1 px-3 py-1.5 rounded-md text-xs mono" placeholder="AIzaSy..." type="password">
-                    <button class="btn-ghost px-2.5 py-1.5 rounded text-xs">Test</button>
-                  </div>
-                </div>
-                <div class="text-[10px] text-ink-400 mt-3">🔒 API keys disimpan terenkripsi (AES-256) di server.</div>
-              </div>
-
-              <!-- Behavior settings -->
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Auto-scan saat upload</div>
-                    <div class="desc">Langsung mulai OCR begitu file di-upload tanpa konfirmasi.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Confidence threshold</div>
-                    <div class="desc">Minimal tingkat keyakinan AI untuk auto-save tanpa review manual.</div>
-                  </div>
-                  <div class="w-56 flex items-center gap-3">
-                    <input type="range" min="70" max="99" value="92">
-                    <span class="mono text-sm text-accent-lime w-10 text-right">92%</span>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Auto-update existing debt</div>
-                    <div class="desc">Cocokkan hasil OCR dengan hutang yang sudah ada dan update otomatis.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Multi-engine consensus</div>
-                    <div class="desc">Verifikasi silang dengan 2+ engine untuk data critical (saldo > Rp 50jt).</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Simpan raw OCR data</div>
-                    <div class="desc">Simpan teks mentah hasil OCR untuk audit dan re-processing.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Hapus file setelah scan <span class="pill pill-active ml-1">AKTIF · WAJIB</span></div>
-                    <div class="desc">File asli dihapus dari server 15 detik setelah AI selesai membaca data. Hanya hasil ekstraksi terstruktur yang disimpan ke database. Mengikuti prinsip data minimization & menghindari limitasi storage.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
-                </div>
               </div>
             </div>
           </div>
@@ -4030,211 +4213,18 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <!-- ═══ PANEL: Dynamic Interest Engine ═══ -->
           <div class="settings-panel" data-panel="interest">
             <div class="card rounded-xl p-6">
-              <div class="num-prefix">FITUR INTI · 005</div>
+              <div class="num-prefix">FITUR INTI · 003</div>
               <h2 class="display text-2xl font-medium mt-1">Dynamic Interest Engine</h2>
               <p class="text-sm text-ink-300 mt-1">Mesin perhitungan bunga berjalan real-time untuk seluruh hutang.</p>
-
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Default Jenis Bunga</div>
-                    <div class="desc">Tipe bunga yang dipilih saat menambah hutang baru.</div>
-                  </div>
-                  <div class="flex p-1 bg-ink-800/60 rounded-md text-xs">
-                    <button class="px-3 py-1 rounded text-ink-400">Harian</button>
-                    <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">Bulanan</button>
-                    <button class="px-3 py-1 rounded text-ink-400">Tahunan</button>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Metode Bunga Kartu Kredit <span class="pill pill-warn ml-1">PENTING</span></div>
-                    <div class="desc">
-                      Standar Indonesia: bunga dihitung dari <strong>tagihan statement terakhir</strong>, bukan sisa setelah cicilan.
-                      Bayar sebagian = bunga tetap dihitung penuh.
-                    </div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-56">
-                    <option selected>× Tagihan Statement (Standar ID)</option>
-                    <option>× Sisa Saldo (Daily Balance)</option>
-                    <option>× Average Daily Balance</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Metode Compounding</div>
-                    <div class="desc">Bunga sederhana (flat) atau bunga majemuk (bunga atas bunga).</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>Simple Interest</option>
-                    <option selected>Compound Daily</option>
-                    <option>Compound Monthly</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Frekuensi Rekalkulasi</div>
-                    <div class="desc">Seberapa sering bunga berjalan diupdate di dashboard.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option selected>Real-time (setiap detik)</option>
-                    <option>Setiap 5 menit</option>
-                    <option>Setiap jam</option>
-                    <option>Sekali per hari</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Pembulatan Nominal</div>
-                    <div class="desc">Pembulatan akhir untuk tampilan total bunga.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>Tanpa pembulatan</option>
-                    <option>Terdekat Rp 100</option>
-                    <option selected>Terdekat Rp 1.000</option>
-                    <option>Terdekat Rp 10.000</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Hitung Tanggal Libur</div>
-                    <div class="desc">Apakah hari libur nasional & weekend dihitung untuk bunga harian.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Tampilkan Bunga Berjalan Live</div>
-                    <div class="desc">Tampilkan ticker bunga real-time di dashboard utama.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Late Payment Penalty Otomatis</div>
-                    <div class="desc">Tambahkan denda otomatis ke nominal saat hutang lewat jatuh tempo.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-              </div>
 
               <!-- Recalculate button -->
               <div class="mt-6 p-4 rounded-lg bg-accent-lime/5 border border-accent-lime/20 flex items-center gap-3">
                 <i data-lucide="zap" class="w-5 h-5 text-accent-lime"></i>
                 <div class="flex-1 text-xs">
-                  <div class="text-ink-100">Rekalkulasi seluruh hutang sekarang?</div>
-                  <div class="text-ink-400 mt-0.5">Engine akan menghitung ulang semua nominal saat ini berdasarkan setting terbaru.</div>
+                  <div class="text-ink-100">Rekalkulasi seluruh hutang sekarang</div>
+                  <div class="text-ink-400 mt-0.5">Engine akan menghitung ulang semua nominal saat ini berdasarkan bunga dan tanggal terbaru.</div>
                 </div>
                 <button class="btn-primary px-4 py-1.5 rounded-md text-xs">Recalculate Now</button>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ═══ PANEL: Komponen Biaya Default ═══ -->
-          <div class="settings-panel" data-panel="biaya">
-            <div class="card rounded-xl p-6">
-              <div class="num-prefix">FITUR INTI · 006</div>
-              <h2 class="display text-2xl font-medium mt-1">Komponen Biaya Default</h2>
-              <p class="text-sm text-ink-300 mt-1">Template biaya tambahan yang sering muncul — biar tidak perlu input ulang.</p>
-
-              <!-- Default fee templates -->
-              <div class="mt-6">
-                <div class="flex items-center justify-between mb-3">
-                  <div class="text-xs text-ink-300">Template Tersimpan (8)</div>
-                  <button class="btn-ghost px-2.5 py-1 rounded text-[11px] flex items-center gap-1">
-                    <i data-lucide="plus" class="w-3 h-3"></i> Tambah Template
-                  </button>
-                </div>
-
-                <div class="rounded-lg border border-ink-700/40 overflow-hidden">
-                  <table class="w-full text-sm">
-                    <thead class="bg-ink-900/60 text-xs text-ink-300">
-                      <tr>
-                        <th class="text-left p-2.5 font-medium">Nama Biaya</th>
-                        <th class="text-left p-2.5 font-medium">Tipe</th>
-                        <th class="text-right p-2.5 font-medium">Nominal Default</th>
-                        <th class="text-left p-2.5 font-medium">Kategori</th>
-                        <th class="text-center p-2.5 font-medium">Auto-add</th>
-                        <th class="p-2.5"></th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-ink-700/30 text-xs">
-                      <tr class="row-hover">
-                        <td class="p-2.5">Biaya Admin</td>
-                        <td class="p-2.5 mono text-ink-300">Rp</td>
-                        <td class="p-2.5 text-right mono">50.000</td>
-                        <td class="p-2.5"><span class="pill pill-info">Semua</span></td>
-                        <td class="p-2.5 text-center"><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td>
-                        <td class="p-2.5"><i data-lucide="edit-3" class="w-3.5 h-3.5 text-ink-400 mx-auto"></i></td>
-                      </tr>
-                      <tr class="row-hover">
-                        <td class="p-2.5">Biaya Tahunan</td>
-                        <td class="p-2.5 mono text-ink-300">Rp</td>
-                        <td class="p-2.5 text-right mono">600.000</td>
-                        <td class="p-2.5"><span class="pill pill-info">Kartu Kredit</span></td>
-                        <td class="p-2.5 text-center"><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td>
-                        <td class="p-2.5"><i data-lucide="edit-3" class="w-3.5 h-3.5 text-ink-400 mx-auto"></i></td>
-                      </tr>
-                      <tr class="row-hover">
-                        <td class="p-2.5">Denda Keterlambatan</td>
-                        <td class="p-2.5 mono text-ink-300">Rp</td>
-                        <td class="p-2.5 text-right mono">250.000</td>
-                        <td class="p-2.5"><span class="pill pill-info">Semua</span></td>
-                        <td class="p-2.5 text-center"><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></td>
-                        <td class="p-2.5"><i data-lucide="edit-3" class="w-3.5 h-3.5 text-ink-400 mx-auto"></i></td>
-                      </tr>
-                      <tr class="row-hover">
-                        <td class="p-2.5">Materai e-Stamp</td>
-                        <td class="p-2.5 mono text-ink-300">Rp</td>
-                        <td class="p-2.5 text-right mono">10.000</td>
-                        <td class="p-2.5"><span class="pill pill-info">KTA · KPR</span></td>
-                        <td class="p-2.5 text-center"><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td>
-                        <td class="p-2.5"><i data-lucide="edit-3" class="w-3.5 h-3.5 text-ink-400 mx-auto"></i></td>
-                      </tr>
-                      <tr class="row-hover">
-                        <td class="p-2.5">Asuransi Jiwa</td>
-                        <td class="p-2.5 mono text-ink-300">%</td>
-                        <td class="p-2.5 text-right mono">0.25</td>
-                        <td class="p-2.5"><span class="pill pill-info">KTA · KPR</span></td>
-                        <td class="p-2.5 text-center"><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td>
-                        <td class="p-2.5"><i data-lucide="edit-3" class="w-3.5 h-3.5 text-ink-400 mx-auto"></i></td>
-                      </tr>
-                      <tr class="row-hover">
-                        <td class="p-2.5">Biaya Provisi</td>
-                        <td class="p-2.5 mono text-ink-300">%</td>
-                        <td class="p-2.5 text-right mono">1.50</td>
-                        <td class="p-2.5"><span class="pill pill-info">Pinjaman</span></td>
-                        <td class="p-2.5 text-center"><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></td>
-                        <td class="p-2.5"><i data-lucide="edit-3" class="w-3.5 h-3.5 text-ink-400 mx-auto"></i></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Auto-suggest berdasarkan kategori</div>
-                    <div class="desc">Saat tambah hutang baru, langsung sodorkan biaya yang sesuai kategori.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Masuk ke nominal hutang berjalan</div>
-                    <div class="desc">Biaya tambahan otomatis dikalkulasi ke total saldo hutang.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
               </div>
             </div>
           </div>
@@ -4243,9 +4233,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <!-- ═══ PANEL: AI Insight & Strategi ═══ -->
           <div class="settings-panel" data-panel="insight">
             <div class="card rounded-xl p-6">
-              <div class="num-prefix">FITUR INTI · 007</div>
+              <div class="num-prefix">FITUR INTI · 004</div>
               <h2 class="display text-2xl font-medium mt-1">AI Insight & Strategi</h2>
-              <p class="text-sm text-ink-300 mt-1">Konfigurasi mesin rekomendasi dan analisis cashflow.</p>
+              <p class="text-sm text-ink-300 mt-1">Pilih strategi default untuk rekomendasi pelunasan AI Advisor.</p>
 
               <!-- Strategy preference -->
               <div class="mt-6">
@@ -4278,363 +4268,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                     <div class="text-[10px] text-ink-400 leading-relaxed">Saya yang menentukan prioritas sendiri.</div>
                   </label>
                 </div>
-              </div>
-
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Toleransi Risiko</div>
-                    <div class="desc">Mempengaruhi agresivitas rekomendasi alokasi pembayaran.</div>
-                  </div>
-                  <div class="flex p-1 bg-ink-800/60 rounded-md text-xs">
-                    <button class="px-3 py-1 rounded text-ink-400">Konservatif</button>
-                    <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">Moderat</button>
-                    <button class="px-3 py-1 rounded text-ink-400">Agresif</button>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Target Bebas Hutang</div>
-                    <div class="desc">AI akan menyesuaikan strategi agar tercapai sebelum target.</div>
-                  </div>
-                  <input type="date" class="input-field px-3 py-2 rounded-md text-sm mono w-44" value="2029-03-01">
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Frekuensi Generate Insight</div>
-                    <div class="desc">Seberapa sering AI membuat analisis baru otomatis.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>Setiap kali ada perubahan</option>
-                    <option selected>Harian (07:00 WIB)</option>
-                    <option>Mingguan</option>
-                    <option>Manual saja</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Threshold Warning Debt Ratio</div>
-                    <div class="desc">Peringatan muncul jika debt ratio melewati batas ini.</div>
-                  </div>
-                  <div class="w-56 flex items-center gap-3">
-                    <input type="range" min="20" max="60" value="35">
-                    <span class="mono text-sm text-accent-amber w-10 text-right">35%</span>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Tampilkan AI Advisor di Dashboard</div>
-                    <div class="desc">Kartu rekomendasi prioritas di halaman utama.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Sertakan Investasi Eksternal</div>
-                    <div class="desc">Pertimbangkan opportunity cost (deposito, reksadana) dalam analisis.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ═══ PANEL: Notifikasi ═══ -->
-          <div class="settings-panel" data-panel="notifikasi">
-            <div class="card rounded-xl p-6">
-              <div class="num-prefix">INTEGRASI · 008</div>
-              <h2 class="display text-2xl font-medium mt-1">Notifikasi</h2>
-              <p class="text-sm text-ink-300 mt-1">Pilih kapan dan ke mana DEBT FREE mengingatkan Anda.</p>
-
-              <!-- Channels -->
-              <div class="mt-6">
-                <div class="text-xs text-ink-300 mb-3">Channel Notifikasi</div>
-                <div class="grid grid-cols-4 gap-3">
-                  <label class="radio-card selected">
-                    <input type="checkbox" checked>
-                    <i data-lucide="mail" class="w-4 h-4 text-accent-lime mb-2"></i>
-                    <div class="text-sm font-medium">Email</div>
-                    <div id="notif-email-display" class="text-[10px] text-ink-400 mt-0.5">rizky.aditya@email.com</div>
-                  </label>
-                  <label class="radio-card selected">
-                    <input type="checkbox" checked>
-                    <i data-lucide="message-circle" class="w-4 h-4 text-accent-lime mb-2"></i>
-                    <div class="text-sm font-medium">WhatsApp</div>
-                    <div id="notif-whatsapp-display" class="text-[10px] text-ink-400 mt-0.5">+62 812-3456-7890</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="checkbox">
-                    <i data-lucide="send" class="w-4 h-4 text-ink-300 mb-2"></i>
-                    <div class="text-sm font-medium">Telegram</div>
-                    <div id="notif-telegram-display" class="text-[10px] text-ink-400 mt-0.5">@rizkyaditya</div>
-                  </label>
-                  <label class="radio-card selected">
-                    <input type="checkbox" checked>
-                    <i data-lucide="bell" class="w-4 h-4 text-accent-lime mb-2"></i>
-                    <div class="text-sm font-medium">In-app Push</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Browser & mobile</div>
-                  </label>
-                </div>
-              </div>
-
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Reminder Jatuh Tempo</div>
-                    <div class="desc">Berapa hari sebelum jatuh tempo notifikasi dikirim.</div>
-                  </div>
-                  <div class="flex gap-1">
-                    <span class="pill pill-active">1 hari</span>
-                    <span class="pill pill-active">3 hari</span>
-                    <span class="pill pill-active">7 hari</span>
-                    <span class="pill" style="background:rgba(91,100,126,0.1); color:#5E7090; border:1px solid rgba(91,100,126,0.2)">14 hari</span>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Warning Debt Ratio Tinggi</div>
-                    <div class="desc">Notif saat rasio hutang lewat threshold yang Anda set.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Notif Pembayaran Berhasil</div>
-                    <div class="desc">Konfirmasi setiap pembayaran tercatat.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Notif Kenaikan Suku Bunga</div>
-                    <div class="desc">Pantau perubahan suku bunga dari kreditur.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Laporan Berkala</div>
-                    <div class="desc">Ringkasan progres pelunasan ke email/WhatsApp.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option>Tidak pernah</option>
-                    <option>Harian</option>
-                    <option selected>Mingguan (Senin)</option>
-                    <option>Bulanan (tgl 1)</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Quiet Hours</div>
-                    <div class="desc">Jam dimana notifikasi tidak dikirim (kecuali urgent).</div>
-                  </div>
-                  <div class="flex items-center gap-2 mono text-sm">
-                    <input type="time" class="input-field px-2 py-1.5 rounded-md text-xs" value="22:00">
-                    <span class="text-ink-400">—</span>
-                    <input type="time" class="input-field px-2 py-1.5 rounded-md text-xs" value="07:00">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ═══ PANEL: WhatsApp Bot ═══ -->
-          <div class="settings-panel" data-panel="whatsapp">
-            <div class="card rounded-xl p-6">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="num-prefix">INTEGRASI · 009</div>
-                  <h2 class="display text-2xl font-medium mt-1">WhatsApp Bot</h2>
-                  <p class="text-sm text-ink-300 mt-1">Kelola hutang lewat command WhatsApp — tanpa buka aplikasi.</p>
-                </div>
-                <div class="conn-status online p-2 px-3 rounded-md bg-accent-mint/5 border border-accent-mint/20">
-                  <span class="dot pulse-dot"></span>
-                  <span class="text-accent-mint">CONNECTED</span>
-                </div>
-              </div>
-
-              <!-- Provider -->
-              <div class="mt-6">
-                <div class="text-xs text-ink-300 mb-3">Provider WhatsApp</div>
-                <div class="grid grid-cols-3 gap-3">
-                  <label class="radio-card selected">
-                    <input type="radio" name="wa-provider" checked>
-                    <div class="text-sm font-medium">WhatsApp Cloud API</div>
-                    <div class="text-[10px] text-ink-400 mt-1 leading-relaxed">Resmi Meta. Stabil, butuh Business verification.</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="wa-provider">
-                    <div class="text-sm font-medium">Baileys (Self-host)</div>
-                    <div class="text-[10px] text-ink-400 mt-1 leading-relaxed">Open source. Gratis, scan QR seperti WA Web.</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="wa-provider">
-                    <div class="text-sm font-medium">Twilio WhatsApp</div>
-                    <div class="text-[10px] text-ink-400 mt-1 leading-relaxed">Pay-as-you-go. Dukungan multi-region.</div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Config -->
-              <div class="mt-6 grid grid-cols-2 gap-4">
-                <div>
-                  <label class="text-xs text-ink-300">Nomor WhatsApp Bot</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="+62 811-2233-4455">
-                </div>
-                <div>
-                  <label class="text-xs text-ink-300">Nomor Anda (penerima command)</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="+62 812-3456-7890">
-                </div>
-                <div>
-                  <label class="text-xs text-ink-300">Phone Number ID</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="••••••••8842" type="password">
-                </div>
-                <div>
-                  <label class="text-xs text-ink-300">Access Token</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="EAAxxxxxxxx••••" type="password">
-                </div>
-                <div class="col-span-2">
-                  <label class="text-xs text-ink-300">Webhook URL</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="https://api.masterplanhut.com/webhook/whatsapp" readonly>
-                </div>
-              </div>
-
-              <!-- Commands -->
-              <div class="mt-6 p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
-                <div class="text-xs text-ink-300 mb-3">Command yang Diizinkan</div>
-                <div class="grid grid-cols-2 gap-2">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/tambahhutang</span>
-                    <span class="text-[10px] text-ink-400">— tambah hutang lewat chat</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/listhutang</span>
-                    <span class="text-[10px] text-ink-400">— daftar semua hutang</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/bayarhutang</span>
-                    <span class="text-[10px] text-ink-400">— catat pembayaran</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/aiinsight</span>
-                    <span class="text-[10px] text-ink-400">— minta saran AI</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/saldo</span>
-                    <span class="text-[10px] text-ink-400">— total hutang saat ini</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/ocrscan</span>
-                    <span class="text-[10px] text-ink-400">— OCR via foto WA</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="flex gap-2 mt-6">
-                <button class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2">
-                  <i data-lucide="send" class="w-4 h-4"></i> Kirim Test Message
-                </button>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm">Re-authorize</button>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm ml-auto text-accent-coral">Disconnect</button>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ═══ PANEL: Telegram Bot ═══ -->
-          <div class="settings-panel" data-panel="telegram">
-            <div class="card rounded-xl p-6">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="num-prefix">INTEGRASI · 010</div>
-                  <h2 class="display text-2xl font-medium mt-1">Telegram Bot</h2>
-                  <p class="text-sm text-ink-300 mt-1">Akses dashboard via Telegram dengan command lengkap & inline buttons.</p>
-                </div>
-                <div class="conn-status online p-2 px-3 rounded-md bg-accent-mint/5 border border-accent-mint/20">
-                  <span class="dot pulse-dot"></span>
-                  <span class="text-accent-mint">CONNECTED</span>
-                </div>
-              </div>
-
-              <div class="mt-6 grid grid-cols-2 gap-4">
-                <div>
-                  <label class="text-xs text-ink-300">Bot Username</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="@masterplanhut_bot">
-                </div>
-                <div>
-                  <label class="text-xs text-ink-300">Chat ID Anda</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="845632187">
-                </div>
-                <div class="col-span-2">
-                  <label class="text-xs text-ink-300">Bot Token (dari @BotFather)</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="7842156391:AAH•••••••••••••••••" type="password">
-                </div>
-                <div class="col-span-2">
-                  <label class="text-xs text-ink-300">Webhook URL</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="https://api.masterplanhut.com/webhook/telegram" readonly>
-                </div>
-              </div>
-
-              <div class="mt-6 p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
-                <div class="text-xs text-ink-300 mb-3">Command yang Diizinkan</div>
-                <div class="grid grid-cols-2 gap-2">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/dashboard</span>
-                    <span class="text-[10px] text-ink-400">— snapshot dashboard</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/ocrscan</span>
-                    <span class="text-[10px] text-ink-400">— upload statement</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/edithutang</span>
-                    <span class="text-[10px] text-ink-400">— update hutang existing</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/export</span>
-                    <span class="text-[10px] text-ink-400">— kirim laporan PDF</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/insight</span>
-                    <span class="text-[10px] text-ink-400">— minta analisis AI</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="accent-accent-lime">
-                    <span class="mono text-xs text-ink-200">/help</span>
-                    <span class="text-[10px] text-ink-400">— daftar perintah</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="flex gap-2 mt-6">
-                <button class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2">
-                  <i data-lucide="send" class="w-4 h-4"></i> Test Bot
-                </button>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm">Refresh Token</button>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm ml-auto text-accent-coral">Disconnect</button>
+                <p class="text-[11px] text-ink-400 mt-3">Strategi yang dipilih akan diaktifkan di AI Advisor pada Dashboard dan halaman AI Insight.</p>
               </div>
             </div>
           </div>
@@ -4643,106 +4277,19 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <!-- ═══ PANEL: Export & Data ═══ -->
           <div class="settings-panel" data-panel="export">
             <div class="card rounded-xl p-6">
-              <div class="num-prefix">INTEGRASI · 011</div>
-              <h2 class="display text-2xl font-medium mt-1">Export & Data Management</h2>
-              <p class="text-sm text-ink-300 mt-1">Atur format ekspor default dan kelola seluruh data Anda.</p>
-
-              <div class="mt-6">
-                <div class="text-xs text-ink-300 mb-3">Format Export Default</div>
-                <div class="grid grid-cols-4 gap-3">
-                  <label class="radio-card selected">
-                    <input type="radio" name="export-format" checked>
-                    <i data-lucide="file-spreadsheet" class="w-5 h-5 text-accent-lime mb-2"></i>
-                    <div class="text-sm font-medium">XLS / XLSX</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Microsoft Excel</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="export-format">
-                    <i data-lucide="file-text" class="w-5 h-5 text-ink-300 mb-2"></i>
-                    <div class="text-sm font-medium">PDF</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Laporan formal</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="export-format">
-                    <i data-lucide="file" class="w-5 h-5 text-ink-300 mb-2"></i>
-                    <div class="text-sm font-medium">CSV</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Universal</div>
-                  </label>
-                  <label class="radio-card">
-                    <input type="radio" name="export-format">
-                    <i data-lucide="file-code" class="w-5 h-5 text-ink-300 mb-2"></i>
-                    <div class="text-sm font-medium">TXT</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">Plain text</div>
-                  </label>
-                </div>
-              </div>
-
-              <div class="mt-6 space-y-0">
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Kolom yang Disertakan</div>
-                    <div class="desc">Pilih kolom default yang muncul saat export.</div>
-                  </div>
-                  <div class="flex flex-wrap gap-1.5 max-w-md justify-end">
-                    <span class="pill pill-active">Perusahaan</span>
-                    <span class="pill pill-active">Kategori</span>
-                    <span class="pill pill-active">Nominal Awal</span>
-                    <span class="pill pill-active">Bunga</span>
-                    <span class="pill pill-active">Biaya</span>
-                    <span class="pill pill-active">Nominal Saat Ini</span>
-                  </div>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Auto-export Berkala</div>
-                    <div class="desc">Otomatis kirim laporan ke email/cloud storage.</div>
-                  </div>
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-48">
-                    <option selected>Tidak pernah</option>
-                    <option>Mingguan</option>
-                    <option>Bulanan</option>
-                    <option>Kuartalan</option>
-                  </select>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Sertakan AI Insight di laporan</div>
-                    <div class="desc">Tambahkan halaman analisis & rekomendasi di file ekspor.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-                </div>
-
-                <div class="setting-row">
-                  <div class="meta">
-                    <div class="label">Watermark di PDF</div>
-                    <div class="desc">Tanda air "Confidential" untuk dokumen yang dikirim ke pihak ketiga.</div>
-                  </div>
-                  <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-                </div>
-              </div>
+              <div class="num-prefix">INTEGRASI · 005</div>
+              <h2 class="display text-2xl font-medium mt-1">Data Management</h2>
+              <p class="text-sm text-ink-300 mt-1">Backup lengkap atau reset seluruh data hutang Anda.</p>
 
               <!-- Data management -->
-              <div class="mt-6 pt-6 border-t border-ink-700/40 space-y-3">
-                <div class="num-prefix">MANAJEMEN DATA</div>
-
+              <div class="mt-6 space-y-3">
                 <div class="p-3 rounded-md bg-ink-900/40 border border-ink-700/30 flex items-center gap-3">
                   <i data-lucide="database" class="w-5 h-5 text-accent-lime"></i>
                   <div class="flex-1 text-sm">
                     <div>Download Semua Data</div>
-                    <div class="text-[11px] text-ink-400 mt-0.5">Arsip lengkap dalam ZIP (JSON + PDF + CSV)</div>
+                    <div class="text-[11px] text-ink-400 mt-0.5">Backup lengkap data hutang & pembayaran (format JSON).</div>
                   </div>
                   <button class="btn-ghost px-3 py-1.5 rounded text-xs">Download</button>
-                </div>
-
-                <div class="p-3 rounded-md bg-ink-900/40 border border-ink-700/30 flex items-center gap-3">
-                  <i data-lucide="upload" class="w-5 h-5 text-accent-mint"></i>
-                  <div class="flex-1 text-sm">
-                    <div>Import Data dari CSV/Excel</div>
-                    <div class="text-[11px] text-ink-400 mt-0.5">Migrasi dari aplikasi lain — wizard mapping kolom.</div>
-                  </div>
-                  <button class="btn-ghost px-3 py-1.5 rounded text-xs">Import</button>
                 </div>
 
                 <div class="p-3 rounded-md bg-accent-coral/5 border border-accent-coral/20 flex items-center gap-3">
@@ -4754,6 +4301,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                   <button class="btn-ghost px-3 py-1.5 rounded text-xs text-accent-coral">Hapus</button>
                 </div>
               </div>
+
+              <p class="text-[11px] text-ink-400 mt-4">
+                Tip: untuk export hutang ke PDF/XLS/CSV/TXT, gunakan tombol export di halaman <strong class="text-ink-200">Daftar Hutang</strong> atau <strong class="text-ink-200">Export Center</strong>.
+              </p>
             </div>
           </div>
 
@@ -4801,45 +4352,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                   <div class="text-[10px] text-ink-400 mono">UPTIME 30D</div>
                   <div class="text-sm mt-1 text-accent-mint">99.94%</div>
                 </div>
-              </div>
-
-              <!-- Links -->
-              <div class="mt-6 space-y-0">
-                <a href="#" class="setting-row hover:bg-ink-700/10 -mx-2 px-2 rounded-md cursor-pointer">
-                  <div class="meta">
-                    <div class="label">Cek Pembaruan</div>
-                    <div class="desc">Versi terbaru tersedia. Update otomatis aktif.</div>
-                  </div>
-                  <i data-lucide="refresh-cw" class="w-4 h-4 text-ink-400"></i>
-                </a>
-                <a href="#" class="setting-row hover:bg-ink-700/10 -mx-2 px-2 rounded-md cursor-pointer">
-                  <div class="meta">
-                    <div class="label">Changelog v1.0.0</div>
-                    <div class="desc">Lihat fitur baru, perbaikan bug, dan perubahan API.</div>
-                  </div>
-                  <i data-lucide="external-link" class="w-4 h-4 text-ink-400"></i>
-                </a>
-                <a href="#" class="setting-row hover:bg-ink-700/10 -mx-2 px-2 rounded-md cursor-pointer">
-                  <div class="meta">
-                    <div class="label">Kebijakan Privasi</div>
-                    <div class="desc">Bagaimana data finansial Anda dilindungi.</div>
-                  </div>
-                  <i data-lucide="external-link" class="w-4 h-4 text-ink-400"></i>
-                </a>
-                <a href="#" class="setting-row hover:bg-ink-700/10 -mx-2 px-2 rounded-md cursor-pointer">
-                  <div class="meta">
-                    <div class="label">Syarat & Ketentuan</div>
-                    <div class="desc">Terms of Service penggunaan layanan.</div>
-                  </div>
-                  <i data-lucide="external-link" class="w-4 h-4 text-ink-400"></i>
-                </a>
-                <a href="#" class="setting-row hover:bg-ink-700/10 -mx-2 px-2 rounded-md cursor-pointer">
-                  <div class="meta">
-                    <div class="label">Kirim Feedback</div>
-                    <div class="desc">Saran fitur atau lapor bug ke tim pengembang.</div>
-                  </div>
-                  <i data-lucide="message-square" class="w-4 h-4 text-ink-400"></i>
-                </a>
               </div>
 
               <!-- Sign out -->
@@ -5118,53 +4630,56 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <p class="text-sm text-ink-300 mt-2 leading-relaxed">Cari jawaban cepat atau hubungi tim support kami.</p>
         <div class="relative mt-4">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"></i>
-          <input type="text" placeholder="Cari pertanyaan, fitur, atau topik…" class="input-field w-full pl-10 pr-4 py-2.5 rounded-md text-sm">
+          <input id="bantuan-search-input" type="text" placeholder="Cari pertanyaan, fitur, atau topik…" class="input-field w-full pl-10 pr-4 py-2.5 rounded-md text-sm">
         </div>
       </div>
 
-      <div class="grid resp-grid-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <a href="#" class="card rounded-xl p-5 hover:border-accent-lime transition-all">
+      <div id="bantuan-cards-grid" class="grid resp-grid-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="#" data-help-topic="panduan" class="bantuan-card card rounded-xl p-5 hover:border-accent-lime transition-all">
           <div class="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center mb-3">
             <i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i>
           </div>
           <div class="text-sm font-medium text-ink-100">Panduan Memulai</div>
           <div class="text-xs text-ink-400 mt-1">Setup awal & tour fitur</div>
         </a>
-        <a href="#" class="card rounded-xl p-5 hover:border-accent-lime transition-all">
+        <a href="#" data-help-topic="bunga" class="bantuan-card card rounded-xl p-5 hover:border-accent-lime transition-all">
           <div class="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-3">
             <i data-lucide="calculator" class="w-5 h-5 text-emerald-600"></i>
           </div>
           <div class="text-sm font-medium text-ink-100">Cara Hitung Bunga</div>
           <div class="text-xs text-ink-400 mt-1">Bunga CC, KTA, KPR</div>
         </a>
-        <a href="#" class="card rounded-xl p-5 hover:border-accent-lime transition-all">
+        <a href="#" data-help-topic="strategi" class="bantuan-card card rounded-xl p-5 hover:border-accent-lime transition-all">
           <div class="w-10 h-10 rounded-lg bg-violet-50 border border-violet-200 flex items-center justify-center mb-3">
             <i data-lucide="sparkles" class="w-5 h-5 text-violet-600"></i>
           </div>
           <div class="text-sm font-medium text-ink-100">Strategi Snowball vs Avalanche</div>
           <div class="text-xs text-ink-400 mt-1">Pilih strategi paling tepat</div>
         </a>
-        <a href="#" class="card rounded-xl p-5 hover:border-accent-lime transition-all">
+        <a href="#" data-help-topic="ocr" class="bantuan-card card rounded-xl p-5 hover:border-accent-lime transition-all">
           <div class="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center mb-3">
             <i data-lucide="scan-line" class="w-5 h-5 text-amber-600"></i>
           </div>
           <div class="text-sm font-medium text-ink-100">Scan OCR Tagihan</div>
           <div class="text-xs text-ink-400 mt-1">Tips foto agar akurat</div>
         </a>
-        <a href="#" class="card rounded-xl p-5 hover:border-accent-lime transition-all">
+        <a href="#" data-help-topic="keamanan" class="bantuan-card card rounded-xl p-5 hover:border-accent-lime transition-all">
           <div class="w-10 h-10 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center mb-3">
             <i data-lucide="shield-check" class="w-5 h-5 text-sky-600"></i>
           </div>
           <div class="text-sm font-medium text-ink-100">Keamanan & Privasi</div>
           <div class="text-xs text-ink-400 mt-1">Enkripsi & akses data</div>
         </a>
-        <a href="#" class="card rounded-xl p-5 hover:border-accent-lime transition-all">
+        <a href="#" data-help-topic="troubleshoot" class="bantuan-card card rounded-xl p-5 hover:border-accent-lime transition-all">
           <div class="w-10 h-10 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center mb-3">
             <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
           </div>
           <div class="text-sm font-medium text-ink-100">Troubleshooting</div>
           <div class="text-xs text-ink-400 mt-1">Masalah umum & solusi</div>
         </a>
+      </div>
+      <div id="bantuan-empty-state" class="text-center text-sm text-ink-400 py-6" style="display:none;">
+        Tidak ada topik yang cocok dengan pencarian Anda.
       </div>
 
       <div class="card rounded-xl p-5">
@@ -5173,15 +4688,15 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="num-prefix">HUBUNGI KAMI</div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <a href="#" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
+          <a href="#" id="bantuan-livechat" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
             <div class="w-9 h-9 rounded-md bg-emerald-50 flex items-center justify-center"><i data-lucide="message-circle" class="w-4 h-4 text-emerald-600"></i></div>
             <div class="min-w-0"><div class="text-sm font-medium">Live Chat</div><div class="text-[11px] text-ink-400">Senin–Sabtu 8–22 WIB</div></div>
           </a>
-          <a href="#" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
+          <a href="mailto:support@debtfree.id?subject=Bantuan%20DEBT%20FREE&body=Halo%20tim%20support%2C%0A%0ASaya%20butuh%20bantuan%20terkait%3A%20" id="bantuan-email" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
             <div class="w-9 h-9 rounded-md bg-blue-50 flex items-center justify-center"><i data-lucide="mail" class="w-4 h-4 text-blue-600"></i></div>
             <div class="min-w-0"><div class="text-sm font-medium">Email</div><div class="text-[11px] text-ink-400 truncate">support@debtfree.id</div></div>
           </a>
-          <a href="#" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
+          <a href="tel:+62211500DEBT" id="bantuan-phone" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
             <div class="w-9 h-9 rounded-md bg-amber-50 flex items-center justify-center"><i data-lucide="phone" class="w-4 h-4 text-amber-600"></i></div>
             <div class="min-w-0"><div class="text-sm font-medium">Telepon</div><div class="text-[11px] text-ink-400">021-1500-DEBT</div></div>
           </a>
@@ -5204,6 +4719,22 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   </main>
 </div>
 
+
+<!-- ═════════ NEW: Help / Bantuan Detail Modal ═════════ -->
+<div id="help-modal" class="help-modal-backdrop">
+  <div class="help-modal-card">
+    <div class="help-modal-head">
+      <div id="help-modal-icon" class="help-modal-icon" style="background:#EFF6FF; color:#2563EB;">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+      </div>
+      <h3 id="help-modal-title" class="help-modal-title">Bantuan</h3>
+      <button class="help-modal-close" id="help-modal-close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div id="help-modal-body" class="help-modal-body"></div>
+  </div>
+</div>
 
 <!-- ═════════ Mobile Bottom Navigation (Android-style) ═════════ -->
 <nav class="mobile-bottom-nav" aria-label="Mobile bottom navigation">
@@ -7235,7 +6766,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     daftar:     () => `DAFTAR HUTANG · ${activeDebts().length} AKTIF`,
     pembayaran: () => 'PEMBAYARAN · BAYAR · CICIL · RIWAYAT',
     insight:    () => 'AI INSIGHT · ANALISIS REAL-TIME',
-    pengaturan: () => 'PENGATURAN · 12 KATEGORI',
+    pengaturan: () => 'PENGATURAN · 6 KATEGORI',
     whatsapp:   () => 'INTEGRATIONS · WHATSAPP BOT',
     telegram:   () => 'INTEGRATIONS · TELEGRAM BOT',
     export:     () => 'EXPORT · PDF · EXCEL · CSV · JSON',
@@ -7631,12 +7162,15 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function renderChartDebt(){
     const ctx1 = document.getElementById('chartDebt');
     if (!ctx1) return;
-    // Build a 12-month line ending at current total
+    // Build line covering N months ending at current total, where N = state.progressPeriod
+    const months = (state.progressPeriod === undefined || state.progressPeriod === 'all') ? 12 : state.progressPeriod;
     const start = totalNominalAwal();
     const now   = totalHutang();
-    const labels = ['Jun','Jul','Agu','Sep','Okt','Nov','Des','Jan','Feb','Mar','Apr','Mei'];
+    const allLabels = ['Jun','Jul','Agu','Sep','Okt','Nov','Des','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des','Jan','Feb','Mar','Apr','Mei'];
+    const n = Math.min(Math.max(months, 3), allLabels.length);
+    const labels = allLabels.slice(0, n);
     const data = labels.map((_, i) => {
-      const t = i / (labels.length - 1);
+      const t = i / Math.max(labels.length - 1, 1);
       return Math.round((start * (1 - t) + now * t) / 1e6 * 10) / 10;
     });
     if (chartDebtInst) chartDebtInst.destroy();
@@ -7665,6 +7199,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     });
   }
   renderChartDebt();
+  // Expose for the period-button handler added later
+  window.__renderChartDebt = renderChartDebt;
 
   // ═══════════════════════════════════════════════════════════════
   // AI INSIGHT — Strategy data, charts, roadmap, real-time switcher
@@ -7965,6 +7501,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const s = STRATEGY_DATA[stratKey];
     if (!s) return;
     currentStrategy = stratKey;
+    window.currentStrategy = stratKey;
 
     // Headline + description
     const headline = document.getElementById('insight-headline');
@@ -8716,13 +8253,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       setTimeout(() => location.reload(), 1200);
     });
 
-    document.getElementById('settings-akun-photo')?.addEventListener('click', () => {
-      flash('Fitur upload foto akan tersedia di versi berikutnya.');
-    });
-    document.getElementById('settings-akun-photo-remove')?.addEventListener('click', () => {
-      flash('✓ Foto profil dihapus.');
-    });
-
     // ─── Unified logout (works in both Firebase and local mode) ───
     async function doLogout(){
       let firebaseSignedOut = false;
@@ -8870,42 +8400,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       btn.addEventListener('click', handler);
     }
 
-    // Keamanan
-    const keamananPanel = document.querySelector('.settings-panel[data-panel="keamanan"]');
-    if (keamananPanel){
-      keamananPanel.querySelectorAll('button').forEach(b => {
-        if (b.dataset.qaWired) return;
-        const txt = b.textContent.trim();
-        if (!txt) return;
-        if (txt === 'Keluarkan'){
-          safeAttach(b, () => {
-            const card = b.closest('.p-3'); if (card) card.style.opacity = '0.4';
-            flash('✓ Sesi dikeluarkan.');
-          });
-        } else if (txt.includes('semua perangkat')){
-          safeAttach(b, () => {
-            if (!confirm('Keluarkan dari semua perangkat lain?')) return;
-            keamananPanel.querySelectorAll('.p-3').forEach(c => {
-              if (!c.querySelector('.pill-active')) c.style.opacity = '0.4';
-            });
-            flash('✓ Sesi lain dikeluarkan.');
-          });
-        } else {
-          safeAttach(b, () => flash('✓ ' + txt + ' — dialog tersedia di build berikutnya.'));
-        }
-      });
-    }
-
-    // OCR ▸ "Test" buttons
-    const ocrPanel = document.querySelector('.settings-panel[data-panel="ocr"]');
-    if (ocrPanel){
-      ocrPanel.querySelectorAll('button').forEach(b => {
-        if (b.dataset.qaWired) return;
-        const txt = b.textContent.trim();
-        if (txt === 'Test') safeAttach(b, () => flash('✓ API key valid · koneksi OK.'));
-        else if (txt)       safeAttach(b, () => flash('✓ ' + txt));
-      });
-    }
+    // Keamanan, OCR, Komponen Biaya, Notifikasi, WhatsApp/Telegram (settings panels)
+    // dan Tentang link rows telah dihapus karena tidak punya backend / hanya placeholder.
 
     // Dynamic Interest ▸ Recalculate Now
     const interestPanel = document.querySelector('.settings-panel[data-panel="interest"]');
@@ -8915,62 +8411,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         const txt = b.textContent.trim();
         if (txt === 'Recalculate Now'){
           safeAttach(b, () => { renderAll(); flash('✓ Bunga seluruh hutang dihitung ulang.'); });
-        } else if (txt){
-          safeAttach(b, () => flash('✓ ' + txt));
         }
       });
     }
 
-    // Komponen Biaya panel
-    const biayaPanel = document.querySelector('.settings-panel[data-panel="biaya"]');
-    if (biayaPanel){
-      biayaPanel.querySelectorAll('button').forEach(b => {
-        if (b.dataset.qaWired) return;
-        const txt = b.textContent.trim();
-        if (txt) safeAttach(b, () => flash('✓ ' + txt));
-      });
-    }
-
-    // AI Insight settings panel
-    const insightPanel = document.querySelector('.settings-panel[data-panel="insight"]');
-    if (insightPanel){
-      insightPanel.querySelectorAll('button').forEach(b => {
-        if (b.dataset.qaWired) return;
-        const txt = b.textContent.trim();
-        if (txt) safeAttach(b, () => flash('✓ ' + txt));
-      });
-      // Threshold range slider
-      insightPanel.querySelectorAll('input[type=range]').forEach(r => {
-        if (r.dataset.qaWired) return;
-        r.dataset.qaWired = '1';
-        const lbl = r.nextElementSibling;
-        const prefs = loadPrefs(); const key = 'range:threshold-debt-ratio';
-        if (key in prefs){ r.value = prefs[key]; if (lbl) lbl.textContent = r.value + '%'; }
-        r.addEventListener('input',  () => { if (lbl) lbl.textContent = r.value + '%'; });
-        r.addEventListener('change', () => { savePref(key, r.value); flash('✓ Threshold debt ratio: ' + r.value + '%'); });
-      });
-      // Date input (Target Bebas Hutang)
-      insightPanel.querySelectorAll('input[type=date]').forEach(d => {
-        if (d.dataset.qaWired) return;
-        d.dataset.qaWired = '1';
-        const prefs = loadPrefs(); const key = 'date:target-bebas-hutang';
-        if (key in prefs) d.value = prefs[key];
-        d.addEventListener('change', () => { savePref(key, d.value); flash('✓ Target bebas hutang: ' + d.value); });
-      });
-    }
-
-    // WhatsApp / Telegram settings panels
-    ['whatsapp','telegram'].forEach(p => {
-      const panel = document.querySelector('.settings-panel[data-panel="' + p + '"]');
-      if (!panel) return;
-      panel.querySelectorAll('button').forEach(b => {
-        if (b.dataset.qaWired) return;
-        const txt = b.textContent.trim();
-        if (txt) safeAttach(b, () => flash('✓ ' + p.toUpperCase() + ' · ' + txt));
-      });
-    });
-
-    // Export & Data settings panel
+    // Export & Data settings panel — only Download and Hapus buttons remain
     const exportSettingsPanel = document.querySelector('.settings-panel[data-panel="export"]');
     if (exportSettingsPanel){
       exportSettingsPanel.querySelectorAll('button').forEach(b => {
@@ -8993,68 +8438,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             if (jsonBtn) jsonBtn.click();
             else flash('✓ Backup disiapkan.');
           });
-        } else if (txt === 'Import'){
-          safeAttach(b, () => flash('Import wizard akan tersedia di versi berikutnya.'));
-        } else {
-          safeAttach(b, () => flash('✓ ' + txt));
         }
-      });
-    }
-
-    // Tentang panel ▸ link rows
-    const tentangPanel = document.querySelector('.settings-panel[data-panel="tentang"]');
-    if (tentangPanel){
-      tentangPanel.querySelectorAll('a.setting-row').forEach(a => {
-        if (a.dataset.qaWired) return;
-        a.dataset.qaWired = '1';
-        a.addEventListener('click', e => {
-          e.preventDefault();
-          const txt = a.querySelector('.label')?.textContent?.trim() || 'Link';
-          flash('"' + txt + '" akan dibuka di tab baru.');
-        });
-      });
-    }
-
-    // Notifikasi ▸ reminder-day pills (click to toggle)
-    const notifPanel = document.querySelector('.settings-panel[data-panel="notifikasi"]');
-    if (notifPanel){
-      notifPanel.querySelectorAll('.flex.gap-1 .pill').forEach(pill => {
-        if (pill.dataset.qaWired) return;
-        pill.dataset.qaWired = '1';
-        pill.style.cursor = 'pointer';
-        pill.addEventListener('click', () => {
-          const wasOn = pill.classList.contains('pill-active');
-          if (wasOn){
-            pill.classList.remove('pill-active');
-            pill.style.cssText = 'background:rgba(91,100,126,0.1); color:#5E7090; border:1px solid rgba(91,100,126,0.2); cursor:pointer;';
-          } else {
-            pill.classList.add('pill-active');
-            pill.style.cssText = 'cursor:pointer;';
-          }
-          flash('Reminder ' + pill.textContent.trim() + ': ' + (!wasOn ? 'aktif' : 'nonaktif'));
-        });
-      });
-      // Channel radio-card checkboxes update the .selected class
-      notifPanel.querySelectorAll('label.radio-card').forEach(card => {
-        if (card.dataset.qaWired) return;
-        const cb = card.querySelector('input[type=checkbox]');
-        if (!cb) return;
-        card.dataset.qaWired = '1';
-        cb.addEventListener('change', () => {
-          card.classList.toggle('selected', cb.checked);
-          const channelEl = card.querySelector('.text-sm');
-          const channel = channelEl ? channelEl.textContent.trim() : 'Channel';
-          flash('✓ ' + channel + ': ' + (cb.checked ? 'aktif' : 'nonaktif'));
-        });
-      });
-      // Quiet-hours time inputs
-      notifPanel.querySelectorAll('input[type=time]').forEach((t, idx) => {
-        if (t.dataset.qaWired) return;
-        t.dataset.qaWired = '1';
-        const key = 'time:quiet-hours-' + (idx === 0 ? 'start' : 'end');
-        const prefs = loadPrefs();
-        if (key in prefs) t.value = prefs[key];
-        t.addEventListener('change', () => { savePref(key, t.value); flash('✓ Jam tenang diperbarui.'); });
       });
     }
 
@@ -9066,6 +8450,702 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qaInit);
     else qaInit();
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // ░░░  NEW: WIRE FORMERLY-FAKE BUTTONS — v1.2.0 patch ░░░
+  // All previously-decorative controls in DEBT FREE now have real handlers.
+  // Notifications (bell) intentionally NOT wired per user preference.
+  // ═══════════════════════════════════════════════════════════════
+
+  // ─── Shared helpers for new features ───
+  function downloadBlob(filename, content, mime){
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  // Generate Excel-compatible HTML table that Excel opens as .xls
+  function buildXLSFromDebts(debts){
+    const rows = debts.map(d => `
+      <tr>
+        <td>${d.company} ${d.product}</td>
+        <td>${d.category}</td>
+        <td>${d.nominalAwal}</td>
+        <td>${d.bunga}% / ${d.bungaUnit}</td>
+        <td>${d.biaya}</td>
+        <td>${d.startDate}</td>
+        <td>${d.sisa}</td>
+        <td>${d.status}</td>
+        <td>${d.dueDate}</td>
+      </tr>`).join('');
+    return `<?xml version="1.0"?>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><style>td,th{padding:6px 10px;border:1px solid #ddd;font-family:Arial,sans-serif;font-size:12px;}th{background:#1F2E48;color:white;}</style></head>
+<body>
+<h2>DEBT FREE — Daftar Hutang</h2>
+<p>Diekspor: ${new Date().toLocaleString('id-ID')}</p>
+<table>
+<thead><tr>
+<th>Kreditur</th><th>Kategori</th><th>Nominal Awal</th><th>Bunga</th><th>Biaya</th>
+<th>Tanggal Awal</th><th>Sisa</th><th>Status</th><th>Jatuh Tempo</th>
+</tr></thead>
+<tbody>${rows}</tbody>
+</table>
+</body></html>`;
+  }
+
+  // Plain-text export of debts
+  function buildTXTFromDebts(debts){
+    const lines = [];
+    lines.push('═══════════════════════════════════════════════════');
+    lines.push('  DEBT FREE — DAFTAR HUTANG');
+    lines.push('  Diekspor: ' + new Date().toLocaleString('id-ID'));
+    lines.push('  Total hutang: ' + debts.length);
+    lines.push('═══════════════════════════════════════════════════');
+    lines.push('');
+    debts.forEach((d, i) => {
+      lines.push(`[${i+1}] ${d.company} — ${d.product}`);
+      lines.push(`    Kategori     : ${d.category}`);
+      lines.push(`    Nominal Awal : Rp ${d.nominalAwal.toLocaleString('id-ID')}`);
+      lines.push(`    Sisa         : Rp ${d.sisa.toLocaleString('id-ID')}`);
+      lines.push(`    Bunga        : ${d.bunga}% / ${d.bungaUnit}`);
+      lines.push(`    Biaya        : Rp ${d.biaya.toLocaleString('id-ID')}`);
+      lines.push(`    Mulai        : ${d.startDate}`);
+      lines.push(`    Jatuh Tempo  : ${d.dueDate}`);
+      lines.push(`    Status       : ${d.status.toUpperCase()}`);
+      lines.push('');
+    });
+    const totalSisa = debts.reduce((s,d) => s + d.sisa, 0);
+    const totalAwal = debts.reduce((s,d) => s + d.nominalAwal, 0);
+    lines.push('───────────────────────────────────────────────────');
+    lines.push(`TOTAL NOMINAL AWAL : Rp ${totalAwal.toLocaleString('id-ID')}`);
+    lines.push(`TOTAL SISA         : Rp ${totalSisa.toLocaleString('id-ID')}`);
+    lines.push('───────────────────────────────────────────────────');
+    return lines.join('\n');
+  }
+
+  // Print-to-PDF helper: temporarily marks a view as print-active
+  function printView(viewId, title){
+    const view = document.getElementById(viewId);
+    if (!view){ flash('⚠ Halaman tidak ditemukan.'); return; }
+    // Add print-only header
+    let printHead = document.getElementById('print-doc-header');
+    if (!printHead){
+      printHead = document.createElement('div');
+      printHead.id = 'print-doc-header';
+      printHead.className = 'print-only';
+      printHead.style.cssText = 'padding:16px 0;border-bottom:2px solid #2563EB;margin-bottom:16px;';
+      printHead.innerHTML = `<div style="font-family:Fraunces,serif;font-size:22px;font-weight:600;color:#2563EB;">DEBT<span style="color:#0F172A;">FREE</span></div>
+        <div id="print-doc-title" style="font-size:14px;color:#334155;margin-top:4px;"></div>
+        <div style="font-size:11px;color:#64748B;margin-top:2px;">Dicetak: ${new Date().toLocaleString('id-ID')}</div>`;
+      view.prepend(printHead);
+    } else {
+      view.prepend(printHead);
+    }
+    document.getElementById('print-doc-title').textContent = title || 'Laporan';
+    view.classList.add('print-active');
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        view.classList.remove('print-active');
+        printHead.remove();
+      }, 200);
+    }, 80);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 1. HEADER — Search bar (live debt/transaction search)
+  // ═══════════════════════════════════════════════════════════════
+  (function wireHeaderSearch(){
+    const input = document.getElementById('header-search-input');
+    const dd = document.getElementById('header-search-dropdown');
+    if (!input || !dd) return;
+
+    function renderResults(q){
+      const ql = q.trim().toLowerCase();
+      if (!ql){ dd.classList.remove('visible'); dd.innerHTML = ''; return; }
+
+      const matches = [];
+      // Match debts
+      state.debts.forEach(d => {
+        const hay = `${d.company} ${d.product} ${d.category} ${d.accountNo||''}`.toLowerCase();
+        if (hay.includes(ql)){
+          matches.push({ type:'debt', d, label:`${d.company} ${d.product}`, meta:`${d.category} · sisa Rp ${(d.sisa/1e6).toFixed(1)}jt` });
+        }
+      });
+      // Match transactions
+      state.transactions.forEach(t => {
+        if ((t.desc + ' ' + t.type).toLowerCase().includes(ql)){
+          const d = getDebt(t.debtId);
+          matches.push({ type:'trx', t, d, label:t.desc, meta:`${t.date} · ${d?.company || ''} · Rp ${t.amount.toLocaleString('id-ID')}` });
+        }
+      });
+      // Match payments
+      state.payments.forEach(p => {
+        const d = getDebt(p.debtId);
+        if (d && (`${d.company} ${d.product} ${p.note||''} ${p.method}`).toLowerCase().includes(ql)){
+          matches.push({ type:'pay', p, d, label:`Pembayaran ${d.company}`, meta:`${p.date} · ${p.method} · Rp ${p.amount.toLocaleString('id-ID')}` });
+        }
+      });
+
+      if (matches.length === 0){
+        dd.innerHTML = '<div class="search-empty">Tidak ada hasil untuk "' + q.replace(/[<>"]/g,'') + '"</div>';
+        dd.classList.add('visible');
+        return;
+      }
+
+      dd.innerHTML = matches.slice(0, 12).map((m, i) => {
+        const d = m.d;
+        const colorCls = d ? (logoColorMapList[d.logoColor] || logoColorMapList.ink) : logoColorMapList.ink;
+        return `
+          <div class="search-result" data-idx="${i}" data-type="${m.type}" data-debt-id="${d?.id || ''}">
+            <div class="search-result-logo ${colorCls}">${d?.logo || '?'}</div>
+            <div class="search-result-info">
+              <div class="search-result-name">${m.label}</div>
+              <div class="search-result-meta">${m.meta}</div>
+            </div>
+          </div>`;
+      }).join('');
+      dd.classList.add('visible');
+
+      // Bind clicks
+      dd.querySelectorAll('.search-result').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = +el.dataset.idx;
+          const m = matches[idx];
+          dd.classList.remove('visible');
+          input.value = '';
+          if (m.type === 'debt'){
+            switchView('daftar');
+            flash('🔎 Menampilkan ' + m.d.company);
+          } else if (m.type === 'pay'){
+            state.paySelectedId = m.d.id;
+            switchView('pembayaran');
+          } else if (m.type === 'trx'){
+            state.editCompanyId = m.d.id;
+            state.editAccountId = m.d.id;
+            state.editActionPanel = 'riwayat';
+            switchView('tambah');
+            if (typeof setEditActionPanel === 'function') setEditActionPanel('riwayat');
+          }
+        });
+      });
+    }
+
+    let debounce;
+    input.addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => renderResults(input.value), 120);
+    });
+    input.addEventListener('focus', () => { if (input.value) renderResults(input.value); });
+    document.addEventListener('click', e => {
+      if (!input.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('visible');
+    });
+    // ⌘K / Ctrl+K to focus
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+        e.preventDefault();
+        input.focus(); input.select();
+      } else if (e.key === 'Escape' && dd.classList.contains('visible')){
+        dd.classList.remove('visible'); input.blur();
+      }
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 2. HEADER — "Scan Statement" button → Tambah view, scroll to OCR
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('header-scan-btn')?.addEventListener('click', () => {
+    switchView('tambah');
+    setTimeout(() => {
+      const ocr = document.querySelector('#view-tambah .num-prefix');
+      const ocrCard = [...document.querySelectorAll('#view-tambah .card')]
+        .find(c => c.textContent.includes('OCR') || c.textContent.includes('Upload Statement'));
+      (ocrCard || document.getElementById('simulate-ocr'))?.scrollIntoView({ behavior:'smooth', block:'center' });
+      const simBtn = document.getElementById('simulate-ocr');
+      if (simBtn){
+        simBtn.style.transition = 'box-shadow 0.4s ease';
+        simBtn.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.25)';
+        setTimeout(() => { simBtn.style.boxShadow = ''; }, 1600);
+      }
+    }, 120);
+    flash('📷 Scroll ke area OCR Statement — drag file ke kotak upload.');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 3. DASHBOARD — Progress Pelunasan period buttons (3M/6M/12M/All)
+  // ═══════════════════════════════════════════════════════════════
+  (function wireProgressPeriod(){
+    const wrap = document.getElementById('progress-period-btns');
+    if (!wrap) return;
+    state.progressPeriod = 12; // default
+    function setActiveBtn(period){
+      wrap.querySelectorAll('button').forEach(b => {
+        const isActive = b.dataset.period === String(period);
+        b.classList.toggle('bg-accent-lime/15', isActive);
+        b.classList.toggle('text-accent-lime', isActive);
+        b.classList.toggle('text-ink-400', !isActive);
+      });
+    }
+    function periodToMonths(p){ return p === 'all' ? 36 : parseInt(p, 10); }
+
+    wrap.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.period;
+        state.progressPeriod = periodToMonths(p);
+        setActiveBtn(p);
+        // Re-render the debt chart with new range
+        if (typeof window.__renderChartDebt === 'function'){
+          window.__renderChartDebt();
+        }
+        flash('📊 Grafik diperbarui ke periode ' + (p === 'all' ? 'semua data' : p + ' bulan') + '.');
+      });
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 4. PEMBAYARAN — Upload Bukti Transfer
+  // ═══════════════════════════════════════════════════════════════
+  (function wireUploadBukti(){
+    const btn = document.getElementById('pay-upload-bukti-btn');
+    const inp = document.getElementById('pay-upload-bukti-input');
+    const preview = document.getElementById('pay-bukti-preview');
+    if (!btn || !inp || !preview) return;
+
+    btn.addEventListener('click', () => inp.click());
+    inp.addEventListener('change', () => {
+      const f = inp.files?.[0];
+      if (!f) return;
+      const sizeKB = (f.size / 1024).toFixed(0);
+      preview.innerHTML = `
+        <div class="upload-preview-chip">
+          <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+          <span><strong>${f.name}</strong> · ${sizeKB} KB</span>
+          <button type="button" class="remove-btn" title="Hapus">×</button>
+        </div>`;
+      if (window.lucide?.createIcons) lucide.createIcons();
+      preview.querySelector('.remove-btn')?.addEventListener('click', () => {
+        preview.innerHTML = ''; inp.value = '';
+      });
+      // Cache locally so user knows it's attached for the next "Konfirmasi"
+      window._pendingBukti = { name: f.name, size: f.size, type: f.type };
+      flash('✓ Bukti transfer terlampir — akan dicatat saat klik Konfirmasi Pembayaran.');
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 5. PEMBAYARAN — Quick scan "Scan Statement" → Tambah/OCR
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('pay-scan-statement-btn')?.addEventListener('click', () => {
+    document.getElementById('header-scan-btn')?.click();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 6. PEMBAYARAN — Payment history Export (CSV)
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('pay-history-export-btn')?.addEventListener('click', () => {
+    if (!state.payments.length){ flash('Belum ada pembayaran untuk diekspor.'); return; }
+    const lines = ['Tanggal,Kreditur,Produk,Nominal,Metode,Status,Catatan'];
+    state.payments.forEach(p => {
+      const d = getDebt(p.debtId);
+      lines.push(`${p.date},"${d?.company || ''}","${d?.product || ''}",${p.amount},${p.method},${p.status},"${(p.note||'').replace(/"/g,'""')}"`);
+    });
+    downloadBlob('riwayat-pembayaran-' + Date.now() + '.csv', lines.join('\n'), 'text/csv;charset=utf-8');
+    flash('✓ Riwayat pembayaran (' + state.payments.length + ' baris) diunduh sebagai CSV.');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 7. TAMBAH & EDIT — Mode tabs at top of view
+  // ═══════════════════════════════════════════════════════════════
+  (function wireTambahModeTabs(){
+    const wrap = document.getElementById('tambah-mode-tabs');
+    if (!wrap) return;
+
+    function highlight(activeBtn){
+      wrap.querySelectorAll('button[data-tambah-mode]').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-ghost');
+      });
+      activeBtn.classList.add('btn-primary');
+      activeBtn.classList.remove('btn-ghost');
+    }
+
+    function scrollTo(target){
+      const el = document.getElementById(target);
+      if (!el) return;
+      el.scrollIntoView({ behavior:'smooth', block:'start' });
+      el.style.transition = 'box-shadow 0.4s ease';
+      el.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.22)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 1800);
+    }
+
+    wrap.querySelectorAll('button[data-tambah-mode]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.tambahMode;
+        highlight(btn);
+        if (mode === 'new'){
+          scrollTo('add-form');
+          flash('➕ Mode: Tambah Hutang Baru');
+        } else if (mode === 'edit'){
+          scrollTo('edit-existing-card');
+          if (typeof setEditActionPanel === 'function') setEditActionPanel('detail');
+          flash('✏️ Mode: Edit Hutang Existing');
+        } else if (mode === 'statement'){
+          scrollTo('edit-existing-card');
+          if (typeof setEditActionPanel === 'function') setEditActionPanel('statement');
+          flash('🔄 Mode: Update dari Statement');
+        }
+      });
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 8. TAMBAH & EDIT — Export Riwayat (transaksi per hutang)
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('tambah-export-riwayat-btn')?.addEventListener('click', () => {
+    const debtId = state.editAccountId || state.editCompanyId;
+    const d = getDebt(debtId);
+    if (!d){ flash('Pilih hutang dulu untuk export riwayat.'); return; }
+    const trx = state.transactions.filter(t => t.debtId === d.id);
+    if (!trx.length){ flash('Hutang ini belum punya transaksi.'); return; }
+    const lines = ['Tanggal,Tipe,Deskripsi,Nominal'];
+    trx.forEach(t => lines.push(`${t.date},${t.type},"${t.desc.replace(/"/g,'""')}",${t.amount}`));
+    const fname = `riwayat-${d.company.replace(/\s+/g,'-').toLowerCase()}-${Date.now()}.csv`;
+    downloadBlob(fname, lines.join('\n'), 'text/csv;charset=utf-8');
+    flash('✓ Riwayat ' + d.company + ' (' + trx.length + ' transaksi) diunduh.');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 9. DAFTAR HUTANG — Export XLS / PDF / TXT (rewire the fake ones)
+  // ═══════════════════════════════════════════════════════════════
+  (function rewireDaftarExports(){
+    // Remove old fake-flash handlers by cloning the buttons (cheap and reliable)
+    ['export-xls', 'export-pdf', 'export-txt'].forEach(id => {
+      const old = document.getElementById(id);
+      if (!old) return;
+      const fresh = old.cloneNode(true);
+      old.replaceWith(fresh);
+    });
+
+    document.getElementById('export-xls')?.addEventListener('click', () => {
+      const debts = activeDebts();
+      if (!debts.length){ flash('Tidak ada hutang aktif untuk diekspor.'); return; }
+      const xml = buildXLSFromDebts(debts);
+      downloadBlob('daftar-hutang-' + Date.now() + '.xls', xml, 'application/vnd.ms-excel');
+      flash('✓ Daftar hutang (' + debts.length + ') diunduh sebagai XLS — buka dengan Excel.');
+    });
+
+    document.getElementById('export-txt')?.addEventListener('click', () => {
+      const debts = activeDebts();
+      if (!debts.length){ flash('Tidak ada hutang aktif.'); return; }
+      const txt = buildTXTFromDebts(debts);
+      downloadBlob('daftar-hutang-' + Date.now() + '.txt', txt, 'text/plain;charset=utf-8');
+      flash('✓ Daftar hutang diunduh sebagai TXT.');
+    });
+
+    document.getElementById('export-pdf')?.addEventListener('click', () => {
+      flash('🖨️ Membuka dialog cetak — pilih "Save as PDF" untuk simpan.');
+      // Ensure we're on the daftar view so the table is what gets printed
+      if (!document.getElementById('view-daftar').classList.contains('active')){
+        switchView('daftar');
+        setTimeout(() => printView('view-daftar', 'Daftar Hutang'), 400);
+      } else {
+        printView('view-daftar', 'Daftar Hutang');
+      }
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 10. AI INSIGHT — "Terapkan Strategi" persist + visual feedback
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('insight-apply-btn')?.addEventListener('click', () => {
+    const strat = (window.currentStrategy) || 'avalanche';
+    try { localStorage.setItem('df_default_strategy', strat); } catch(e){}
+    // Sync radio in Settings ▸ AI Insight
+    const map = { snowball:'Snowball', avalanche:'Avalanche', consolidation:'Avalanche' };
+    const labelToCheck = map[strat] || 'Avalanche';
+    document.querySelectorAll('.settings-panel input[name=strategy]').forEach(r => {
+      const card = r.closest('label.radio-card');
+      const lbl = card?.querySelector('.text-sm')?.textContent?.trim();
+      if (lbl === labelToCheck){
+        r.checked = true;
+        document.querySelectorAll('.settings-panel input[name=strategy]')
+          .forEach(x => x.closest('label.radio-card')?.classList.remove('selected'));
+        card?.classList.add('selected');
+      }
+    });
+    // Pulse highlight on roadmap
+    const roadmap = document.querySelector('#view-insight #roadmap-timeline')?.parentElement?.parentElement;
+    if (roadmap){
+      roadmap.style.transition = 'box-shadow 0.5s ease';
+      roadmap.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.22)';
+      setTimeout(() => { roadmap.style.boxShadow = ''; }, 2000);
+      roadmap.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+    const stratNameMap = { snowball:'Snowball', avalanche:'Avalanche', consolidation:'Consolidation' };
+    flash('✓ Strategi ' + (stratNameMap[strat] || strat) + ' diterapkan & disimpan sebagai default.');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 11. AI INSIGHT — Export Roadmap PDF
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('insight-export-roadmap-btn')?.addEventListener('click', () => {
+    flash('🖨️ Membuka dialog cetak Roadmap — pilih "Save as PDF".');
+    if (!document.getElementById('view-insight').classList.contains('active')){
+      switchView('insight');
+      setTimeout(() => printView('view-insight', 'AI Insight & Roadmap Pelunasan'), 400);
+    } else {
+      printView('view-insight', 'AI Insight & Roadmap Pelunasan');
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 12. EXPORT CENTER — Rewire fake export types (pdf/excel/invoice/cloud)
+  // ═══════════════════════════════════════════════════════════════
+  (function rewireExportCenter(){
+    // The existing handler attached via [data-export-type] still serves json+csv.
+    // For pdf/excel/invoice/cloud it falls through to flash. We patch those.
+    document.querySelectorAll('[data-export-type]').forEach(btn => {
+      const type = btn.dataset.exportType;
+      if (type === 'json' || type === 'csv') return; // keep working ones
+
+      // Clone to clear existing listener
+      const fresh = btn.cloneNode(true);
+      btn.replaceWith(fresh);
+
+      fresh.addEventListener('click', () => {
+        if (type === 'pdf'){
+          flash('🖨️ Menyiapkan Laporan PDF — pilih "Save as PDF" di dialog cetak.');
+          // Print the full dashboard view as the "report"
+          if (!document.getElementById('view-dashboard').classList.contains('active')){
+            switchView('dashboard');
+            setTimeout(() => printView('view-dashboard', 'Laporan Hutang — Ringkasan Lengkap'), 400);
+          } else {
+            printView('view-dashboard', 'Laporan Hutang — Ringkasan Lengkap');
+          }
+        } else if (type === 'excel'){
+          const xml = buildXLSFromDebts(state.debts);
+          downloadBlob('debtfree-laporan-' + Date.now() + '.xls', xml, 'application/vnd.ms-excel');
+          flash('✓ File Excel (.xls) terunduh — ' + state.debts.length + ' hutang.');
+        } else if (type === 'invoice'){
+          if (!state.payments.length){ flash('Belum ada pembayaran untuk dijadikan bukti.'); return; }
+          const lines = ['No,Tanggal,Kreditur,Produk,Nominal,Metode,Status'];
+          state.payments.forEach((p, i) => {
+            const d = getDebt(p.debtId);
+            lines.push(`${i+1},${p.date},"${d?.company || ''}","${d?.product || ''}",${p.amount},${p.method},${p.status}`);
+          });
+          downloadBlob('bukti-pembayaran-' + Date.now() + '.csv', lines.join('\n'), 'text/csv;charset=utf-8');
+          flash('✓ Bukti pembayaran (' + state.payments.length + ' baris) terunduh sebagai CSV.');
+        } else if (type === 'cloud'){
+          // 1. Download backup, 2. Open Google Drive upload page in new tab
+          const data = JSON.stringify({
+            debts: state.debts, payments: state.payments, transactions: state.transactions,
+            user: state.user, exportedAt: new Date().toISOString(),
+          }, null, 2);
+          downloadBlob('debtfree-cloud-backup-' + Date.now() + '.json', data, 'application/json');
+          window.open('https://drive.google.com/drive/my-drive', '_blank', 'noopener');
+          flash('☁️ Backup terunduh + Google Drive dibuka — drag file ke Drive untuk upload.');
+        }
+      });
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 13. BANTUAN — Search filter + help category modals + contacts
+  // ═══════════════════════════════════════════════════════════════
+  const HELP_CONTENT = {
+    panduan: {
+      title:'Panduan Memulai',
+      iconBg:'#EFF6FF', iconColor:'#2563EB', icon:'book-open',
+      keywords:'panduan memulai setup awal tour fitur cara mulai',
+      html:`
+        <h4>1. Tambah Hutang Pertama</h4>
+        <p>Buka menu <strong>Tambah & Edit Hutang</strong> di sidebar. Isi form di sisi kanan: perusahaan, jenis (KK / KTA / KPR / Paylater), nominal awal, suku bunga, dan tanggal jatuh tempo.</p>
+        <h4>2. Lihat Ringkasan</h4>
+        <p>Setelah hutang ditambahkan, <strong>Dashboard</strong> akan menampilkan total hutang, tagihan bulanan, debt ratio, dan jatuh tempo terdekat.</p>
+        <h4>3. Catat Pembayaran</h4>
+        <p>Setiap kali bayar, buka <strong>Pembayaran Hutang</strong>. Pilih hutang, masukkan nominal, klik <em>Konfirmasi</em>. Saldo & riwayat otomatis ter-update.</p>
+        <h4>4. Pilih Strategi</h4>
+        <p>Buka <strong>AI Insight</strong> untuk lihat perbandingan Snowball / Avalanche / Consolidation dan roadmap bulan-per-bulan.</p>
+        <div class="tip">💡 Tip: Klik kartu "Jatuh Tempo Terdekat" di Dashboard untuk langsung loncat ke form pembayaran.</div>`
+    },
+    bunga: {
+      title:'Cara Hitung Bunga',
+      iconBg:'#ECFDF5', iconColor:'#059669', icon:'calculator',
+      keywords:'bunga interest kartu kredit kta kpr paylater hitung kalkulasi compound',
+      html:`
+        <h4>Kartu Kredit (CC)</h4>
+        <p>Bunga ~<strong>2.95%/bulan</strong> dihitung dari <strong>nominal tagihan statement penuh</strong>, BUKAN sisa setelah bayar sebagian. Bayar lunas total adalah satu-satunya cara menghindari bunga.</p>
+        <h4>KTA / Personal Loan</h4>
+        <p>Bunga ~<strong>1.4%–2%/bulan</strong> flat dari sisa pokok. Setiap pembayaran mengurangi sisa pokok.</p>
+        <h4>KPR</h4>
+        <p>Bunga tahunan (<strong>6%–11%/tahun</strong>) dengan metode efektif/anuitas. Cicilan tetap tapi proporsi pokok:bunga berubah tiap bulan.</p>
+        <h4>Paylater</h4>
+        <p>Bervariasi 2.5%–3% per bulan tergantung provider. Beberapa ada bunga 0% untuk tenor pendek.</p>
+        <div class="tip">⚠️ Yang sering bikin kaget: bunga CC tetap kena bahkan kalau Anda sudah bayar 90% tagihan, selama tidak lunas total.</div>`
+    },
+    strategi: {
+      title:'Snowball vs Avalanche',
+      iconBg:'#F5F3FF', iconColor:'#7C3AED', icon:'sparkles',
+      keywords:'snowball avalanche consolidation strategi pelunasan metode urutan',
+      html:`
+        <h4>❄️ Snowball Method</h4>
+        <p>Lunasi hutang dengan <strong>nominal terkecil</strong> dulu, terlepas dari bunganya. Efek psikologis cepat karena ada "kemenangan kecil" beruntun.</p>
+        <p><em>Cocok untuk</em>: orang yang butuh motivasi & momentum.</p>
+        <h4>⛰️ Avalanche Method</h4>
+        <p>Lunasi hutang dengan <strong>bunga tertinggi</strong> dulu. Secara matematis paling hemat — total bunga yang dibayar paling kecil.</p>
+        <p><em>Cocok untuk</em>: yang fokus efisiensi & angka.</p>
+        <h4>🔀 Consolidation</h4>
+        <p>Gabungkan beberapa hutang bunga tinggi (KK, paylater) jadi <strong>satu KTA bunga rendah</strong>. Cicilan terstruktur & lebih ringan.</p>
+        <p><em>Cocok untuk</em>: yang punya 4+ hutang aktif dengan bunga >2%/bulan.</p>
+        <div class="tip">💡 DEBT FREE merekomendasikan strategi optimal di tab AI Insight berdasarkan profil hutang Anda.</div>`
+    },
+    ocr: {
+      title:'Scan OCR Tagihan',
+      iconBg:'#FFFBEB', iconColor:'#D97706', icon:'scan-line',
+      keywords:'ocr scan upload statement foto tagihan struk e-statement billing',
+      html:`
+        <h4>Tips Foto agar Akurat</h4>
+        <ul>
+          <li>Pakai pencahayaan terang & merata — hindari bayangan</li>
+          <li>Letakkan statement di permukaan datar (jangan ditekuk)</li>
+          <li>Foto tegak lurus dari atas, bukan dari sudut miring</li>
+          <li>Pastikan semua angka & nama kreditur terlihat jelas</li>
+          <li>Resolusi minimal 1024px lebar — JPG/PNG/PDF semua bisa</li>
+        </ul>
+        <h4>Yang Otomatis Terdeteksi</h4>
+        <p>Nama kreditur, nomor kartu/akun, tagihan statement, sisa hutang, minimum payment, tanggal jatuh tempo, suku bunga.</p>
+        <h4>Privasi</h4>
+        <p>File <strong>otomatis dihapus</strong> setelah dibaca AI. Tidak ada upload ke server selain proses OCR sementara.</p>`
+    },
+    keamanan: {
+      title:'Keamanan & Privasi',
+      iconBg:'#F0F9FF', iconColor:'#0284C7', icon:'shield-check',
+      keywords:'keamanan privasi enkripsi data password 2fa session firebase local',
+      html:`
+        <h4>Penyimpanan Data</h4>
+        <p>Saat <em>tanpa login Firebase</em>, semua data tersimpan di <strong>browser Anda saja</strong> (localStorage). Tidak ada server yang menyimpan data Anda.</p>
+        <p>Saat <em>login Firebase</em>, data dienkripsi dalam transit (HTTPS/TLS) dan tersimpan di Firestore dengan rules akses-pribadi.</p>
+        <h4>Yang Tidak Pernah Disimpan</h4>
+        <ul>
+          <li>Password kartu kredit</li>
+          <li>PIN ATM</li>
+          <li>OTP perbankan</li>
+          <li>Token API perbankan</li>
+        </ul>
+        <h4>Backup & Migrasi</h4>
+        <p>Selalu rajin <strong>Export JSON</strong> di menu Pengaturan ▸ Data Management sebagai backup. File JSON ini bisa di-import ke perangkat lain.</p>`
+    },
+    troubleshoot: {
+      title:'Troubleshooting',
+      iconBg:'#FEF2F2', iconColor:'#DC2626', icon:'alert-circle',
+      keywords:'troubleshoot masalah error tidak bisa muncul rusak hilang bug perbaiki',
+      html:`
+        <h4>Data Hilang setelah Refresh</h4>
+        <p>Penyebab tersering: browser dalam mode <strong>incognito/private</strong>. Buka di mode normal — localStorage tidak persisten di incognito.</p>
+        <h4>Chart Kosong / Tidak Muncul</h4>
+        <p>Refresh halaman (Ctrl/Cmd + R). Jika tetap kosong, cek bahwa internet aktif (Chart.js loaded dari CDN).</p>
+        <h4>Tombol Tidak Merespons</h4>
+        <p>Coba refresh. Jika spesifik tombol selalu mati, kemungkinan extension browser memblokir script. Coba mode incognito untuk konfirmasi.</p>
+        <h4>OCR Salah Baca</h4>
+        <p>Edit manual hasilnya di form preview sebelum klik Simpan. Tips foto lihat panduan "Scan OCR Tagihan".</p>
+        <h4>Export PDF Kosong</h4>
+        <p>Pastikan view yang dimaksud (Dashboard / Daftar / Insight) sedang aktif sebelum klik export. Browser otomatis memilih tab cetak yang relevan.</p>
+        <div class="tip">🆘 Masih bermasalah? Email <code>support@debtfree.id</code> dengan screenshot error.</div>`
+    },
+  };
+
+  function openHelpModal(topic){
+    const data = HELP_CONTENT[topic];
+    if (!data) return;
+    const modal = document.getElementById('help-modal');
+    const titleEl = document.getElementById('help-modal-title');
+    const bodyEl = document.getElementById('help-modal-body');
+    const iconEl = document.getElementById('help-modal-icon');
+    titleEl.textContent = data.title;
+    bodyEl.innerHTML = data.html;
+    iconEl.style.background = data.iconBg;
+    iconEl.style.color = data.iconColor;
+    iconEl.innerHTML = `<i data-lucide="${data.icon}" class="w-5 h-5"></i>`;
+    modal.classList.add('active');
+    if (window.lucide?.createIcons) lucide.createIcons();
+  }
+  function closeHelpModal(){
+    document.getElementById('help-modal')?.classList.remove('active');
+  }
+  document.getElementById('help-modal-close')?.addEventListener('click', closeHelpModal);
+  document.getElementById('help-modal')?.addEventListener('click', e => {
+    if (e.target.id === 'help-modal') closeHelpModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('help-modal')?.classList.contains('active')) closeHelpModal();
+  });
+
+  document.querySelectorAll('.bantuan-card').forEach(card => {
+    card.addEventListener('click', e => {
+      e.preventDefault();
+      openHelpModal(card.dataset.helpTopic);
+    });
+  });
+
+  // Bantuan search → filter cards
+  (function wireBantuanSearch(){
+    const input = document.getElementById('bantuan-search-input');
+    const grid = document.getElementById('bantuan-cards-grid');
+    const empty = document.getElementById('bantuan-empty-state');
+    if (!input || !grid) return;
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      let visible = 0;
+      grid.querySelectorAll('.bantuan-card').forEach(c => {
+        const topic = c.dataset.helpTopic;
+        const data = HELP_CONTENT[topic];
+        const hay = (data ? (data.title + ' ' + data.keywords).toLowerCase() : '');
+        const match = !q || hay.includes(q);
+        c.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      empty.style.display = visible === 0 ? 'block' : 'none';
+    });
+  })();
+
+  // Live chat → opens help modal as "demo chat unavailable"
+  document.getElementById('bantuan-livechat')?.addEventListener('click', e => {
+    e.preventDefault();
+    const modal = document.getElementById('help-modal');
+    document.getElementById('help-modal-title').textContent = 'Live Chat Support';
+    document.getElementById('help-modal-icon').style.background = '#ECFDF5';
+    document.getElementById('help-modal-icon').style.color = '#059669';
+    document.getElementById('help-modal-icon').innerHTML = '<i data-lucide="message-circle" class="w-5 h-5"></i>';
+    document.getElementById('help-modal-body').innerHTML = `
+      <h4>Live Chat — Senin–Sabtu 8:00–22:00 WIB</h4>
+      <p>Layanan live chat real-time belum aktif di build ini. Sementara, silakan gunakan salah satu kanal berikut:</p>
+      <ul>
+        <li>📧 Email: <code>support@debtfree.id</code> (response &lt; 24 jam)</li>
+        <li>☎️ Telepon: <code>021-1500-DEBT</code> (jam kerja)</li>
+        <li>📚 Cek Pusat Bantuan di atas untuk jawaban cepat 6 topik tersering</li>
+      </ul>
+      <div class="tip">Build berikutnya akan menyertakan widget live chat terintegrasi.</div>`;
+    modal.classList.add('active');
+    if (window.lucide?.createIcons) lucide.createIcons();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 14. INFO ONLY — Bell button shows a friendly hint
+  // (User opted out of notifications; this just acknowledges the click.)
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('header-bell-btn')?.addEventListener('click', () => {
+    flash('🔕 Notifikasi belum diaktifkan untuk build ini.');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 15. Init: re-render lucide icons for newly added elements
+  // ═══════════════════════════════════════════════════════════════
+  if (window.lucide?.createIcons) lucide.createIcons();
 
   // Initial UI sync
   updateSidebarUserUI();
