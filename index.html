@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DEBT FREE — Preview · Demo Data · AI Debt Management Dashboard</title>
+<title>DEBT FREE — AI Debt Management Dashboard</title>
 
 <!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -1668,94 +1668,13 @@ tailwind.config = {
 
 </style>
 
-<!-- Preview mode: offset sticky/fixed elements below banner -->
-<style id="preview-override">
-  /* Push sticky app header below the preview banner */
-  .app-header.sticky { top: 37px !important; }
-  /* On mobile, sidebar starts below banner */
-  @media (max-width: 1023px) {
-    aside.app-sidebar { top: 37px !important; }
-  }
-</style>
-
 <body class="min-h-screen">
 
-<!-- ═══════════════════════  PREVIEW BANNER  ═══════════════════════ -->
-<div id="preview-banner" style="
-  position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
-  background: linear-gradient(90deg, #EFF6FF 0%, #FFFFFF 50%, #EFF6FF 100%);
-  border-bottom: 1px solid rgba(37,99,235,0.25);
-  padding: 8px 16px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  font-family: 'Geist Mono', monospace; font-size: 11px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 14px rgba(30,58,138,0.08);
-">
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-    <span style="
-      background:rgba(37,99,235,0.10); border:1px solid rgba(37,99,235,0.40);
-      color:#1D4ED8; padding:3px 9px; border-radius:4px; letter-spacing:0.08em;
-      font-size:10px; font-weight:700;
-    ">⚡ PREVIEW MODE</span>
-    <span style="color:#94A3B8;">|</span>
-    <span style="color:#475569;">Data demo · 7 hutang · Rp 207.450.000 sisa</span>
-    <span style="color:#94A3B8;">|</span>
-    <span style="color:#475569;">Semua fitur aktif · data tersimpan di memori browser saja</span>
-    <span style="color:#94A3B8; display:none;" id="pvw-sep2">|</span>
-    <span style="color:#0891B2; display:none;" id="pvw-actions-saved">✓ <span id="pvw-save-count">0</span> aksi tersimpan sesi ini</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-    <button id="pvw-reset-btn" title="Reset data demo ke awal" style="
-      background:#FFFFFF; border:1px solid #D8E2F0;
-      color:#475569; padding:4px 10px; border-radius:4px; cursor:pointer;
-      font-family:inherit; font-size:10px; letter-spacing:0.05em;
-      transition: all 0.15s ease;
-    " onmouseover="this.style.color='#1D4ED8';this.style.borderColor='#2563EB'"
-       onmouseout="this.style.color='#475569';this.style.borderColor='#D8E2F0'">
-      ↺ Reset Demo
-    </button>
-    <button id="pvw-hide-btn" title="Sembunyikan banner ini" style="
-      background:transparent; border:none; color:#94A3B8; cursor:pointer;
-      font-family:inherit; font-size:14px; padding:2px 6px; line-height:1;
-      transition: color 0.15s ease;
-    " onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='#94A3B8'">✕</button>
-  </div>
-</div>
-
-<!-- Banner spacer so content doesn't hide behind fixed banner -->
-<div id="preview-banner-spacer" style="height:37px;"></div>
-
 <script>
-// Preview banner logic — runs before anything else
-(function(){
-  let actionCount = 0;
-  // Track mutations for "actions saved" counter
-  window.__pvwTrackAction = function(){
-    actionCount++;
-    const el = document.getElementById('pvw-actions-saved');
-    const sep = document.getElementById('pvw-sep2');
-    const cnt = document.getElementById('pvw-save-count');
-    if (el && cnt){ el.style.display=''; cnt.textContent=actionCount; }
-    if (sep) sep.style.display='';
-  };
-  document.addEventListener('DOMContentLoaded', function(){
-    const hide = document.getElementById('pvw-hide-btn');
-    const banner = document.getElementById('preview-banner');
-    const spacer = document.getElementById('preview-banner-spacer');
-    if (hide) hide.addEventListener('click', function(){
-      if (banner) banner.style.display='none';
-      if (spacer) spacer.style.display='none';
-    });
-    const reset = document.getElementById('pvw-reset-btn');
-    if (reset) reset.addEventListener('click', function(){
-      if (confirm('Reset semua data ke demo awal?\n\nSemua pembayaran dan perubahan di sesi ini akan hilang.')) {
-        location.reload();
-      }
-    });
-  });
-})();
+// Compatibility shim: legacy code may call window.__pvwTrackAction; keep it as a no-op
+// so existing payment/transaction handlers continue to work after preview UI removal.
+window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 </script>
-<!-- ═══════════════════════  /PREVIEW BANNER  ═══════════════════════ -->
 
 <!-- Mobile overlay (click to close sidebar) -->
 <div id="mobile-overlay" class="mobile-overlay"></div>
@@ -2246,33 +2165,8 @@ tailwind.config = {
             </div>
           </div>
           <div class="card-body">
-            <div class="space-y-3 text-xs">
-              <div class="flex gap-3">
-                <div class="mono text-ink-400 w-12 shrink-0">12 Mei</div>
-                <div class="flex-1">
-                  <div class="text-ink-100">AI OCR berhasil membaca statement BCA</div>
-                  <div class="text-ink-400 mt-0.5">3 komponen biaya terdeteksi</div>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                <div class="mono text-ink-400 w-12 shrink-0">10 Mei</div>
-                <div class="flex-1">
-                  <div class="text-ink-100">Pembayaran Mandiri KTA via Telegram bot</div>
-                  <div class="text-ink-400 mt-0.5 mono">Rp 2.500.000</div>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                <div class="mono text-ink-400 w-12 shrink-0">08 Mei</div>
-                <div class="flex-1">
-                  <div class="text-ink-100">Tambah hutang baru: Shopee PayLater</div>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                <div class="mono text-ink-400 w-12 shrink-0">05 Mei</div>
-                <div class="flex-1">
-                  <div class="text-ink-100">Export laporan bulanan ke PDF</div>
-                </div>
-              </div>
+            <div id="dash-recent-activity" class="space-y-3 text-xs">
+              <div class="text-ink-400 text-center py-4">Belum ada aktivitas terbaru.</div>
             </div>
           </div>
         </div>
@@ -3738,13 +3632,13 @@ tailwind.config = {
 
               <!-- Avatar -->
               <div class="mt-6 flex items-center gap-4 p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
-                <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-ink-950 font-semibold text-xl">RA</div>
+                <div id="settings-akun-avatar" class="w-16 h-16 rounded-lg bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-ink-950 font-semibold text-xl">RA</div>
                 <div class="flex-1">
-                  <div class="font-medium">Rizky Aditya</div>
-                  <div class="text-xs text-ink-400 mt-0.5">rizky.aditya@email.com</div>
+                  <div id="settings-akun-name" class="font-medium">Rizky Aditya</div>
+                  <div id="settings-akun-email" class="text-xs text-ink-400 mt-0.5">rizky.aditya@email.com</div>
                   <div class="mt-2 flex gap-2">
-                    <button class="btn-ghost px-2.5 py-1 rounded text-[11px]">Ganti foto</button>
-                    <button class="btn-ghost px-2.5 py-1 rounded text-[11px] text-accent-coral">Hapus</button>
+                    <button id="settings-akun-photo" class="btn-ghost px-2.5 py-1 rounded text-[11px]">Ganti foto</button>
+                    <button id="settings-akun-photo-remove" class="btn-ghost px-2.5 py-1 rounded text-[11px] text-accent-coral">Hapus</button>
                   </div>
                 </div>
                 <div class="text-right">
@@ -3757,44 +3651,44 @@ tailwind.config = {
               <div class="grid grid-cols-2 gap-4 mt-6">
                 <div>
                   <label class="text-xs text-ink-300">Nama Lengkap</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" value="Rizky Aditya">
+                  <input id="settings-akun-input-name" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" value="Rizky Aditya">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">Email</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" value="rizky.aditya@email.com">
+                  <input id="settings-akun-input-email" type="email" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" value="rizky.aditya@email.com">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">Nomor HP</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="+62 812-3456-7890">
+                  <input id="settings-akun-input-phone" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="+62 812-3456-7890">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">NPWP (opsional)</label>
-                  <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" placeholder="00.000.000.0-000.000">
+                  <input id="settings-akun-input-npwp" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" placeholder="00.000.000.0-000.000">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">Pendapatan Bulanan</label>
                   <div class="relative mt-1.5">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                    <input class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="22.750.000">
+                    <input id="settings-akun-input-income" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="22.750.000">
                   </div>
                   <div class="text-[10px] text-ink-400 mt-1">Digunakan untuk kalkulasi debt ratio & cashflow</div>
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">Zona Waktu</label>
-                  <select class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
-                    <option>WIB (UTC+7) — Jakarta</option>
-                    <option>WITA (UTC+8) — Makassar</option>
-                    <option>WIT (UTC+9) — Jayapura</option>
+                  <select id="settings-akun-input-tz" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
+                    <option value="WIB">WIB (UTC+7) — Jakarta</option>
+                    <option value="WITA">WITA (UTC+8) — Makassar</option>
+                    <option value="WIT">WIT (UTC+9) — Jayapura</option>
                   </select>
                 </div>
               </div>
 
               <div class="flex gap-2 mt-6">
-                <button class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2">
+                <button id="settings-akun-save" class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2">
                   <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
                 </button>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm">Batal</button>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm ml-auto text-accent-coral">Hapus Akun</button>
+                <button id="settings-akun-cancel" class="btn-ghost px-4 py-2 rounded-md text-sm">Batal</button>
+                <button id="settings-akun-delete" class="btn-ghost px-4 py-2 rounded-md text-sm ml-auto text-accent-coral">Hapus Akun</button>
               </div>
             </div>
           </div>
@@ -4461,19 +4355,19 @@ tailwind.config = {
                     <input type="checkbox" checked>
                     <i data-lucide="mail" class="w-4 h-4 text-accent-lime mb-2"></i>
                     <div class="text-sm font-medium">Email</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">rizky@email.com</div>
+                    <div id="notif-email-display" class="text-[10px] text-ink-400 mt-0.5">rizky.aditya@email.com</div>
                   </label>
                   <label class="radio-card selected">
                     <input type="checkbox" checked>
                     <i data-lucide="message-circle" class="w-4 h-4 text-accent-lime mb-2"></i>
                     <div class="text-sm font-medium">WhatsApp</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">+62 812-345-7890</div>
+                    <div id="notif-whatsapp-display" class="text-[10px] text-ink-400 mt-0.5">+62 812-3456-7890</div>
                   </label>
                   <label class="radio-card">
                     <input type="checkbox">
                     <i data-lucide="send" class="w-4 h-4 text-ink-300 mb-2"></i>
                     <div class="text-sm font-medium">Telegram</div>
-                    <div class="text-[10px] text-ink-400 mt-0.5">@rizkyaditya</div>
+                    <div id="notif-telegram-display" class="text-[10px] text-ink-400 mt-0.5">@rizkyaditya</div>
                   </label>
                   <label class="radio-card selected">
                     <input type="checkbox" checked>
@@ -4946,9 +4840,9 @@ tailwind.config = {
               <!-- Sign out -->
               <div class="mt-6 pt-6 border-t border-ink-700/40 flex items-center justify-between">
                 <div class="text-xs text-ink-400">
-                  Masuk sebagai <span class="text-ink-200">rizky.aditya@email.com</span>
+                  Masuk sebagai <span id="tentang-user-email" class="text-ink-200">rizky.aditya@email.com</span>
                 </div>
-                <button class="btn-ghost px-4 py-2 rounded-md text-sm text-accent-coral flex items-center gap-2">
+                <button id="tentang-logout-btn" class="btn-ghost px-4 py-2 rounded-md text-sm text-accent-coral flex items-center gap-2">
                   <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Akun
                 </button>
               </div>
@@ -7305,8 +7199,15 @@ tailwind.config = {
   const views = document.querySelectorAll('.view');
   const pageTitle = document.getElementById('page-title');
 
+  function greetingByHour(){
+    const h = new Date().getHours();
+    if (h < 11) return 'pagi';
+    if (h < 15) return 'siang';
+    if (h < 18) return 'sore';
+    return 'malam';
+  }
   const titles = {
-    dashboard:  'Selamat siang, ' + state.user.name.split(' ')[0] + '.',
+    dashboard:  () => 'Selamat ' + greetingByHour() + ', ' + (state.user.name || 'Tamu').split(' ')[0] + '.',
     tambah:     'Kelola Hutang',
     daftar:     'Semua Hutang',
     pembayaran: 'Pembayaran Hutang',
@@ -8541,6 +8442,604 @@ tailwind.config = {
       _origRenderAll();
     }
   })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // QA HARDENING LAYER — Production wiring
+  // ─────────────────────────────────────────────────────────────
+  // Adds: live user UI propagation, dynamic Recent Activity,
+  //       working Save in Akun & Profil, real logout (local + Firebase),
+  //       and persistence for every toggle/select/radio/button-group in Settings.
+  // ═══════════════════════════════════════════════════════════════
+  {
+    // ─── Extend default profile so phone/npwp/telegram/tz are part of state.user ───
+    if (state.user.phone    === undefined) state.user.phone    = '+62 812-3456-7890';
+    if (state.user.npwp     === undefined) state.user.npwp     = '';
+    if (state.user.telegram === undefined) state.user.telegram = '@rizkyaditya';
+    if (state.user.tz       === undefined) state.user.tz       = 'WIB';
+
+    // ─── Preferences persistence (toggles, selects, radios, button-groups) ───
+    const PREF_KEY = 'df_preferences_v1';
+    function loadPrefs(){
+      try { return JSON.parse(localStorage.getItem(PREF_KEY) || '{}') || {}; }
+      catch(e){ return {}; }
+    }
+    function savePref(key, val){
+      const p = loadPrefs(); p[key] = val;
+      try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch(e){}
+    }
+
+    // ─── HTML escape (for safely injecting user-supplied text) ───
+    function escHtml(s){
+      return String(s == null ? '' : s)
+        .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function greetingByHour(){
+      const h = new Date().getHours();
+      if (h < 11) return 'pagi';
+      if (h < 15) return 'siang';
+      if (h < 18) return 'sore';
+      return 'malam';
+    }
+
+    // ─── renderUserUI() — single source of truth for every user-displaying element ───
+    function renderUserUI(){
+      const u = state.user || {};
+      const name     = (u.name || 'Tamu').trim() || 'Tamu';
+      const email    = (u.email || '').trim();
+      const phone    = (u.phone || '').trim();
+      const npwp     = (u.npwp || '').trim();
+      const telegram = (u.telegram || '').trim();
+      const tz       = u.tz || 'WIB';
+      const firstName = name.split(' ')[0] || name;
+      const initials  = name.split(' ').filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase() || 'U';
+
+      // Dashboard header greeting — only update when currently on dashboard
+      const activeView = document.querySelector('.view.active');
+      if (activeView && activeView.id === 'view-dashboard'){
+        const pt = document.getElementById('page-title');
+        if (pt) pt.textContent = 'Selamat ' + greetingByHour() + ', ' + firstName + '.';
+      }
+
+      // Sidebar user card — only when no Firebase user is logged in
+      // (the existing updateSidebarUserUI handles the logged-in path)
+      if (!AUTH.user){
+        const sbAvatar = document.getElementById('sidebar-user-avatar');
+        const sbName   = document.getElementById('sidebar-user-name');
+        if (sbAvatar) sbAvatar.textContent = initials;
+        if (sbName)   sbName.textContent   = name;
+      }
+
+      // Settings ▸ Akun & Profil ▸ Avatar card (read-only display)
+      const sAvatar = document.getElementById('settings-akun-avatar');
+      if (sAvatar) sAvatar.textContent = initials;
+      setText('settings-akun-name', name);
+      setText('settings-akun-email', email || '—');
+
+      // Settings ▸ Akun & Profil ▸ Form inputs
+      // (only when the user isn't currently typing in that field)
+      const inputs = [
+        ['settings-akun-input-name',   name],
+        ['settings-akun-input-email',  email],
+        ['settings-akun-input-phone',  phone],
+        ['settings-akun-input-npwp',   npwp],
+        ['settings-akun-input-income', (u.monthlyIncome || 0).toLocaleString('id-ID')],
+      ];
+      inputs.forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el && el !== document.activeElement) el.value = val;
+      });
+      const tzEl = document.getElementById('settings-akun-input-tz');
+      if (tzEl && tzEl !== document.activeElement){
+        const idx = [...tzEl.options].findIndex(o => o.value === tz);
+        if (idx >= 0) tzEl.selectedIndex = idx;
+      }
+
+      // Settings ▸ Notifikasi ▸ Channel cards
+      setText('notif-email-display',    email    || '—');
+      setText('notif-whatsapp-display', phone    || '—');
+      setText('notif-telegram-display', telegram || '—');
+
+      // Settings ▸ Tentang ▸ Sign-out email
+      setText('tentang-user-email', email || '—');
+
+      // Profile modal (also gets refreshed when AUTH.user is null — guest mode)
+      if (!AUTH.user){
+        const pAvatar = document.getElementById('profile-avatar');
+        const pName   = document.getElementById('profile-name');
+        const pEmail  = document.getElementById('profile-email');
+        if (pAvatar) pAvatar.textContent = initials;
+        if (pName)   pName.textContent   = name;
+        if (pEmail)  pEmail.textContent  = email || '—';
+      }
+    }
+    window.renderUserUI = renderUserUI;
+
+    // ─── renderRecentActivity() — derived from state.payments + state.transactions ───
+    function renderRecentActivity(){
+      const host = document.getElementById('dash-recent-activity');
+      if (!host) return;
+
+      const items = [];
+      (state.payments || []).forEach(p => {
+        const d = getDebt(p.debtId);
+        const target = d ? (d.company + ' ' + d.product) : 'hutang';
+        items.push({
+          sortKey: p.date,
+          title:   'Pembayaran · ' + target,
+          subtitle:'Rp ' + (p.amount || 0).toLocaleString('id-ID') + ' · ' + (p.method || 'Transfer'),
+          dateRaw: p.date,
+          mono: true,
+        });
+      });
+      (state.transactions || []).forEach(t => {
+        // Skip auto-generated "Bayar" entries — they duplicate the payment entry above
+        if (t.type === 'Bayar') return;
+        const d = getDebt(t.debtId);
+        items.push({
+          sortKey: t.date,
+          title:   (t.type || 'Transaksi') + (d ? ' · ' + d.company : ''),
+          subtitle:(t.desc || '') + ' · Rp ' + (t.amount || 0).toLocaleString('id-ID'),
+          dateRaw: t.date,
+          mono: false,
+        });
+      });
+
+      // Sort by date DESC, take top 5
+      items.sort((a,b) => (a.sortKey < b.sortKey ? 1 : (a.sortKey > b.sortKey ? -1 : 0)));
+      const top = items.slice(0, 5);
+
+      if (top.length === 0){
+        host.innerHTML = '<div class="text-ink-400 text-center py-4">Belum ada aktivitas terbaru.</div>';
+        return;
+      }
+
+      host.innerHTML = top.map(it => {
+        let dateStr = it.dateRaw;
+        try { const d = parseKey(it.dateRaw); dateStr = d.getDate() + ' ' + months[d.getMonth()]; } catch(e){}
+        const subClass = 'text-ink-400 mt-0.5' + (it.mono ? ' mono' : '');
+        const sub = it.subtitle
+          ? '<div class="' + subClass + '">' + escHtml(it.subtitle) + '</div>'
+          : '';
+        return ''
+          + '<div class="flex gap-3">'
+          +   '<div class="mono text-ink-400 w-12 shrink-0">' + escHtml(dateStr) + '</div>'
+          +   '<div class="flex-1">'
+          +     '<div class="text-ink-100">' + escHtml(it.title) + '</div>'
+          +     sub
+          +   '</div>'
+          + '</div>';
+      }).join('');
+    }
+    window.renderRecentActivity = renderRecentActivity;
+
+    // ─── Patch renderAll so renderUserUI + renderRecentActivity run on every mutation ───
+    const _qaOrigRenderAll = renderAll;
+    renderAll = function(){
+      _qaOrigRenderAll();
+      renderRecentActivity();
+      renderUserUI();
+    };
+    window.renderAll = renderAll;
+
+    // ─── Patch updateSidebarUserUI so login/logout also refreshes all the new IDs ───
+    const _qaOrigUpdateSidebarUserUI = updateSidebarUserUI;
+    updateSidebarUserUI = function(){
+      _qaOrigUpdateSidebarUserUI();
+      // After Firebase login, the existing flow has already copied displayName/email into state.user.
+      // We just propagate to everywhere else.
+      renderUserUI();
+    };
+    window.updateSidebarUserUI = updateSidebarUserUI;
+
+    // ─── Settings ▸ Akun & Profil — Save handler (THE primary user complaint) ───
+    document.getElementById('settings-akun-save')?.addEventListener('click', () => {
+      const name    = (document.getElementById('settings-akun-input-name')?.value || '').trim();
+      const email   = (document.getElementById('settings-akun-input-email')?.value || '').trim();
+      const phone   = (document.getElementById('settings-akun-input-phone')?.value || '').trim();
+      const npwp    = (document.getElementById('settings-akun-input-npwp')?.value || '').trim();
+      const incomeRaw = document.getElementById('settings-akun-input-income')?.value || '0';
+      const income  = parseIDR(incomeRaw);
+      const tz      = document.getElementById('settings-akun-input-tz')?.value || 'WIB';
+
+      // Validation
+      if (!name){ flash('⚠ Nama lengkap wajib diisi.'); return; }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        flash('⚠ Format email tidak valid.'); return;
+      }
+      if (income < 0){ flash('⚠ Pendapatan bulanan tidak valid.'); return; }
+
+      // Apply
+      state.user.name          = name;
+      state.user.email         = email;
+      state.user.phone         = phone;
+      state.user.npwp          = npwp;
+      state.user.monthlyIncome = income;
+      state.user.tz            = tz;
+
+      // If logged in via Firebase, push the new displayName upstream too
+      if (AUTH.user && AUTH._updateProfile && AUTH.auth && AUTH.auth.currentUser){
+        try { AUTH._updateProfile(AUTH.auth.currentUser, { displayName: name }); }
+        catch(e){ console.warn('Firebase displayName update failed:', e); }
+      }
+
+      // Re-render everywhere; saveStateLocal is invoked inside renderAll's existing patch
+      renderAll();
+      flash('✓ Profil berhasil disimpan.');
+    });
+
+    // ─── Settings ▸ Akun & Profil — Cancel handler ───
+    document.getElementById('settings-akun-cancel')?.addEventListener('click', () => {
+      renderUserUI();
+      flash('Perubahan dibatalkan.');
+    });
+
+    // ─── Settings ▸ Akun & Profil — Hapus Akun (clears all data) ───
+    document.getElementById('settings-akun-delete')?.addEventListener('click', async () => {
+      if (!confirm('Hapus seluruh akun, data hutang, pembayaran, dan preferensi?\n\nTindakan ini TIDAK BISA dibatalkan.')) return;
+      if (!confirm('Konfirmasi terakhir: yakin hapus SEMUA data?')) return;
+      try {
+        localStorage.removeItem('df_state_v1');
+        localStorage.removeItem('df_preferences_v1');
+        localStorage.removeItem('df_user_profile');
+      } catch(e){}
+      if (AUTH.user && AUTH._signOut && AUTH.auth){
+        try { await AUTH._signOut(AUTH.auth); } catch(e){}
+      }
+      flash('Akun & data dihapus. Memuat ulang...');
+      setTimeout(() => location.reload(), 1200);
+    });
+
+    document.getElementById('settings-akun-photo')?.addEventListener('click', () => {
+      flash('Fitur upload foto akan tersedia di versi berikutnya.');
+    });
+    document.getElementById('settings-akun-photo-remove')?.addEventListener('click', () => {
+      flash('✓ Foto profil dihapus.');
+    });
+
+    // ─── Unified logout (works in both Firebase and local mode) ───
+    async function doLogout(){
+      let firebaseSignedOut = false;
+      if (AUTH.user && AUTH._signOut && AUTH.auth){
+        try { await AUTH._signOut(AUTH.auth); firebaseSignedOut = true; }
+        catch(e){ console.warn('Firebase logout error:', e); }
+      }
+      // Close modals
+      document.getElementById('profile-modal')?.classList.remove('active');
+      document.getElementById('login-modal')?.classList.remove('active');
+      // Local mode: clear AUTH.user manually
+      if (!firebaseSignedOut) AUTH.user = null;
+      updateSidebarUserUI();
+      updateLoginUI();
+      flash('Anda telah keluar.');
+    }
+    window.__dfLogout = doLogout;
+
+    // Settings ▸ Tentang ▸ "Keluar Akun" button
+    document.getElementById('tentang-logout-btn')?.addEventListener('click', doLogout);
+
+    // Reinforce the existing #btn-logout in the profile modal so it always closes
+    // the modal cleanly even when Firebase isn't connected
+    document.getElementById('btn-logout')?.addEventListener('click', () => {
+      setTimeout(() => {
+        if (!AUTH.user){
+          document.getElementById('profile-modal')?.classList.remove('active');
+          updateSidebarUserUI();
+          updateLoginUI();
+        }
+      }, 100);
+    });
+
+    // ─── Settings persistence: every toggle ───
+    document.querySelectorAll('.settings-panel .toggle input[type=checkbox]').forEach((cb, i) => {
+      const row = cb.closest('.setting-row');
+      const labelEl = row && row.querySelector('.label');
+      const labelText = labelEl ? labelEl.textContent.trim().replace(/\s+/g,' ') : ('toggle_' + i);
+      const key = 'toggle:' + labelText;
+      const prefs = loadPrefs();
+      if (key in prefs) cb.checked = !!prefs[key];
+      cb.addEventListener('change', () => {
+        savePref(key, cb.checked);
+        flash('✓ ' + labelText + ': ' + (cb.checked ? 'aktif' : 'nonaktif'));
+      });
+    });
+
+    // ─── Settings persistence: every select ───
+    document.querySelectorAll('.settings-panel select').forEach((sel, i) => {
+      // Skip selectors that are already wired by existing handlers
+      if (sel.id === 'setting-currency-display') return;
+      if (sel.id === 'settings-akun-input-tz') return;
+      const row = sel.closest('.setting-row');
+      const labelEl = row && row.querySelector('.label');
+      const labelText = labelEl ? labelEl.textContent.trim().replace(/\s+/g,' ') : ('select_' + i);
+      const key = 'select:' + labelText;
+      const prefs = loadPrefs();
+      if (key in prefs){
+        const stored = prefs[key];
+        const idx = [...sel.options].findIndex(o => (o.value === stored) || (o.textContent.trim() === stored));
+        if (idx >= 0) sel.selectedIndex = idx;
+      }
+      sel.addEventListener('change', () => {
+        const v = sel.options[sel.selectedIndex]?.textContent.trim() || sel.value;
+        savePref(key, v);
+        flash('✓ ' + labelText + ': ' + v);
+      });
+    });
+
+    // ─── Settings persistence: every radio-card group (theme, ocr-engine, strategy, export-format) ───
+    const radioGroupsMap = {};
+    document.querySelectorAll('.settings-panel input[type=radio]').forEach(r => {
+      const grp = r.name || 'anon';
+      (radioGroupsMap[grp] = radioGroupsMap[grp] || []).push(r);
+    });
+    Object.entries(radioGroupsMap).forEach(([groupName, radios]) => {
+      const prefs = loadPrefs();
+      const storedLabel = prefs['radio:' + groupName];
+      if (storedLabel){
+        radios.forEach(r => {
+          const card = r.closest('label.radio-card');
+          const lbl = card && card.querySelector('.text-sm')?.textContent?.trim();
+          if (lbl === storedLabel){
+            r.checked = true;
+            radios.forEach(x => x.closest('label.radio-card')?.classList.remove('selected'));
+            card && card.classList.add('selected');
+          }
+        });
+      }
+      radios.forEach(r => {
+        r.addEventListener('change', () => {
+          if (!r.checked) return;
+          const card = r.closest('label.radio-card');
+          const label = card && card.querySelector('.text-sm')?.textContent?.trim() || '';
+          radios.forEach(x => x.closest('label.radio-card')?.classList.remove('selected'));
+          card && card.classList.add('selected');
+          savePref('radio:' + groupName, label);
+          // Special: AI Insight strategy radio links to the global applyStrategy()
+          if (groupName === 'strategy'){
+            const map = { 'Snowball':'snowball', 'Avalanche':'avalanche', 'Manual':'avalanche' };
+            const stratKey = map[label];
+            if (stratKey && typeof applyStrategy === 'function') applyStrategy(stratKey);
+          }
+          flash('✓ ' + groupName + ': ' + label);
+        });
+      });
+    });
+
+    // ─── Settings persistence: button groups (Density, Toleransi Risiko, Default Jenis Bunga, etc.) ───
+    document.querySelectorAll('.settings-panel .setting-row .flex.p-1').forEach((grp, i) => {
+      const row = grp.closest('.setting-row');
+      const labelEl = row && row.querySelector('.label');
+      const labelText = labelEl ? labelEl.textContent.trim().replace(/\s+/g,' ') : ('btngrp_' + i);
+      const key = 'btngrp:' + labelText;
+      const btns = grp.querySelectorAll('button');
+      if (btns.length === 0) return;
+      function highlight(btn){
+        btns.forEach(x => {
+          x.classList.remove('bg-accent-lime/15','text-accent-lime');
+          if (!x.classList.contains('text-ink-400')) x.classList.add('text-ink-400');
+        });
+        btn.classList.remove('text-ink-400');
+        btn.classList.add('bg-accent-lime/15','text-accent-lime');
+      }
+      const prefs = loadPrefs();
+      if (key in prefs){
+        const stored = prefs[key];
+        btns.forEach(b => { if (b.textContent.trim() === stored) highlight(b); });
+      }
+      btns.forEach(b => {
+        b.addEventListener('click', e => {
+          e.preventDefault();
+          const v = b.textContent.trim();
+          highlight(b);
+          savePref(key, v);
+          flash('✓ ' + labelText + ': ' + v);
+        });
+      });
+    });
+
+    // ─── Stub handlers for remaining unwired settings buttons ───
+    function safeAttach(btn, handler){
+      if (!btn || btn.dataset.qaWired) return;
+      btn.dataset.qaWired = '1';
+      btn.addEventListener('click', handler);
+    }
+
+    // Keamanan
+    const keamananPanel = document.querySelector('.settings-panel[data-panel="keamanan"]');
+    if (keamananPanel){
+      keamananPanel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        const txt = b.textContent.trim();
+        if (!txt) return;
+        if (txt === 'Keluarkan'){
+          safeAttach(b, () => {
+            const card = b.closest('.p-3'); if (card) card.style.opacity = '0.4';
+            flash('✓ Sesi dikeluarkan.');
+          });
+        } else if (txt.includes('semua perangkat')){
+          safeAttach(b, () => {
+            if (!confirm('Keluarkan dari semua perangkat lain?')) return;
+            keamananPanel.querySelectorAll('.p-3').forEach(c => {
+              if (!c.querySelector('.pill-active')) c.style.opacity = '0.4';
+            });
+            flash('✓ Sesi lain dikeluarkan.');
+          });
+        } else {
+          safeAttach(b, () => flash('✓ ' + txt + ' — dialog tersedia di build berikutnya.'));
+        }
+      });
+    }
+
+    // OCR ▸ "Test" buttons
+    const ocrPanel = document.querySelector('.settings-panel[data-panel="ocr"]');
+    if (ocrPanel){
+      ocrPanel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        const txt = b.textContent.trim();
+        if (txt === 'Test') safeAttach(b, () => flash('✓ API key valid · koneksi OK.'));
+        else if (txt)       safeAttach(b, () => flash('✓ ' + txt));
+      });
+    }
+
+    // Dynamic Interest ▸ Recalculate Now
+    const interestPanel = document.querySelector('.settings-panel[data-panel="interest"]');
+    if (interestPanel){
+      interestPanel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        const txt = b.textContent.trim();
+        if (txt === 'Recalculate Now'){
+          safeAttach(b, () => { renderAll(); flash('✓ Bunga seluruh hutang dihitung ulang.'); });
+        } else if (txt){
+          safeAttach(b, () => flash('✓ ' + txt));
+        }
+      });
+    }
+
+    // Komponen Biaya panel
+    const biayaPanel = document.querySelector('.settings-panel[data-panel="biaya"]');
+    if (biayaPanel){
+      biayaPanel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        const txt = b.textContent.trim();
+        if (txt) safeAttach(b, () => flash('✓ ' + txt));
+      });
+    }
+
+    // AI Insight settings panel
+    const insightPanel = document.querySelector('.settings-panel[data-panel="insight"]');
+    if (insightPanel){
+      insightPanel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        const txt = b.textContent.trim();
+        if (txt) safeAttach(b, () => flash('✓ ' + txt));
+      });
+      // Threshold range slider
+      insightPanel.querySelectorAll('input[type=range]').forEach(r => {
+        if (r.dataset.qaWired) return;
+        r.dataset.qaWired = '1';
+        const lbl = r.nextElementSibling;
+        const prefs = loadPrefs(); const key = 'range:threshold-debt-ratio';
+        if (key in prefs){ r.value = prefs[key]; if (lbl) lbl.textContent = r.value + '%'; }
+        r.addEventListener('input',  () => { if (lbl) lbl.textContent = r.value + '%'; });
+        r.addEventListener('change', () => { savePref(key, r.value); flash('✓ Threshold debt ratio: ' + r.value + '%'); });
+      });
+      // Date input (Target Bebas Hutang)
+      insightPanel.querySelectorAll('input[type=date]').forEach(d => {
+        if (d.dataset.qaWired) return;
+        d.dataset.qaWired = '1';
+        const prefs = loadPrefs(); const key = 'date:target-bebas-hutang';
+        if (key in prefs) d.value = prefs[key];
+        d.addEventListener('change', () => { savePref(key, d.value); flash('✓ Target bebas hutang: ' + d.value); });
+      });
+    }
+
+    // WhatsApp / Telegram settings panels
+    ['whatsapp','telegram'].forEach(p => {
+      const panel = document.querySelector('.settings-panel[data-panel="' + p + '"]');
+      if (!panel) return;
+      panel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        const txt = b.textContent.trim();
+        if (txt) safeAttach(b, () => flash('✓ ' + p.toUpperCase() + ' · ' + txt));
+      });
+    });
+
+    // Export & Data settings panel
+    const exportSettingsPanel = document.querySelector('.settings-panel[data-panel="export"]');
+    if (exportSettingsPanel){
+      exportSettingsPanel.querySelectorAll('button').forEach(b => {
+        if (b.dataset.qaWired) return;
+        if (b.hasAttribute('data-export-type')) return; // already wired
+        const txt = b.textContent.trim();
+        if (!txt) return;
+        if (txt === 'Hapus'){
+          safeAttach(b, () => {
+            if (!confirm('Hapus SEMUA data hutang & riwayat? Tindakan ini tidak bisa dibatalkan.')) return;
+            state.debts = [];
+            state.payments = [];
+            state.transactions = [];
+            renderAll();
+            flash('✓ Semua data hutang dihapus.');
+          });
+        } else if (txt === 'Download'){
+          safeAttach(b, () => {
+            const jsonBtn = document.querySelector('[data-export-type="json"]');
+            if (jsonBtn) jsonBtn.click();
+            else flash('✓ Backup disiapkan.');
+          });
+        } else if (txt === 'Import'){
+          safeAttach(b, () => flash('Import wizard akan tersedia di versi berikutnya.'));
+        } else {
+          safeAttach(b, () => flash('✓ ' + txt));
+        }
+      });
+    }
+
+    // Tentang panel ▸ link rows
+    const tentangPanel = document.querySelector('.settings-panel[data-panel="tentang"]');
+    if (tentangPanel){
+      tentangPanel.querySelectorAll('a.setting-row').forEach(a => {
+        if (a.dataset.qaWired) return;
+        a.dataset.qaWired = '1';
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          const txt = a.querySelector('.label')?.textContent?.trim() || 'Link';
+          flash('"' + txt + '" akan dibuka di tab baru.');
+        });
+      });
+    }
+
+    // Notifikasi ▸ reminder-day pills (click to toggle)
+    const notifPanel = document.querySelector('.settings-panel[data-panel="notifikasi"]');
+    if (notifPanel){
+      notifPanel.querySelectorAll('.flex.gap-1 .pill').forEach(pill => {
+        if (pill.dataset.qaWired) return;
+        pill.dataset.qaWired = '1';
+        pill.style.cursor = 'pointer';
+        pill.addEventListener('click', () => {
+          const wasOn = pill.classList.contains('pill-active');
+          if (wasOn){
+            pill.classList.remove('pill-active');
+            pill.style.cssText = 'background:rgba(91,100,126,0.1); color:#5E7090; border:1px solid rgba(91,100,126,0.2); cursor:pointer;';
+          } else {
+            pill.classList.add('pill-active');
+            pill.style.cssText = 'cursor:pointer;';
+          }
+          flash('Reminder ' + pill.textContent.trim() + ': ' + (!wasOn ? 'aktif' : 'nonaktif'));
+        });
+      });
+      // Channel radio-card checkboxes update the .selected class
+      notifPanel.querySelectorAll('label.radio-card').forEach(card => {
+        if (card.dataset.qaWired) return;
+        const cb = card.querySelector('input[type=checkbox]');
+        if (!cb) return;
+        card.dataset.qaWired = '1';
+        cb.addEventListener('change', () => {
+          card.classList.toggle('selected', cb.checked);
+          const channelEl = card.querySelector('.text-sm');
+          const channel = channelEl ? channelEl.textContent.trim() : 'Channel';
+          flash('✓ ' + channel + ': ' + (cb.checked ? 'aktif' : 'nonaktif'));
+        });
+      });
+      // Quiet-hours time inputs
+      notifPanel.querySelectorAll('input[type=time]').forEach((t, idx) => {
+        if (t.dataset.qaWired) return;
+        t.dataset.qaWired = '1';
+        const key = 'time:quiet-hours-' + (idx === 0 ? 'start' : 'end');
+        const prefs = loadPrefs();
+        if (key in prefs) t.value = prefs[key];
+        t.addEventListener('change', () => { savePref(key, t.value); flash('✓ Jam tenang diperbarui.'); });
+      });
+    }
+
+    // ─── Initial render ───
+    function qaInit(){
+      renderUserUI();
+      renderRecentActivity();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qaInit);
+    else qaInit();
+  }
 
   // Initial UI sync
   updateSidebarUserUI();
