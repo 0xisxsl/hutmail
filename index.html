@@ -122,6 +122,7 @@ tailwind.config = {
     transition: all 0.2s ease;
     position: relative;
     color: var(--text-soft);
+    cursor: pointer;
   }
   .nav-item:hover { background: var(--bg-tint); color: var(--text-strong); }
   .nav-item.active {
@@ -216,7 +217,7 @@ tailwind.config = {
   }
 
   /* ─── Strategy comparison cards (click to activate) ─── */
-  .strat-card { position: relative; }
+  .strat-card { position: relative; cursor: pointer; }
   .strat-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
@@ -256,11 +257,12 @@ tailwind.config = {
   }
   .roadmap-month .rm-marker {
     position: absolute;
-    top: -6px; left: 14px;
+    top: -7px; left: 14px;
     width: 14px; height: 14px;
     border-radius: 50%;
     background: var(--bg-surface);
     border: 2px solid var(--border-strong);
+    z-index: 2;
   }
   .roadmap-month.is-focus .rm-marker { border-color: var(--coral); background: var(--coral); box-shadow: 0 0 0 3px rgba(220,38,38,0.18); }
   .roadmap-month.is-min .rm-marker   { border-color: var(--amber); background: var(--amber); }
@@ -270,6 +272,7 @@ tailwind.config = {
     font-size: 10px;
     color: var(--text-mute);
     letter-spacing: 0.06em;
+    margin-top: 14px; /* clear the marker dot above */
   }
   .roadmap-month .rm-action {
     font-size: 13px;
@@ -353,16 +356,21 @@ tailwind.config = {
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25);
     transition: all 0.18s ease;
+    cursor: pointer;
+    border: none;
   }
   .btn-primary:hover { background: var(--primary-deep); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.30); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
   .btn-ghost {
     background: var(--bg-surface);
     color: var(--text-soft);
     border: 1px solid var(--border);
     transition: all 0.18s ease;
+    cursor: pointer;
   }
   .btn-ghost:hover { background: var(--bg-tint); color: var(--text-strong); border-color: var(--border-strong); }
+  .btn-ghost:disabled { opacity: 0.55; cursor: not-allowed; }
 
   /* Progress bar segments */
   .seg-bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--bg-tint); }
@@ -1550,6 +1558,114 @@ tailwind.config = {
     .settings-panel .grid.grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
   }
 
+  /* ═══ Roadmap mobile: narrower cards, connector line aligned ═══ */
+  @media (max-width: 640px) {
+    .roadmap-month {
+      width: 160px !important;
+      padding: 12px 10px !important;
+    }
+    .roadmap-month .rm-action { font-size: 12px !important; }
+    .roadmap-month .rm-amount { font-size: 12px !important; }
+    .roadmap-month .rm-balance { font-size: 10px !important; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     HUTANG AKTIF — Mobile Layout  (≤ 640px)
+     Tampilkan hanya Kreditur + Sisa + Aksi; sembunyikan Status
+     ═══════════════════════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    /* Hide Status column */
+    .ha-status-col { display: none !important; }
+
+    /* No forced min-width on this specific table */
+    #view-dashboard .table-scroll table { min-width: 0 !important; }
+    #view-dashboard .table-scroll {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Table cells tighter on mobile */
+    #view-dashboard #dash-debt-list td { padding: 8px 6px !important; }
+    #view-dashboard .card:has(#dash-debt-list) thead th { padding: 7px 6px !important; }
+
+    /* Kreditur cell: compact logo+text */
+    #view-dashboard #dash-debt-list .ha-kreditor-cell .w-8 {
+      width: 28px !important; height: 28px !important; border-radius: 6px !important;
+    }
+    #view-dashboard #dash-debt-list .ha-kreditor-cell .text-sm { font-size: 11.5px !important; }
+    #view-dashboard #dash-debt-list .ha-kreditor-cell .text-\[11px\] { font-size: 9.5px !important; }
+
+    /* Sisa cell */
+    #view-dashboard #dash-debt-list .ha-sisa-cell .mono { font-size: 11.5px !important; }
+    #view-dashboard #dash-debt-list .ha-sisa-cell .text-\[10px\] { font-size: 9px !important; }
+
+    /* Aksi cell: compact buttons */
+    #view-dashboard #dash-debt-list .ha-aksi-cell .btn-primary {
+      padding: 4px 8px !important; font-size: 10px !important;
+    }
+    #view-dashboard #dash-debt-list .ha-aksi-cell .btn-ghost {
+      padding: 4px 5px !important;
+    }
+
+    /* Sort hint: hide on mobile */
+    #view-dashboard #dash-sort-status,
+    #view-dashboard #dash-sort-reset { display: none !important; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PEMBAYARAN — Mobile Responsive Fixes (≤ 640px)
+     ═══════════════════════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    /* Summary top row: keep 2-col layout, shrink numbers */
+    #view-pembayaran > .grid { gap: 0.5rem !important; }
+    #view-pembayaran > .grid .display { font-size: 1.1rem !important; line-height: 1.2 !important; }
+    #view-pembayaran > .grid .num-prefix { font-size: 8.5px !important; }
+    #view-pembayaran > .grid .card { padding: 0.75rem !important; }
+
+    /* PEMBAYARAN BARU: mode tabs wrap */
+    #view-pembayaran .pay-mode-tabs {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      width: 100%;
+    }
+    #view-pembayaran .pay-mode-tabs button {
+      flex: 1 1 auto !important;
+      min-width: 80px !important;
+      text-align: center !important;
+    }
+
+    /* Card title smaller */
+    #view-pembayaran .card h2.display { font-size: 1.1rem !important; }
+    #view-pembayaran .card h2.display.text-xl { font-size: 1.1rem !important; }
+
+    /* Source debt detail: 2-col stays readable */
+    #view-pembayaran .grid.grid-cols-2.gap-3.text-xs { gap: 8px !important; }
+
+    /* Simulator: compact */
+    #view-pembayaran #sim-result { font-size: 1rem !important; }
+
+    /* RIWAYAT PEMBAYARAN: hide Metode and Status cols */
+    .pay-hist-method, .pay-hist-status { display: none !important; }
+    #view-pembayaran .table-scroll table { min-width: 0 !important; }
+    #view-pembayaran .table-scroll {
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: unset !important;
+    }
+    #view-pembayaran #pay-history-tbody td { padding: 8px 6px !important; font-size: 11.5px !important; }
+    #view-pembayaran .card thead th { padding: 7px 6px !important; font-size: 10px !important; }
+
+    /* PEMBAYARAN MENDATANG: full-width items */
+    #pay-upcoming-list { gap: 8px !important; }
+    #pay-upcoming-list .day-bill-row { padding: 10px 10px !important; gap: 8px !important; }
+    #pay-upcoming-list .dbr-logo { width: 32px !important; height: 32px !important; }
+
+    /* SARAN AI + UPDATE DARI STATEMENT: compact */
+    #view-pembayaran .corner-mark p.text-sm { font-size: 12.5px !important; }
+    #ai-apply-suggestion { width: 100% !important; }
+    #view-pembayaran .card .num-prefix { font-size: 9px !important; }
+  }
+
 </style>
 
 <!-- Preview mode: offset sticky/fixed elements below banner -->
@@ -1759,7 +1875,7 @@ tailwind.config = {
       </button>
 
       <div class="min-w-0">
-        <div class="num-prefix mb-0.5 header-prefix">DASHBOARD · 12 MEI 2026</div>
+        <div class="num-prefix mb-0.5 header-prefix" id="header-date-prefix">DASHBOARD · 17 MEI 2026</div>
         <h1 id="page-title" class="display text-lg lg:text-xl font-medium truncate">Selamat siang, Rizky.</h1>
       </div>
       <div class="flex-1"></div>
@@ -2027,7 +2143,7 @@ tailwind.config = {
                   <th class="text-right p-2.5 font-medium sortable-th" data-sort-key="sisa"><span class="th-inner">Sisa<span class="th-sort-icon"></span></span></th>
                   <th class="text-right p-2.5 font-medium hidden lg:table-cell sortable-th" data-sort-key="bunga"><span class="th-inner">Bunga<span class="th-sort-icon"></span></span></th>
                   <th class="text-left p-2.5 font-medium hidden md:table-cell sortable-th" data-sort-key="jt"><span class="th-inner">Jatuh Tempo<span class="th-sort-icon"></span></span></th>
-                  <th class="text-center p-2.5 font-medium sortable-th" data-sort-key="status"><span class="th-inner">Status<span class="th-sort-icon"></span></span></th>
+                  <th class="text-center p-2.5 font-medium sortable-th ha-status-col" data-sort-key="status"><span class="th-inner">Status<span class="th-sort-icon"></span></span></th>
                   <th class="text-center p-2.5 font-medium">Aksi</th>
                 </tr>
               </thead>
@@ -2265,7 +2381,7 @@ tailwind.config = {
             </div>
 
             <!-- Mode tabs -->
-            <div class="flex p-1 bg-ink-800/60 rounded-md text-xs mb-5 inline-flex">
+            <div class="pay-mode-tabs flex p-1 bg-ink-800/60 rounded-md text-xs mb-5 flex-wrap gap-1">
               <button id="pay-mode-lunas" class="px-3 py-1.5 rounded text-ink-400">Lunas Total</button>
               <button id="pay-mode-cicil" class="px-3 py-1.5 rounded bg-accent-lime/15 text-accent-lime">Cicil / Minimum</button>
               <button id="pay-mode-custom" class="px-3 py-1.5 rounded text-ink-400">Custom Amount</button>
@@ -2336,7 +2452,7 @@ tailwind.config = {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <div>
                 <label class="text-xs text-ink-300">Tanggal Pembayaran</label>
-                <input id="pay-date" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="2026-05-13">
+                <input id="pay-date" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="2026-05-17">
               </div>
               <div>
                 <label class="text-xs text-ink-300">Metode Pembayaran</label>
@@ -2409,8 +2525,8 @@ tailwind.config = {
                     <th class="text-left p-2.5 font-medium">Tanggal</th>
                     <th class="text-left p-2.5 font-medium">Hutang</th>
                     <th class="text-right p-2.5 font-medium">Nominal</th>
-                    <th class="text-left p-2.5 font-medium">Metode</th>
-                    <th class="text-center p-2.5 font-medium">Status</th>
+                    <th class="text-left p-2.5 font-medium pay-hist-method">Metode</th>
+                    <th class="text-center p-2.5 font-medium pay-hist-status">Status</th>
                   </tr>
                 </thead>
                 <tbody id="pay-history-tbody" class="divide-y divide-ink-700/30"></tbody>
@@ -5397,7 +5513,7 @@ tailwind.config = {
   lucide.createIcons();
 
   // ───── Helpers ─────
-  const TODAY = new Date('2026-05-13'); // demo "today"
+  const TODAY = new Date('2026-05-17'); // demo "today" — updated to match actual deployment date
   const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const monthsFull = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const daysShort = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -5529,8 +5645,9 @@ tailwind.config = {
     editActionPanel: 'tambah',
     calMode: 'week',
     calRefDate: new Date(TODAY),
-    calSelected: '2026-05-15',
+    calSelected: '2026-05-17',
     currencyDisplay: 'rp', // 'rp' | 'idr' | 'rupiah' | 'plain'
+    dashSort: { key: null, dir: null }, // dir: 'asc'|'desc'|null
   };
 
   // ───── Logo color map ─────
@@ -5687,7 +5804,6 @@ tailwind.config = {
 
   // ── Dashboard hutang aktif list ──
   // Sort state for HUTANG AKTIF table on dashboard
-  if (!state.dashSort) state.dashSort = { key: null, dir: null }; // dir: 'asc'|'desc'|null
 
   function _dashSortValue(d, key){
     switch (key){
@@ -5786,7 +5902,7 @@ tailwind.config = {
 
       return `
         <tr class="row-hover" data-debt-row="${d.id}">
-          <td class="p-2.5">
+          <td class="p-2.5 ha-kreditor-cell">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-md ${logoColorMap[d.logoColor]} flex items-center justify-center mono text-[10px] shrink-0">${d.logo}</div>
               <div class="min-w-0">
@@ -5798,7 +5914,7 @@ tailwind.config = {
           <td class="p-2.5 hidden md:table-cell">
             <span class="pill pill-info">${d.category}</span>
           </td>
-          <td class="p-2.5 text-right">
+          <td class="p-2.5 text-right ha-sisa-cell">
             <div class="mono text-sm text-ink-100" data-amt="${d.sisa}">${fmtIDRc(d.sisa)}</div>
             <div class="text-[10px] text-ink-400">
               ${d.isCC ? 'stat. ' : 'awal '}<span data-amt="${d.isCC ? (d.statement||0) : d.nominalAwal}">${fmtIDRshort(d.isCC ? (d.statement||0) : d.nominalAwal)}</span>
@@ -5808,8 +5924,8 @@ tailwind.config = {
             <div class="mono text-sm ${rateColor}">${d.bunga}%${rateUnit}</div>
           </td>
           <td class="p-2.5 hidden md:table-cell">${jtCell}</td>
-          <td class="p-2.5 text-center">${pill}</td>
-          <td class="p-2.5">
+          <td class="p-2.5 text-center ha-status-col">${pill}</td>
+          <td class="p-2.5 ha-aksi-cell">
             <div class="flex items-center justify-center gap-1">
               <button class="btn-primary px-2.5 py-1 rounded text-[11px]" data-action="${action}" data-debt="${d.id}">${actionLabel}</button>
               <button class="btn-ghost p-1.5 rounded" data-action="edit" data-debt="${d.id}" title="Edit"><i data-lucide="more-vertical" class="w-3.5 h-3.5"></i></button>
@@ -5941,7 +6057,12 @@ tailwind.config = {
     renderPaymentSource();
     renderPaymentUpcoming();
     renderPaymentHistory();
+    // Always sync date input to current demo today
+    const dateEl = document.getElementById('pay-date');
+    if (dateEl && !dateEl.dataset.userEdited) dateEl.value = fmtKey(TODAY);
   }
+  // Alias used by calendar modal pay buttons
+  const renderPaymentSelect = renderPaymentView;
 
   function renderPaymentSummary(){
     const must = totalMinPayment();
@@ -6150,8 +6271,8 @@ tailwind.config = {
           <td class="p-2.5 mono text-xs">${fmtDateID(parseKey(p.date))}</td>
           <td class="p-2.5"><span class="text-ink-100">${name}</span></td>
           <td class="p-2.5 text-right mono ${amountCls}">${fmtIDRc(p.amount)}</td>
-          <td class="p-2.5 text-xs">${p.method}</td>
-          <td class="p-2.5 text-center"><span class="pill ${pillCls}">${labelMap[p.status] || p.status.toUpperCase()}</span></td>
+          <td class="p-2.5 text-xs pay-hist-method">${p.method}</td>
+          <td class="p-2.5 text-center pay-hist-status"><span class="pill ${pillCls}">${labelMap[p.status] || p.status.toUpperCase()}</span></td>
         </tr>`;
     }).join('') || `<tr><td colspan="5" class="p-6 text-center text-ink-400 text-sm">Belum ada riwayat pembayaran.</td></tr>`;
   }
@@ -6486,7 +6607,7 @@ tailwind.config = {
           if (target.status === 'paid'){
             // Just navigate to debts view
             closeDayDetailModal();
-            switchView('hutang');
+            switchView('daftar');
             return;
           }
           state.paySelectedId = id;
@@ -6519,14 +6640,7 @@ tailwind.config = {
   function closeDayDetailModal(){
     document.getElementById('day-detail-modal')?.classList.remove('active');
   }
-  // Close handlers
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('ddm-close')?.addEventListener('click', closeDayDetailModal);
-    document.getElementById('day-detail-modal')?.addEventListener('click', e => {
-      if (e.target.id === 'day-detail-modal') closeDayDetailModal();
-    });
-  });
-  // Also attach immediately in case DOMContentLoaded already fired
+  // Close handlers — attached once via setTimeout so they run after DOM parse
   setTimeout(() => {
     document.getElementById('ddm-close')?.addEventListener('click', closeDayDetailModal);
     document.getElementById('day-detail-modal')?.addEventListener('click', e => {
@@ -6727,10 +6841,10 @@ tailwind.config = {
 
   function confirmPayment(){
     const d = getDebt(state.paySelectedId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     const input = document.getElementById('pay-amount');
     const amt = parseIDR(input?.value || 0);
-    if (amt <= 0){ alert('Nominal pembayaran harus lebih dari 0.'); return; }
+    if (amt <= 0){ flash('⚠ Nominal pembayaran harus lebih dari 0.'); return; }
     if (amt > d.sisa + 1000){
       if (!confirm(`Nominal pembayaran (${fmtIDR(amt)}) lebih besar dari sisa hutang (${fmtIDR(d.sisa)}). Lanjutkan dengan membayar sisa saja?`)){
         return;
@@ -6738,7 +6852,7 @@ tailwind.config = {
     }
     const dateEl = document.getElementById('pay-date');
     const methodEl = document.getElementById('pay-method');
-    const date = dateEl?.value || fmtKey(TODAY);
+    const date = (dateEl?.value && dateEl.value.length === 10) ? dateEl.value : fmtKey(TODAY);
     const method = methodEl?.value || 'Transfer Bank';
     const actualAmt = Math.min(amt, d.sisa);
     const willLunas = actualAmt >= d.sisa;
@@ -6796,8 +6910,8 @@ tailwind.config = {
     const startDate  = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
     const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
 
-    if (!company){ alert('Nama perusahaan/kreditur wajib diisi.'); return; }
-    if (nominal <= 0){ alert('Nominal awal harus lebih dari 0.'); return; }
+    if (!company){ flash('⚠ Nama perusahaan/kreditur wajib diisi.'); return; }
+    if (nominal <= 0){ flash('⚠ Nominal awal harus lebih dari 0.'); return; }
 
     const isCC = category === 'Kartu Kredit';
     const id = 'd' + (state.nextDebtId++) + '_' + Math.random().toString(36).slice(2,6);
@@ -6847,14 +6961,14 @@ tailwind.config = {
 
   function confirmAddTransaction(){
     const d = getDebt(state.editAccountId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     const dateEl = document.querySelector('.edit-action-panel[data-panel="tambah"] input[type="date"]');
     const typeEl = document.getElementById('trx-type');
     const descEl = document.querySelector('.edit-action-panel[data-panel="tambah"] input[type="text"]:not(#trx-amount)') ||
                    document.querySelector('.edit-action-panel[data-panel="tambah"] input[placeholder*="Tokopedia"]');
     const amtEl = document.getElementById('trx-amount');
     const amt = parseIDR(amtEl?.value || 0);
-    if (amt <= 0){ alert('Nominal transaksi harus lebih dari 0.'); return; }
+    if (amt <= 0){ flash('⚠ Nominal transaksi harus lebih dari 0.'); return; }
     const date = dateEl?.value || fmtKey(TODAY);
     const typeRaw = typeEl?.value || 'Belanja / Charge';
     const typeMap = {
@@ -6899,7 +7013,7 @@ tailwind.config = {
 
   function confirmEditDetail(){
     const d = getDebt(state.editAccountId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     const panel = document.querySelector('.edit-action-panel[data-panel="detail"]');
     if (!panel) return;
     const inputs = panel.querySelectorAll('input, select');
@@ -6914,7 +7028,7 @@ tailwind.config = {
 
   function confirmDeleteDebt(){
     const d = getDebt(state.editAccountId);
-    if (!d){ alert('Pilih hutang dulu.'); return; }
+    if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
     if (d.sisa > 0 && !confirm(`${d.company} ${d.product} masih punya sisa hutang ${fmtIDR(d.sisa)}. Hapus tetap?`)){
       return;
     }
@@ -7005,21 +7119,23 @@ tailwind.config = {
   function renderAddFormPreview(){
     const f = document.getElementById('add-form');
     if (!f) return;
-    const nominal = parseIDR(f.querySelector('[name="nominalAwal"]')?.value);
+    const nominal = parseIDR(f.querySelector('[name="nominalAwal"]')?.value) || 0;
     let biaya = 0;
     document.querySelectorAll('#fee-list .fee-row').forEach(row => {
-      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value);
+      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value) || 0;
       const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
       biaya += unit === '%' ? Math.round(nominal * v / 100) : v;
     });
     const startDate = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
-    const bunga = parseFloat(f.querySelector('[name="bunga"]')?.value || '0');
+    const bunga = parseFloat(f.querySelector('[name="bunga"]')?.value || '0') || 0;
     const bungaUnit = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
     const days = Math.max(0, diffDays(TODAY, parseKey(startDate)));
     let bungaBerjalan = 0;
-    if (bungaUnit === 'bln') bungaBerjalan = nominal * (bunga/100) * (days/30);
-    else if (bungaUnit === 'thn') bungaBerjalan = nominal * (bunga/100) * (days/365);
-    else bungaBerjalan = nominal * (bunga/100) * days;
+    if (nominal > 0) {
+      if (bungaUnit === 'bln') bungaBerjalan = nominal * (bunga/100) * (days/30);
+      else if (bungaUnit === 'thn') bungaBerjalan = nominal * (bunga/100) * (days/365);
+      else bungaBerjalan = nominal * (bunga/100) * days;
+    }
     setHTML('preview-nominal', fmtIDRc(nominal));
     setHTML('preview-biaya', fmtIDRc(biaya, {sign:'+'}));
     setHTML('preview-bunga', fmtIDRc(bungaBerjalan, {sign:'+'}));
@@ -7042,12 +7158,16 @@ tailwind.config = {
       bar.style.cssText = `position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
         background:#FFFFFF; color:#2563EB; border:1px solid rgba(37,99,235,0.30);
         padding:10px 18px; border-radius:8px; font-size:13px; z-index:9999;
-        box-shadow:0 8px 24px rgba(30,58,138,0.18); max-width:90vw; text-align:center;`;
+        box-shadow:0 8px 24px rgba(30,58,138,0.18); max-width:90vw; text-align:center;
+        transition: opacity 0.4s ease;`;
       document.body.appendChild(bar);
     }
+    // On mobile (bottom nav visible) push flash bar up above the nav
+    const mobileNav = document.querySelector('.mobile-bottom-nav');
+    const navH = (mobileNav && getComputedStyle(mobileNav).display !== 'none') ? (mobileNav.offsetHeight + 8) : 20;
+    bar.style.bottom = navH + 'px';
     bar.textContent = msg;
     bar.style.opacity = '1';
-    bar.style.transition = 'opacity 0.4s ease';
     clearTimeout(bar._timer);
     bar._timer = setTimeout(() => { bar.style.opacity = '0'; }, 3000);
   }
@@ -7093,6 +7213,9 @@ tailwind.config = {
   sidebarCloseBtn?.addEventListener('click', closeSidebar);
   sidebarToggleBtn?.addEventListener('click', toggleSidebarCollapsed);
   overlay?.addEventListener('click', closeSidebar);
+  // ARIA: ensure open/close buttons are keyboard accessible
+  if (sidebarOpenBtn && !sidebarOpenBtn.getAttribute('aria-label')) sidebarOpenBtn.setAttribute('aria-label', 'Buka sidebar');
+  if (sidebarCloseBtn && !sidebarCloseBtn.getAttribute('aria-label')) sidebarCloseBtn.setAttribute('aria-label', 'Tutup sidebar');
 
   // ═════════════════════════════════════════════════════════════════
   // COLLAPSIBLE CARDS — minimize/expand with persistence
@@ -7276,10 +7399,23 @@ tailwind.config = {
     state.payMode = 'cicil';
     renderPaymentSourceDetail();
   });
+  // Mark date as user-edited so we don't auto-reset it
+  document.getElementById('pay-date')?.addEventListener('change', e => {
+    e.target.dataset.userEdited = '1';
+  });
   document.getElementById('pay-amount')?.addEventListener('input', e => {
-    // Re-format with thousand separators
+    // Re-format with thousand separators; guard against NaN
     const raw = parseIDR(e.target.value);
-    e.target.value = raw ? raw.toLocaleString('id-ID') : '';
+    if (!isNaN(raw) && raw > 0) {
+      const pos = e.target.selectionStart;
+      const oldLen = e.target.value.length;
+      e.target.value = raw.toLocaleString('id-ID');
+      // Restore cursor position approximately
+      const newLen = e.target.value.length;
+      e.target.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
+    } else if (!raw) {
+      e.target.value = '';
+    }
     state.payMode = 'custom';
     setActiveTab('pay-mode-lunas', false);
     setActiveTab('pay-mode-cicil', false);
@@ -8012,6 +8148,17 @@ tailwind.config = {
   const LOCAL_STATE_KEY = 'df_state_v1';
   const FIREBASE_CONFIG_KEY = 'df_firebase_config';
 
+  // ─── Default Firebase config (built-in, dipakai otomatis jika user belum override) ───
+  const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBw0OPiTuW4WyiznWljNodA6z-lQq0IOGs",
+    authDomain: "hutmail-356cc.firebaseapp.com",
+    projectId: "hutmail-356cc",
+    storageBucket: "hutmail-356cc.firebasestorage.app",
+    messagingSenderId: "897556091337",
+    appId: "1:897556091337:web:e6965dbbf111ba1acc5818",
+    measurementId: "G-RVD0YJBRW7"
+  };
+
   // ─── State persistence (local fallback) ───
   function saveStateLocal(){
     try {
@@ -8160,12 +8307,12 @@ tailwind.config = {
   }
 
   // ─── UI: sync status badge ───
-  function updateSyncBadge(state, text){
+  function updateSyncBadge(syncState, text){
     document.querySelectorAll('.firebase-status-pill').forEach(el => {
-      el.classList.toggle('connected', state === 'connected');
-      el.classList.toggle('local', state !== 'connected');
+      el.classList.toggle('connected', syncState === 'connected');
+      el.classList.toggle('local', syncState !== 'connected');
       const t = el.querySelector('.status-text');
-      if (t) t.textContent = state === 'connected' ? 'SYNCED' : 'LOCAL';
+      if (t) t.textContent = syncState === 'connected' ? 'SYNCED' : 'LOCAL';
     });
     const msg = document.getElementById('firebase-config-msg');
     if (msg && text) msg.textContent = text;
@@ -8264,6 +8411,8 @@ tailwind.config = {
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     if (!name || !email || !password){ flash('Semua field wajib diisi.'); return; }
+    // Basic email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ flash('Format email tidak valid.'); return; }
     if (password.length < 6){ flash('Password minimal 6 karakter.'); return; }
     try {
       const cred = await AUTH._signUp(AUTH.auth, email, password);
@@ -8369,12 +8518,18 @@ tailwind.config = {
 
   // ─── Restore saved Firebase config & state on load ───
   (function bootstrapAuth(){
-    // Restore Firebase config if previously saved
+    // Restore Firebase config: pakai yang user simpan, atau fallback ke DEFAULT_FIREBASE_CONFIG
     try {
       const savedConfig = localStorage.getItem(FIREBASE_CONFIG_KEY);
+      let cfg = null;
       if (savedConfig){
-        const cfg = JSON.parse(savedConfig);
-        // Show saved config in the textarea for transparency
+        cfg = JSON.parse(savedConfig);
+      } else if (DEFAULT_FIREBASE_CONFIG && DEFAULT_FIREBASE_CONFIG.apiKey){
+        // Belum ada config tersimpan → gunakan default bawaan
+        cfg = DEFAULT_FIREBASE_CONFIG;
+      }
+      if (cfg){
+        // Tampilkan config di textarea untuk transparansi
         const ta = document.getElementById('firebase-config-input');
         if (ta) ta.value = JSON.stringify(cfg, null, 2);
         initFirebase(cfg);
