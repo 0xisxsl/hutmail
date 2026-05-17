@@ -1692,12 +1692,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <span class="absolute -top-1 -right-1 w-2 h-2 bg-accent-lime rounded-full pulse-dot"></span>
         </div>
         <div class="sidebar-brand-text min-w-0">
-          <div class="display text-base font-semibold tracking-tight">DEBT<span class="text-accent-lime">FREE</span></div>
+          <div class="text-base font-semibold" style="font-family:'Fraunces',serif;font-feature-settings:'ss01';letter-spacing:-0.02em;">DEBT<span class="text-accent-lime">FREE</span></div>
           <div class="mono text-[10px] text-ink-400 tracking-widest uppercase">debt · ai · clarity</div>
-          <div class="mt-1 inline-flex items-center gap-1 bg-accent-amber/10 border border-accent-amber/25 rounded px-1.5 py-0.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent-amber inline-block"></span>
-            <span class="mono text-[9px] text-accent-amber tracking-widest">PREVIEW</span>
-          </div>
+
         </div>
       </div>
       <div class="flex items-center gap-1 shrink-0">
@@ -1709,6 +1706,18 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <button id="sidebar-close" class="mobile-only text-ink-300 p-1">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
+      </div>
+    </div>
+
+    <!-- User (top) -->
+    <div class="p-3 border-b border-ink-700/40 sidebar-user-wrapper">
+      <div id="sidebar-user-card" class="card rounded-lg p-3 flex items-center gap-3 sidebar-user-card cursor-pointer hover:border-accent-lime/40 transition-all" title="Klik untuk login / akun" data-tip="Akun">
+        <div id="sidebar-user-avatar" class="w-9 h-9 shrink-0 rounded-md bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-white font-semibold text-sm">RA</div>
+        <div class="flex-1 min-w-0 sidebar-user-info">
+          <div id="sidebar-user-name" class="text-sm font-medium truncate">Rizky Aditya</div>
+          <div id="sidebar-user-status" class="mono text-[10px] text-ink-400">Tap untuk login</div>
+        </div>
+        <i data-lucide="log-in" class="w-4 h-4 text-ink-400 sidebar-user-cog"></i>
       </div>
     </div>
 
@@ -1763,25 +1772,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <span>Pengaturan</span>
         <span class="ml-auto mono text-[10px] text-ink-400">12</span>
       </a>
-      <a href="#" data-view="bantuan" data-tip="Bantuan & Support" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-md text-sm text-ink-200">
-        <i data-lucide="life-buoy" class="w-4 h-4 shrink-0"></i>
-        <span>Bantuan & Support</span>
-      </a>
+
     </nav>
 
-    <!-- User -->
-    <div class="p-3 border-t border-ink-700/40 sidebar-user-wrapper">
-      <div id="sidebar-user-card" class="card rounded-lg p-3 flex items-center gap-3 sidebar-user-card cursor-pointer hover:border-accent-lime/40 transition-all" title="Klik untuk login / akun" data-tip="Akun">
-        <div id="sidebar-user-avatar" class="w-9 h-9 shrink-0 rounded-md bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-white font-semibold text-sm">RA</div>
-        <div class="flex-1 min-w-0 sidebar-user-info">
-          <div id="sidebar-user-name" class="text-sm font-medium truncate">Rizky Aditya</div>
-          <div id="sidebar-user-status" class="mono text-[10px] text-ink-400">Tap untuk login</div>
-        </div>
-        <i data-lucide="log-in" class="w-4 h-4 text-ink-400 sidebar-user-cog"></i>
-      </div>
-    </div>
   </aside>
-
 
   <!-- ═════════════  MAIN  ═════════════ -->
   <main class="app-main flex-1 min-w-0 grid-bg">
@@ -2899,6 +2893,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <option>KPR</option>
                 <option>Paylater</option>
                 <option>Pinjaman Online</option>
+                <option>Gadai</option>
                 <option>Multiguna</option>
                 <option>Pinjaman</option>
               </select>
@@ -2916,9 +2911,19 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <input name="bunga" class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" value="2.95">
                 <select name="bungaUnit" class="input-field px-3 py-2 rounded-md text-sm w-28">
                   <option value="hari">% / Hari</option>
+                  <option value="15hari">% / 15 Hari</option>
                   <option value="bln" selected>% / Bulan</option>
                   <option value="thn">% / Tahun</option>
                 </select>
+              </div>
+              <div id="gadai-bunga-hint" class="hidden mt-2 p-2.5 rounded-md bg-accent-amber/5 border border-accent-amber/20 text-[11px] leading-relaxed">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="landmark" class="w-3.5 h-3.5 text-accent-amber shrink-0 mt-0.5"></i>
+                  <div class="text-ink-200">
+                    <strong>Gadai · bunga 0.15% per 15 hari</strong>
+                    <div class="text-ink-300 mt-1">Bunga dihitung per periode 15 hari dari nilai taksiran barang jaminan. Setara ±3.6%/bln atau ~43.8%/thn.</div>
+                  </div>
+                </div>
               </div>
             </div>
             <div>
@@ -5096,6 +5101,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <option>KTA</option>
               <option>KPR</option>
               <option>Paylater</option>
+              <option>Gadai</option>
               <option>Pinjaman</option>
             </select>
           </div>
@@ -5605,7 +5611,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function bungaPeriode(debt){
     const rate = debt.bunga / 100;
     const base = debt.isCC ? (debt.statement || 0) : debt.sisa;
-    return debt.bungaUnit === 'bln' ? base * rate : base * rate / 12;
+    if (debt.bungaUnit === 'bln') return base * rate;
+    if (debt.bungaUnit === '15hari') return base * rate * (30/15); // 2× per bulan
+    return base * rate / 12; // thn
   }
 
   // Available credit (only meaningful for CC/paylater with rotating limit)
@@ -5707,7 +5715,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       case 'bunga': {
         // normalize to per-year for fair comparison
         const rate = d.bunga || 0;
-        return d.bungaUnit === 'bln' ? rate * 12 : rate;
+        if (d.bungaUnit === 'bln') return rate * 12;
+        if (d.bungaUnit === '15hari') return rate * 24;
+        return rate; // thn
       }
       case 'jt': {
         // next due date as ms
@@ -5788,7 +5798,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       } else {
         pill = `<span class="pill pill-active">AKTIF</span>`;
       }
-      const rateUnit = d.bungaUnit === 'bln' ? '/bln' : '/thn';
+      const rateUnit = d.bungaUnit === 'bln' ? '/bln' : (d.bungaUnit === '15hari' ? '/15hr' : '/thn');
       const jtCell = d.isCC
         ? `<div class="mono text-xs text-ink-200">${fmtDateShort(parseKey(d.dueDate))}</div><div class="text-[10px] text-ink-400">${dd >= 0 ? dd + ' hari' : 'overdue ' + Math.abs(dd) + ' hari'}</div>`
         : `<div class="mono text-xs text-ink-200">Tgl ${d.dueDayOfMonth}</div><div class="text-[10px] text-ink-400">setiap bulan</div>`;
@@ -5888,7 +5898,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     tbody.innerHTML = debts.map(d => {
       const sp = statusPill(d);
       const u = urgencyOf(d);
-      const ddLabel = d.bungaUnit === 'bln' ? '/ bln' : '/ thn';
+      const ddLabel = d.bungaUnit === 'bln' ? '/ bln' : (d.bungaUnit === '15hari' ? '/ 15hr' : '/ thn');
       const action = (u === 'urgent' || u === 'overdue') ? 'bayar' : 'cicil';
       const actionLabel = (u === 'urgent' || u === 'overdue') ? 'Bayar' : 'Cicil';
       const rateColor = d.bunga >= 2.5 ? 'text-accent-coral' : (d.bunga >= 1.5 ? 'text-accent-amber' : 'text-accent-mint');
@@ -6811,7 +6821,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const id = 'd' + (state.nextDebtId++) + '_' + Math.random().toString(36).slice(2,6);
     const logo = (company.split(' ')[1] || company).slice(0,3).toUpperCase();
     // Pick a color based on category
-    const colorMap = { 'Kartu Kredit':'coral', 'KTA':'mint', 'KPR':'amber', 'Paylater':'violet', 'Pinjaman Online':'ink', 'Pinjaman':'violet' };
+    const colorMap = { 'Kartu Kredit':'coral', 'KTA':'mint', 'KPR':'amber', 'Paylater':'violet', 'Pinjaman Online':'ink', 'Pinjaman':'violet', 'Gadai':'amber' };
     const logoColor = colorMap[category] || 'ink';
 
     // Compute biaya from fee list
@@ -7028,6 +7038,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (nominal > 0) {
       if (bungaUnit === 'bln') bungaBerjalan = nominal * (bunga/100) * (days/30);
       else if (bungaUnit === 'thn') bungaBerjalan = nominal * (bunga/100) * (days/365);
+      else if (bungaUnit === '15hari') bungaBerjalan = nominal * (bunga/100) * (days/15);
       else bungaBerjalan = nominal * (bunga/100) * days;
     }
     setHTML('preview-nominal', fmtIDRc(nominal));
@@ -7589,6 +7600,21 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     });
     // Listen to all inputs in add-form for preview
     document.getElementById('add-form')?.addEventListener('input', renderAddFormPreview);
+    // Auto-fill bunga & bungaUnit when Gadai is selected
+    document.getElementById('add-form')?.querySelector('[name="category"]')?.addEventListener('change', function(){
+      const hint = document.getElementById('gadai-bunga-hint');
+      if (this.value === 'Gadai'){
+        const form = document.getElementById('add-form');
+        const bungaInput = form?.querySelector('[name="bunga"]');
+        const bungaUnitSel = form?.querySelector('[name="bungaUnit"]');
+        if (bungaInput) bungaInput.value = '0.15';
+        if (bungaUnitSel) bungaUnitSel.value = '15hari';
+        if (hint) hint.classList.remove('hidden');
+        renderAddFormPreview();
+      } else {
+        if (hint) hint.classList.add('hidden');
+      }
+    });
     renderAddFormPreview();
   }, 50);
 
