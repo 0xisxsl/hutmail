@@ -7400,7 +7400,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   }
 
   // ─── Apply a strategy: updates header, metrics, roadmap, strat-cards ───
-  // ─── Dashboard AI Advisor copy (Snowball / Avalanche / Consolidation) ───
+  // ─── Dashboard AI Advisor visual styling (Snowball / Avalanche / Consolidation) ───
+  //     NOTE: analysis/detail/months/savings/risk are now computed dynamically
+  //     from state.debts (see computeAdvisorMetrics / buildAdvisorAnalysis / buildAdvisorDetail below).
   const DASH_ADVISOR_COPY = {
     snowball: {
       pill: 'SNOWBALL',
@@ -7409,12 +7411,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       iconWrap: 'w-7 h-7 rounded-md bg-accent-mint/10 border border-accent-mint/30 flex items-center justify-center transition-colors duration-300',
       iconColor: 'text-accent-mint',
       bgClass: 'absolute inset-0 bg-gradient-to-br from-accent-mint/8 via-transparent to-accent-mint/5 transition-colors duration-300',
-      analysis: `Saldo terkecil di portofolio Anda adalah <strong class="text-ink-100">Shopee PayLater · <span class="mono">Rp 4.8jt</span></strong>. Lunasi penuh bulan ini untuk meraih <span class="text-accent-mint">quick win pertama</span> dan membangun momentum psikologis menuju bebas hutang.`,
-      detail: `Lunasi saldo terkecil dulu untuk meraih <span class="text-accent-mint">quick wins</span> beruntun. Hemat <span class="text-accent-lime mono">Rp 42.6jt</span> selama 38 bulan.`,
-      months: '38 bln',
-      savings: 'Rp 42.6jt',
-      risk: 'MED',
-      riskClass: 'mono text-sm mt-0.5 text-accent-amber',
     },
     avalanche: {
       pill: 'AVALANCHE',
@@ -7423,12 +7419,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       iconWrap: 'w-7 h-7 rounded-md bg-accent-lime/10 border border-accent-lime/30 flex items-center justify-center transition-colors duration-300',
       iconColor: 'text-accent-lime',
       bgClass: 'absolute inset-0 bg-gradient-to-br from-accent-lime/5 via-transparent to-accent-mint/5 transition-colors duration-300',
-      analysis: `Bunga <strong class="text-ink-100">BCA Card Platinum</strong> <span class="text-accent-coral">2.95%/bln</span> adalah beban paling tinggi. Bayar minimum <span class="mono text-accent-lime">Rp 4.230.000</span> sebelum 15 Mei untuk menghindari denda <span class="mono text-accent-coral">Rp 250.000</span> dan kurangi beban bunga total.`,
-      detail: `Lunasi hutang dengan bunga tertinggi dulu — paling hemat secara matematis. Hemat <span class="text-accent-lime mono">Rp 57.4jt</span> selama 34 bulan.`,
-      months: '34 bln',
-      savings: 'Rp 57.4jt',
-      risk: 'MED',
-      riskClass: 'mono text-sm mt-0.5 text-accent-amber',
     },
     consolidation: {
       pill: 'CONSOLIDATION',
@@ -7437,18 +7427,161 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       iconWrap: 'w-7 h-7 rounded-md bg-accent-violet/10 border border-accent-violet/30 flex items-center justify-center transition-colors duration-300',
       iconColor: 'text-accent-violet',
       bgClass: 'absolute inset-0 bg-gradient-to-br from-accent-violet/8 via-transparent to-accent-violet/5 transition-colors duration-300',
-      analysis: `Refinance 3 hutang bunga tinggi (BCA CC, Shopee, Kredivo) ke <strong class="text-accent-violet">KTA Konsolidasi · 1.2%/bln</strong>. Cicilan tunggal <span class="mono text-accent-lime">Rp 11.8jt/bln</span> — lebih ringan dari sekarang dan tenor lebih pendek.`,
-      detail: `Gabungkan hutang berbunga tinggi ke satu KTA bunga rendah. Hemat <span class="text-accent-lime mono">Rp 73.8jt</span> selama 30 bulan.`,
-      months: '30 bln',
-      savings: 'Rp 73.8jt',
-      risk: 'LOW',
-      riskClass: 'mono text-sm mt-0.5 text-accent-mint',
     },
   };
+
+  // ═══════════════════════════════════════════════════════════════
+  // REAL-DATA ANALYSIS HELPERS — drive AI Advisor card from state.debts
+  // ═══════════════════════════════════════════════════════════════
+  function _normMonthlyRate(d){ return d.bungaUnit === 'thn' ? d.bunga/12 : d.bunga; }
+  function _findHighestInterestDebt(){
+    const a = activeDebts();
+    if (!a.length) return null;
+    return a.slice().sort((x,y) => _normMonthlyRate(y) - _normMonthlyRate(x))[0];
+  }
+  function _findSmallestBalanceDebt(){
+    const a = activeDebts();
+    if (!a.length) return null;
+    return a.slice().sort((x,y) => x.sisa - y.sisa)[0];
+  }
+  function _findHighInterestDebts(thresholdPctMonth){
+    return activeDebts().filter(d => _normMonthlyRate(d) >= thresholdPctMonth);
+  }
+  function _fmtIDRfull(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+  function _fmtIDRshort(n){
+    if (n >= 1e9) return 'Rp ' + (n/1e9).toFixed(1).replace('.', ',') + 'M';
+    if (n >= 1e6) return 'Rp ' + (n/1e6).toFixed(1).replace('.', ',') + 'jt';
+    if (n >= 1e3) return 'Rp ' + Math.round(n/1e3) + 'rb';
+    return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  }
+  function _nextDueLabel(d){
+    const today = new Date();
+    const day = d.dueDayOfMonth || 1;
+    let due = new Date(today.getFullYear(), today.getMonth(), day);
+    if (due < today) due = new Date(today.getFullYear(), today.getMonth() + 1, day);
+    const mon = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return day + ' ' + mon[due.getMonth()];
+  }
+  function _fmtRate(d){
+    const v = d.bunga.toFixed(2).replace(/\.?0+$/,'').replace('.', ',');
+    return v + '%/' + d.bungaUnit;
+  }
+
+  // ─── Compute estimated months, savings, risk based on actual portfolio ───
+  function computeAdvisorMetrics(stratKey){
+    const debts = activeDebts();
+    const totalDebt = debts.reduce((s,d) => s + d.sisa, 0);
+    const minSum = debts.reduce((s,d) => s + d.minPayment, 0);
+    const income = state.user.monthlyIncome || 0;
+    // capacity = realistic payment when committed to a plan
+    //   = max(55% of income, sum of minimums × 1.10)
+    // Baseline (no strategy) only pays the bare minimum.
+    const capacity = Math.max(income * 0.55, minSum * 1.10);
+    // Snowball assumes slightly lower commitment (psychological focus, not rate-driven)
+    const stratCapacity = (stratKey === 'snowball' ? capacity * 0.95 : capacity);
+
+    // Weighted-average monthly rate across active debts
+    let wr = 0;
+    debts.forEach(d => { wr += _normMonthlyRate(d) * d.sisa; });
+    wr = totalDebt ? wr / totalDebt : 0;
+
+    function monthsForFloat(rate, pay){
+      if (!pay || !totalDebt) return 0;
+      const r = rate / 100;
+      if (r === 0) return totalDebt / pay;
+      const denomFactor = 1 - (r * totalDebt) / pay;
+      if (denomFactor <= 0) return 999;
+      return -Math.log(denomFactor) / Math.log(1 + r);
+    }
+    function monthsFor(rate, pay){
+      const m = monthsForFloat(rate, pay);
+      return m >= 999 ? 999 : Math.ceil(m);
+    }
+    function interestPaid(rate, pay){
+      const m = monthsForFloat(rate, pay);
+      if (m >= 999) return totalDebt * 2;
+      return Math.max(0, m * pay - totalDebt);
+    }
+
+    // Strategy effective-rate multipliers (heuristic):
+    //   snowball   = pay smallest first → no real rate reduction
+    //   avalanche  = pay highest rate first → ~15% effective rate reduction
+    //   consolidation = refinance to ~1.2%/bln → ~50% rate reduction
+    const rateFactor = { snowball: 1.0, avalanche: 0.85, consolidation: 0.5 };
+
+    // BASELINE (do-nothing): pay only the minimum requirement → drags long, lots of interest
+    const baselineInterest = interestPaid(wr, minSum);
+
+    // STRATEGY: pay strategy capacity, with reduced effective rate
+    const stratMonths = monthsFor(wr * rateFactor[stratKey], stratCapacity);
+    const stratInterest = interestPaid(wr * rateFactor[stratKey], stratCapacity);
+
+    const savings = Math.max(0, baselineInterest - stratInterest);
+
+    // Risk from DTI = sum(minPayment) / monthlyIncome
+    const dti = income ? minSum / income : 0;
+    let risk = 'LOW', riskClass = 'mono text-sm mt-0.5 text-accent-mint';
+    if (dti >= 0.5){ risk = 'HIGH'; riskClass = 'mono text-sm mt-0.5 text-accent-coral'; }
+    else if (dti >= 0.3){ risk = 'MED'; riskClass = 'mono text-sm mt-0.5 text-accent-amber'; }
+
+    return {
+      months: stratMonths + ' bln',
+      monthsNum: stratMonths,
+      savings: _fmtIDRshort(savings),
+      savingsNum: savings,
+      risk, riskClass,
+      dtiPct: (dti * 100).toFixed(1),
+    };
+  }
+
+  function buildAdvisorAnalysis(stratKey){
+    const debts = activeDebts();
+    if (!debts.length){
+      return '🎉 <strong class="text-ink-100">Tidak ada hutang aktif.</strong> Anda sudah bebas hutang — pertahankan kondisi ini.';
+    }
+    if (stratKey === 'snowball'){
+      const d = _findSmallestBalanceDebt();
+      return `Saldo terkecil Anda: <strong class="text-ink-100">${d.company} ${d.product} · <span class="mono">${_fmtIDRshort(d.sisa)}</span></strong>. Fokuskan pelunasan ke sini untuk <span class="text-accent-mint">quick win pertama</span> & momentum psikologis.`;
+    }
+    if (stratKey === 'avalanche'){
+      const d = _findHighestInterestDebt();
+      return `Bunga tertinggi: <strong class="text-ink-100">${d.company} ${d.product}</strong> <span class="text-accent-coral">${_fmtRate(d)}</span>. Bayar minimum <span class="mono text-accent-lime">${_fmtIDRfull(d.minPayment)}</span> sebelum ${_nextDueLabel(d)}, lalu fokuskan cicilan ekstra ke sini.`;
+    }
+    if (stratKey === 'consolidation'){
+      const high = _findHighInterestDebts(2);
+      if (!high.length){
+        return `Semua hutang Anda berbunga di bawah 2%/bln — konsolidasi belum tentu menghemat. Pertimbangkan <strong class="text-accent-lime">Avalanche</strong>.`;
+      }
+      const totalHigh = high.reduce((s,d) => s + d.sisa, 0);
+      const names = high.slice(0, 3).map(d => d.company.split(' ').slice(0,2).join(' ')).join(', ');
+      const extra = high.length > 3 ? ` +${high.length - 3} lain` : '';
+      return `Refinance ${high.length} hutang bunga tinggi (${names}${extra}) total <span class="mono text-accent-violet">${_fmtIDRshort(totalHigh)}</span> ke <strong class="text-accent-violet">KTA Konsolidasi ~1,2%/bln</strong> untuk cicilan tunggal yang lebih ringan.`;
+    }
+    return '';
+  }
+
+  function buildAdvisorDetail(stratKey, metrics){
+    if (!activeDebts().length) return '';
+    if (stratKey === 'snowball'){
+      return `Lunasi saldo terkecil dulu — efek <span class="text-accent-mint">quick wins</span> beruntun. Estimasi hemat <span class="text-accent-lime mono">${metrics.savings}</span> selama ${metrics.monthsNum} bulan.`;
+    }
+    if (stratKey === 'avalanche'){
+      return `Lunasi bunga tertinggi dulu — paling hemat secara matematis. Estimasi hemat <span class="text-accent-lime mono">${metrics.savings}</span> selama ${metrics.monthsNum} bulan.`;
+    }
+    if (stratKey === 'consolidation'){
+      return `Gabungkan hutang berbunga tinggi ke satu KTA bunga rendah. Estimasi hemat <span class="text-accent-lime mono">${metrics.savings}</span> selama ${metrics.monthsNum} bulan.`;
+    }
+    return '';
+  }
 
   function updateDashboardAdvisor(stratKey){
     const c = DASH_ADVISOR_COPY[stratKey];
     if (!c) return;
+
+    // ─── Compute dynamic content from real state.debts ───
+    const metrics = computeAdvisorMetrics(stratKey);
+    const analysisHTML = buildAdvisorAnalysis(stratKey);
+    const detailHTML   = buildAdvisorDetail(stratKey, metrics);
 
     // Background tint
     const bg = document.getElementById('dash-advisor-bg');
@@ -7465,9 +7598,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       }
     }
 
-    // Analysis paragraph
+    // Analysis paragraph (real data)
     const analysis = document.getElementById('dash-advisor-analysis');
-    if (analysis) analysis.innerHTML = c.analysis;
+    if (analysis) analysis.innerHTML = analysisHTML;
 
     // Callout pill
     const pill = document.getElementById('dash-advisor-pill');
@@ -7478,19 +7611,19 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       else pill.removeAttribute('style');
     }
 
-    // Callout detail
+    // Callout detail (real data)
     const detail = document.getElementById('dash-advisor-detail');
-    if (detail) detail.innerHTML = c.detail;
+    if (detail) detail.innerHTML = detailHTML;
 
-    // Stats
+    // Stats (real data)
     const monthsEl = document.getElementById('dash-advisor-months');
-    if (monthsEl) monthsEl.textContent = c.months;
+    if (monthsEl) monthsEl.textContent = metrics.months;
     const savingsEl = document.getElementById('dash-advisor-savings');
-    if (savingsEl) savingsEl.textContent = c.savings;
+    if (savingsEl) savingsEl.textContent = metrics.savings;
     const riskEl = document.getElementById('dash-advisor-risk');
     if (riskEl){
-      riskEl.textContent = c.risk;
-      riskEl.className = c.riskClass;
+      riskEl.textContent = metrics.risk;
+      riskEl.className = metrics.riskClass;
     }
 
     // Refresh lucide icons (in case we swapped)
@@ -7584,8 +7717,23 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     card.addEventListener('click', () => applyStrategy(card.dataset.stratCard));
   });
 
-  // ─── Initial paint ───
-  applyStrategy('avalanche');
+  // ─── Live re-sync: when debts change (add/pay/delete), refresh the AI Advisor card ───
+  const _origRenderAllForAdvisor = renderAll;
+  renderAll = function(){
+    _origRenderAllForAdvisor();
+    if (typeof updateDashboardAdvisor === 'function'){
+      updateDashboardAdvisor(window.currentStrategy || currentStrategy || 'avalanche');
+    }
+  };
+  window.renderAll = renderAll;
+
+  // ─── Initial paint: load saved default strategy if present ───
+  let _savedStrat = 'avalanche';
+  try {
+    const s = localStorage.getItem('df_default_strategy');
+    if (s && STRATEGY_DATA[s]) _savedStrat = s;
+  } catch(e){}
+  applyStrategy(_savedStrat);
 
 
   // Expose for debugging
