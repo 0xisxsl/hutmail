@@ -2182,6 +2182,74 @@ tailwind.config = {
   }
   .print-only { display: none; }
 
+  /* ─── Inline help tooltip ( ? ) ─── */
+  .help-tip{
+    position:relative; display:inline-flex; align-items:center; justify-content:center;
+    width:16px; height:16px; border-radius:50%;
+    border:1px solid var(--border); background:var(--bg-surface-2);
+    color:var(--text-mute); font-size:10px; font-weight:700; line-height:1;
+    cursor:help; margin-left:6px; vertical-align:middle; user-select:none;
+    transition:color .15s, border-color .15s;
+  }
+  .help-tip:hover{ color:var(--primary); border-color:var(--primary); }
+  .help-tip:hover::after{
+    content:attr(data-tip);
+    position:absolute; left:0; top:calc(100% + 8px);
+    width:max-content; max-width:280px; white-space:normal;
+    background:var(--bg-surface); color:var(--text);
+    border:1px solid var(--border); border-radius:8px;
+    padding:8px 11px; font-size:11px; font-weight:500; line-height:1.55;
+    box-shadow:var(--shadow-lg); z-index:90; text-align:left; pointer-events:none;
+  }
+  .help-tip:hover::before{
+    content:""; position:absolute; left:6px; top:calc(100% + 3px);
+    border:5px solid transparent; border-bottom-color:var(--border);
+    z-index:90; pointer-events:none;
+  }
+
+  /* ─── Sidebar: Load Demo Data button (guest only) ─── */
+  #sidebar-demo-wrap{ padding:0.5rem 0.75rem 0; }
+  #sidebar-demo-btn{
+    width:100%; display:flex; align-items:center; gap:0.65rem;
+    padding:0.6rem 0.85rem; border-radius:var(--radius-sm);
+    border:1px dashed var(--border-strong); background:var(--bg-surface-2);
+    color:var(--text-soft); font-size:0.8rem; font-weight:500; cursor:pointer;
+    transition:all .15s;
+  }
+  #sidebar-demo-btn:hover{
+    border-color:var(--primary); color:var(--primary);
+    background:var(--primary-tint);
+  }
+  #sidebar-demo-btn .demo-dot{
+    width:1.5rem;height:1.5rem;border-radius:var(--radius-sm);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    background:var(--primary-soft); color:var(--primary);
+  }
+  aside.app-sidebar.collapsed #sidebar-demo-wrap{ padding:0.5rem 0.5rem 0; }
+  aside.app-sidebar.collapsed #sidebar-demo-btn{ justify-content:center; padding:0.55rem; }
+  aside.app-sidebar.collapsed #sidebar-demo-btn .demo-btn-label{ display:none; }
+
+  /* ─── Generic empty-state block ─── */
+  .empty-state{
+    text-align:center; padding:2.5rem 1.25rem;
+    border:1px dashed var(--border-strong); border-radius:var(--radius);
+    background:var(--bg-surface-2); color:var(--text-soft);
+  }
+  .empty-state .es-icn{
+    width:3rem;height:3rem;border-radius:var(--radius);
+    margin:0 auto 0.9rem; display:flex;align-items:center;justify-content:center;
+    background:var(--bg-tint-blue); color:var(--primary);
+  }
+  .empty-state h3{ color:var(--text-strong); font-weight:600; font-size:0.95rem; }
+  .empty-state p{ font-size:0.8rem; margin-top:0.35rem; }
+  .empty-state .es-btn{
+    margin-top:1rem; display:inline-flex; align-items:center; gap:0.4rem;
+    padding:0.5rem 1rem; border-radius:var(--radius-sm);
+    background:var(--primary); color:#fff; font-size:0.8rem; font-weight:600;
+    border:none; cursor:pointer;
+  }
+  .empty-state .es-btn:hover{ background:var(--primary-deep); }
+
 </style>
 
 <body class="min-h-screen">
@@ -2230,7 +2298,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       <div id="sidebar-user-card" class="card rounded-lg p-3 flex items-center gap-3 sidebar-user-card cursor-pointer hover:border-accent-lime/40 transition-all" title="Klik untuk login / akun" data-tip="Akun">
         <div id="sidebar-user-avatar" class="w-9 h-9 shrink-0 rounded-md bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-white font-semibold text-sm">RA</div>
         <div class="flex-1 min-w-0 sidebar-user-info">
-          <div id="sidebar-user-name" class="text-sm font-medium truncate">Rizky Aditya</div>
+          <div id="sidebar-user-name" class="text-sm font-medium truncate">Tamu</div>
           <div id="sidebar-user-status" class="mono text-[10px] text-ink-400">Tap untuk login</div>
         </div>
         <i data-lucide="log-in" class="w-4 h-4 text-ink-400 sidebar-user-cog"></i>
@@ -2291,6 +2359,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
     </nav>
 
+    <!-- Guest-only: load sample/demo dataset -->
+    <div id="sidebar-demo-wrap">
+      <button id="sidebar-demo-btn" type="button" title="Muat data contoh untuk eksplorasi">
+        <span class="demo-dot"><i data-lucide="flask-conical" class="w-3.5 h-3.5"></i></span>
+        <span class="demo-btn-label">Muat Data Demo</span>
+      </button>
+    </div>
+
   </aside>
 
   <!-- ═════════════  MAIN  ═════════════ -->
@@ -2305,7 +2381,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
       <div class="min-w-0">
         <div class="num-prefix mb-0.5 header-prefix" id="header-date-prefix">DASHBOARD · 17 MEI 2026</div>
-        <h1 id="page-title" class="display text-lg lg:text-xl font-medium truncate">Selamat siang, Rizky.</h1>
+        <h1 id="page-title" class="display text-lg lg:text-xl font-medium truncate">Selamat datang.</h1>
       </div>
       <div class="flex-1"></div>
 
@@ -2387,7 +2463,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           </div>
           <div class="mt-3 text-xs">
             <div class="flex items-center justify-between">
-              <span id="dash-jt-name" class="text-ink-200">BCA Card Platinum</span>
+              <span id="dash-jt-name" class="text-ink-200">—</span>
               <span id="dash-jt-amount" class="mono text-accent-coral">Rp 2.4jt</span>
             </div>
             <div id="dash-jt-date" class="text-ink-400 mt-1">15 Mei 2026 · klik untuk bayar</div>
@@ -2498,7 +2574,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               </div>
 
               <p id="dash-advisor-analysis" class="text-sm text-ink-200 leading-relaxed mt-4">
-                Bunga <strong class="text-ink-100">BCA Card Platinum</strong> <span class="text-accent-coral">2.95%/bln</span> adalah beban paling tinggi. Bayar minimum <span class="mono text-accent-lime">Rp 4.230.000</span> sebelum 15 Mei untuk menghindari denda <span class="mono text-accent-coral">Rp 250.000</span> dan kurangi beban bunga total.
+                Belum ada hutang untuk dianalisis. Tambah hutang atau muat data demo untuk melihat rekomendasi AI.
               </p>
 
               <div id="dash-advisor-callout" class="mt-4 p-3 rounded-md bg-ink-900/60 border border-ink-700/40 transition-colors duration-300">
@@ -2805,8 +2881,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <div class="flex items-center gap-2">
                   <div id="pay-src-logo" class="w-8 h-8 rounded-md bg-accent-coral/15 border border-accent-coral/25 flex items-center justify-center mono text-[10px] text-accent-coral">BCA</div>
                   <div>
-                    <div id="pay-src-name" class="text-sm font-medium">BCA Card Platinum</div>
-                    <div id="pay-src-meta" class="text-[10px] text-ink-400">Kartu Kredit · **** 4421</div>
+                    <div id="pay-src-name" class="text-sm font-medium">Belum ada hutang</div>
+                    <div id="pay-src-meta" class="text-[10px] text-ink-400">Muat data demo atau tambah hutang dulu.</div>
                   </div>
                 </div>
                 <span id="pay-src-status" class="pill pill-danger">JT 3 HARI</span>
@@ -3027,9 +3103,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <div class="card rounded-xl p-4 lg:p-6" id="edit-existing-card">
           <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
             <div>
-              <div class="num-prefix">EDIT HUTANG EXISTING</div>
-              <h2 class="display text-xl lg:text-2xl font-medium mt-1">Pilih dari Perusahaan Penerbit → Akun Kredit</h2>
-              <p class="text-sm text-ink-300 mt-1">Edit detail, tambah transaksi/charge baru ke akun existing, atau lihat riwayat — tidak perlu input ulang data kreditur.</p>
+              <div class="num-prefix flex items-center">
+                <span>EDIT HUTANG EXISTING</span>
+                <span class="help-tip" data-tip="Edit detail, tambah transaksi, atau lihat riwayat akun yang sudah ada — tanpa input ulang data kreditur.">?</span>
+              </div>
             </div>
             <span class="pill pill-info"><i data-lucide="git-merge" class="w-3 h-3"></i>CASCADE FROM EXISTING</span>
           </div>
@@ -3050,7 +3127,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 Akun Kredit / No CC
               </label>
               <select id="edit-account-sel" class="input-field w-full mt-1.5 px-3 py-2.5 rounded-md text-sm">
-                <option value="bca-plat" selected>Card Platinum · **** 4421 · aktif</option>
+                <option value="">— Pilih perusahaan dulu —</option>
               </select>
               <div class="text-[10px] text-ink-400 mt-1.5">Pilih akun spesifik — satu perusahaan bisa punya beberapa kartu/produk.</div>
             </div>
@@ -3059,46 +3136,46 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <!-- Selected debt detail summary -->
           <div id="edit-debt-detail" class="rounded-lg bg-ink-900/60 border border-ink-700/40 p-4 mb-4">
             <div class="flex flex-wrap items-center gap-3 mb-4">
-              <div id="edit-debt-logo" class="w-11 h-11 rounded-md bg-accent-coral/15 border border-accent-coral/25 flex items-center justify-center mono text-xs text-accent-coral shrink-0">BCA</div>
+              <div id="edit-debt-logo" class="w-11 h-11 rounded-md bg-ink-700/60 border border-ink-600/40 text-ink-200 flex items-center justify-center mono text-xs shrink-0">—</div>
               <div class="flex-1 min-w-0">
-                <div id="edit-debt-name" class="text-sm font-medium">Bank Central Asia · Card Platinum</div>
-                <div id="edit-debt-meta" class="text-[10px] text-ink-400 mt-0.5">**** **** **** 4421 · Kartu Kredit · aktif sejak 15 Agu 2024</div>
+                <div id="edit-debt-name" class="text-sm font-medium">Belum ada hutang dipilih</div>
+                <div id="edit-debt-meta" class="text-[10px] text-ink-400 mt-0.5">Tambah hutang lewat INPUT MANUAL atau muat data demo.</div>
               </div>
-              <span id="edit-debt-status" class="pill pill-danger">URGENT · JT 3 HARI</span>
+              <span id="edit-debt-status" class="pill pill-info">—</span>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
               <div>
                 <div class="text-ink-400">Nominal Awal</div>
-                <div class="mono mt-1" id="d-nom-awal">Rp 50.000.000</div>
+                <div class="mono mt-1" id="d-nom-awal">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Tagihan Statement</div>
-                <div class="mono mt-1" id="d-stmt">Rp 50.000.000</div>
+                <div class="mono mt-1" id="d-stmt">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Sisa Saat Ini</div>
-                <div class="mono mt-1 text-accent-coral" id="d-sisa">Rp 42.300.000</div>
+                <div class="mono mt-1 text-accent-coral" id="d-sisa">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Jatuh Tempo</div>
-                <div class="mono mt-1 text-accent-amber" id="d-jt">15 Mei 2026</div>
+                <div class="mono mt-1 text-accent-amber" id="d-jt">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Suku Bunga</div>
-                <div class="mono mt-1" id="d-bunga">2.95% / bln × statement</div>
+                <div class="mono mt-1" id="d-bunga">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Limit Kartu</div>
-                <div class="mono mt-1" id="d-limit">Rp 75.000.000</div>
+                <div class="mono mt-1" id="d-limit">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Available Credit</div>
-                <div class="mono mt-1 text-accent-mint" id="d-avail">Rp 32.700.000</div>
+                <div class="mono mt-1 text-accent-mint" id="d-avail">—</div>
               </div>
               <div>
                 <div class="text-ink-400">Transaksi 30 Hari</div>
-                <div class="mono mt-1" id="d-trx">12 transaksi</div>
+                <div class="mono mt-1" id="d-trx">—</div>
               </div>
             </div>
           </div>
@@ -3124,7 +3201,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="edit-action-panel active p-4 rounded-lg bg-accent-lime/5 border border-accent-lime/25" data-panel="tambah">
             <div class="num-prefix mb-3 flex items-center gap-2">
               <i data-lucide="plus-circle" class="w-3 h-3 text-accent-lime"></i>
-              <span>TAMBAH TRANSAKSI BARU KE <span id="trx-target-name" class="text-accent-lime">BCA CARD PLATINUM</span></span>
+              <span>TAMBAH TRANSAKSI BARU KE <span id="trx-target-name" class="text-accent-lime">—</span></span>
             </div>
             <p class="text-xs text-ink-300 leading-relaxed mb-4">
               Catat charge baru (belanja kartu kredit), top-up KTA, atau transaksi lain yang menambah saldo hutang ke akun ini.
@@ -3134,7 +3211,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="text-xs text-ink-300">Tanggal Transaksi</label>
-                <input type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="2026-05-13">
+                <input type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono">
               </div>
               <div>
                 <label class="text-xs text-ink-300">Tipe Transaksi</label>
@@ -3151,13 +3228,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               </div>
               <div class="sm:col-span-2">
                 <label class="text-xs text-ink-300">Deskripsi / Merchant</label>
-                <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Contoh: Tokopedia · Order #INV-2026-5421" value="Tokopedia · Order #INV-2026-5421">
+                <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Contoh: Tokopedia · Order #INV-2026-5421">
               </div>
               <div>
                 <label class="text-xs text-ink-300">Nominal Transaksi</label>
                 <div class="relative mt-1.5">
                   <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                  <input id="trx-amount" type="text" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="2.500.000" placeholder="0">
+                  <input id="trx-amount" type="text" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
                 </div>
               </div>
               <div>
@@ -3181,24 +3258,24 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <div class="space-y-1.5 text-xs">
                 <div class="flex justify-between">
                   <span class="text-ink-300">Sisa hutang saat ini</span>
-                  <span class="mono"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">42.300.000</span></span></span>
+                  <span class="mono" id="trx-preview-cur"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">0</span></span></span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-ink-300">+ Transaksi baru</span>
-                  <span class="mono text-accent-amber" id="trx-preview-add"><span class="cur"><span class="cur-sign">+</span><span class="cur-rp">Rp</span><span class="cur-amt">2.500.000</span></span></span>
+                  <span class="mono text-accent-amber" id="trx-preview-add"><span class="cur"><span class="cur-sign">+</span><span class="cur-rp">Rp</span><span class="cur-amt">0</span></span></span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-ink-300">Tagihan statement periode ini akan jadi*</span>
-                  <span class="mono"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">52.500.000</span></span></span>
+                  <span class="mono" id="trx-preview-stmt"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">0</span></span></span>
                 </div>
                 <div class="flex justify-between pt-2 mt-1 border-t border-ink-700/40">
                   <span class="text-ink-100">Saldo baru</span>
-                  <span class="display text-lg text-accent-coral" id="trx-preview-new"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">44.800.000</span></span></span>
+                  <span class="display text-lg text-accent-coral" id="trx-preview-new"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">0</span></span></span>
                 </div>
               </div>
               <div class="text-[10px] text-ink-400 mt-2 leading-relaxed">
                 *Karena ini Kartu Kredit, bunga periode berikutnya akan dihitung dari tagihan statement baru.
-                Available credit otomatis turun jadi <span class="mono">Rp 30.200.000</span>.
+                Available credit otomatis turun jadi <span class="mono" id="trx-preview-avail">Rp 0</span>.
               </div>
             </div>
 
@@ -3218,7 +3295,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="edit-action-panel hidden p-4 rounded-lg bg-accent-violet/5 border border-accent-violet/25" data-panel="detail">
             <div class="num-prefix mb-3 flex items-center gap-2">
               <i data-lucide="edit-3" class="w-3 h-3 text-accent-violet"></i>
-              EDIT DETAIL HUTANG · BCA CARD PLATINUM
+              EDIT DETAIL HUTANG · <span id="edit-detail-target" class="text-accent-violet">—</span>
             </div>
             <p class="text-xs text-ink-300 leading-relaxed mb-4">
               Sesuaikan detail seperti suku bunga (jika naik/turun), limit kartu, atau perubahan data administratif. Riwayat transaksi tetap aman.
@@ -3228,7 +3305,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <div>
                 <label class="text-xs text-ink-300">Suku Bunga Baru</label>
                 <div class="flex gap-2 mt-1.5">
-                  <input class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" value="2.95">
+                  <input class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" placeholder="0.00">
                   <select class="input-field px-3 py-2 rounded-md text-sm w-28"><option selected>% / Bulan</option></select>
                 </div>
               </div>
@@ -3236,7 +3313,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <label class="text-xs text-ink-300">Limit Kartu</label>
                 <div class="relative mt-1.5">
                   <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                  <input class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="75.000.000">
+                  <input class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
                 </div>
               </div>
               <div>
@@ -3282,13 +3359,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               UPDATE OTOMATIS DARI STATEMENT TERBARU
             </div>
             <p class="text-xs text-ink-300 leading-relaxed mb-4">
-              Upload e-statement BCA bulan terbaru — AI akan otomatis:
+              Upload e-statement terbaru — AI akan otomatis:
               ① menyesuaikan saldo, ② merekonsiliasi transaksi yang belum tercatat, ③ update bunga & biaya periode, ④ <strong>menghapus file</strong> setelah selesai (tidak disimpan).
             </p>
 
             <div class="dropzone rounded-lg p-6 lg:p-8 text-center cursor-pointer">
               <i data-lucide="file-up" class="w-10 h-10 text-accent-mint mx-auto mb-3"></i>
-              <div class="text-sm font-medium">Drop e-statement BCA di sini</div>
+              <div class="text-sm font-medium">Drop e-statement di sini</div>
               <div class="text-[11px] text-ink-400 mt-1">PDF · JPG · PNG · max 10 MB</div>
               <button class="btn-primary px-4 py-2 rounded-md text-sm mt-4 inline-flex items-center gap-2">
                 <i data-lucide="upload" class="w-4 h-4"></i> Pilih File
@@ -3304,7 +3381,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
           <!-- ─── Action: Riwayat (hidden) ─── -->
           <div class="edit-action-panel hidden" data-panel="riwayat">
-            <div class="num-prefix mb-3">RIWAYAT TRANSAKSI · BCA CARD PLATINUM · 30 HARI</div>
+            <div class="num-prefix mb-3">RIWAYAT TRANSAKSI · <span id="riwayat-target">—</span> · 30 HARI</div>
 
             <div class="table-scroll rounded-lg border border-ink-700/40 overflow-hidden">
               <table class="w-full text-sm">
@@ -3318,55 +3395,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-ink-700/30 text-xs">
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">10 Mei 2026</td>
-                    <td class="p-2.5">Tokopedia · Order #INV-5421</td>
-                    <td class="p-2.5"><span class="pill pill-info">Belanja</span></td>
-                    <td class="p-2.5 text-right mono text-accent-amber">+ Rp 1.250.000</td>
-                    <td class="p-2.5 text-right mono">Rp 42.300.000</td>
-                  </tr>
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">07 Mei 2026</td>
-                    <td class="p-2.5">Shell — SPBU Sunter</td>
-                    <td class="p-2.5"><span class="pill pill-info">Belanja</span></td>
-                    <td class="p-2.5 text-right mono text-accent-amber">+ Rp 425.000</td>
-                    <td class="p-2.5 text-right mono">Rp 41.050.000</td>
-                  </tr>
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">05 Mei 2026</td>
-                    <td class="p-2.5">Bunga periode April</td>
-                    <td class="p-2.5"><span class="pill pill-danger">Bunga</span></td>
-                    <td class="p-2.5 text-right mono text-accent-coral">+ Rp 1.475.000</td>
-                    <td class="p-2.5 text-right mono">Rp 40.625.000</td>
-                  </tr>
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">28 Apr 2026</td>
-                    <td class="p-2.5">Pembayaran masuk · Transfer</td>
-                    <td class="p-2.5"><span class="pill pill-active">Bayar</span></td>
-                    <td class="p-2.5 text-right mono text-accent-lime">− Rp 4.000.000</td>
-                    <td class="p-2.5 text-right mono">Rp 39.150.000</td>
-                  </tr>
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">22 Apr 2026</td>
-                    <td class="p-2.5">Garuda Indonesia · GA-852</td>
-                    <td class="p-2.5"><span class="pill pill-info">Travel</span></td>
-                    <td class="p-2.5 text-right mono text-accent-amber">+ Rp 3.850.000</td>
-                    <td class="p-2.5 text-right mono">Rp 43.150.000</td>
-                  </tr>
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">18 Apr 2026</td>
-                    <td class="p-2.5">Apple Store Indonesia</td>
-                    <td class="p-2.5"><span class="pill pill-info">Belanja</span></td>
-                    <td class="p-2.5 text-right mono text-accent-amber">+ Rp 2.299.000</td>
-                    <td class="p-2.5 text-right mono">Rp 39.300.000</td>
-                  </tr>
-                  <tr class="row-hover">
-                    <td class="p-2.5 mono">15 Apr 2026</td>
-                    <td class="p-2.5">Biaya Tahunan 2026</td>
-                    <td class="p-2.5"><span class="pill pill-warn">Biaya</span></td>
-                    <td class="p-2.5 text-right mono text-accent-amber">+ Rp 600.000</td>
-                    <td class="p-2.5 text-right mono">Rp 37.001.000</td>
-                  </tr>
+                  <tr><td colspan="5" class="p-6 text-center text-ink-400 text-sm">Belum ada transaksi.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -3386,7 +3415,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div>
               <div class="num-prefix">INPUT MANUAL</div>
-              <h2 class="display text-lg lg:text-xl font-medium mt-1">Tambah / Edit Hutang</h2>
             </div>
             <div class="flex p-1 bg-ink-800/60 rounded-md text-xs">
               <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">Tambah Baru</button>
@@ -3398,11 +3426,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
             <div>
               <label class="text-xs text-ink-300">Perusahaan / Kreditur</label>
-              <input name="company" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Contoh: Bank BCA" value="Bank Central Asia">
+              <input name="company" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Nama bank / lembaga / kreditur">
             </div>
             <div>
               <label class="text-xs text-ink-300">Akun Kredit</label>
-              <input name="accountNo" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Nomor akun" value="**** 4421">
+              <input name="accountNo" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Nomor akun / kartu">
             </div>
             <div>
               <label class="text-xs text-ink-300">Kategori Hutang</label>
@@ -3421,13 +3449,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <label class="text-xs text-ink-300">Nominal Awal Hutang</label>
               <div class="relative mt-1.5">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                <input name="nominalAwal" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="50.000.000">
+                <input name="nominalAwal" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
               </div>
             </div>
             <div>
               <label class="text-xs text-ink-300">Suku Bunga</label>
               <div class="flex gap-2 mt-1.5">
-                <input name="bunga" class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" value="2.95">
+                <input name="bunga" class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" placeholder="0.00">
                 <select name="bungaUnit" class="input-field px-3 py-2 rounded-md text-sm w-28">
                   <option value="hari">% / Hari</option>
                   <option value="15hari">% / 15 Hari</option>
@@ -3447,13 +3475,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             </div>
             <div>
               <label class="text-xs text-ink-300">Tanggal Awal Hutang</label>
-              <input name="startDate" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="2024-08-15">
+              <input name="startDate" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono">
             </div>
             <div class="sm:col-span-2">
               <label class="text-xs text-ink-300">Tagihan Statement Terakhir <span class="text-accent-amber">(Wajib untuk Kartu Kredit)</span></label>
               <div class="relative mt-1.5">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                <input name="statement" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="50.000.000">
+                <input name="statement" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
               </div>
               <div class="mt-2 p-2.5 rounded-md bg-accent-amber/5 border border-accent-amber/20 text-[11px] leading-relaxed">
                 <div class="flex items-start gap-2">
@@ -3580,10 +3608,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="p-3 rounded-md bg-accent-violet/5 border border-accent-violet/20 mb-4 flex items-start gap-3">
               <i data-lucide="git-merge" class="w-4 h-4 text-accent-violet shrink-0 mt-0.5"></i>
               <div class="text-xs leading-relaxed flex-1">
-                <div class="text-ink-100 font-medium">AI Mendeteksi Hutang Existing</div>
+                <div class="text-ink-100 font-medium">Rekonsiliasi Otomatis</div>
                 <div class="text-ink-300 mt-1">
-                  Statement ini cocok dengan <strong class="text-accent-violet">BCA Card Platinum **** 4421</strong>.
-                  AI siap meng-update otomatis: saldo, bunga periode, biaya bulanan, dan riwayat pembayaran yang tercatat di statement.
+                  Jika statement cocok dengan salah satu hutang yang sudah ada, AI siap meng-update otomatis: saldo, bunga periode, biaya bulanan, dan riwayat pembayaran yang tercatat di statement.
                 </div>
               </div>
             </div>
@@ -3591,11 +3618,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 p-4 rounded-lg bg-ink-900/60 border border-ink-700/40">
               <div>
                 <div class="text-xs text-ink-400">Nama Kreditur</div>
-                <div class="text-sm mt-1">PT Bank Central Asia Tbk</div>
+                <div class="text-sm mt-1">— (contoh hasil OCR)</div>
               </div>
               <div>
                 <div class="text-xs text-ink-400">Jenis Kredit</div>
-                <div class="text-sm mt-1">Kartu Kredit Platinum</div>
+                <div class="text-sm mt-1">—</div>
               </div>
               <div>
                 <div class="text-xs text-ink-400">Nominal Tagihan</div>
@@ -4132,8 +4159,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <div class="mt-6 flex items-center gap-4 p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
                 <div id="settings-akun-avatar" class="w-16 h-16 rounded-lg bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-ink-950 font-semibold text-xl">RA</div>
                 <div class="flex-1">
-                  <div id="settings-akun-name" class="font-medium">Rizky Aditya</div>
-                  <div id="settings-akun-email" class="text-xs text-ink-400 mt-0.5">rizky.aditya@email.com</div>
+                  <div id="settings-akun-name" class="font-medium">Tamu</div>
+                  <div id="settings-akun-email" class="text-xs text-ink-400 mt-0.5">—</div>
                   <div class="text-[10px] text-ink-400 mt-2">Avatar otomatis dibuat dari inisial nama Anda.</div>
                 </div>
               </div>
@@ -4142,15 +4169,15 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <div class="grid grid-cols-2 gap-4 mt-6">
                 <div>
                   <label class="text-xs text-ink-300">Nama Lengkap</label>
-                  <input id="settings-akun-input-name" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" value="Rizky Aditya">
+                  <input id="settings-akun-input-name" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Nama Anda">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">Email</label>
-                  <input id="settings-akun-input-email" type="email" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" value="rizky.aditya@email.com">
+                  <input id="settings-akun-input-email" type="email" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="email@contoh.com">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">Nomor HP</label>
-                  <input id="settings-akun-input-phone" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" value="+62 812-3456-7890">
+                  <input id="settings-akun-input-phone" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono" placeholder="+62 ...">
                 </div>
                 <div>
                   <label class="text-xs text-ink-300">NPWP (opsional)</label>
@@ -4160,7 +4187,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                   <label class="text-xs text-ink-300">Pendapatan Bulanan</label>
                   <div class="relative mt-1.5">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                    <input id="settings-akun-input-income" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" value="22.750.000">
+                    <input id="settings-akun-input-income" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
                   </div>
                   <div class="text-[10px] text-ink-400 mt-1">Digunakan untuk kalkulasi debt ratio & cashflow</div>
                 </div>
@@ -4357,7 +4384,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <!-- Sign out -->
               <div class="mt-6 pt-6 border-t border-ink-700/40 flex items-center justify-between">
                 <div class="text-xs text-ink-400">
-                  Masuk sebagai <span id="tentang-user-email" class="text-ink-200">rizky.aditya@email.com</span>
+                  Masuk sebagai <span id="tentang-user-email" class="text-ink-200">—</span>
                 </div>
                 <button id="tentang-logout-btn" class="btn-ghost px-4 py-2 rounded-md text-sm text-accent-coral flex items-center gap-2">
                   <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Akun
@@ -4443,7 +4470,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <div class="space-y-3">
           <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200">
             <div class="text-xs text-ink-400 mb-1.5 mono">📅 Pengingat — 3 hari lagi</div>
-            <div class="text-sm text-ink-100 leading-relaxed">Halo Rizky 👋<br>Tagihan <b>BCA Card Platinum</b> jatuh tempo 15 Mei.<br>Nominal: <b>Rp 4.230.000</b><br>Balas <code>BAYAR</code> untuk catat pembayaran.</div>
+            <div class="text-sm text-ink-100 leading-relaxed">Halo 👋<br>Tagihan <b>[Nama Hutang]</b> jatuh tempo [tanggal].<br>Nominal: <b>Rp [nominal]</b><br>Balas <code>BAYAR</code> untuk catat pembayaran.</div>
           </div>
           <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
             <div class="text-xs text-ink-400 mb-1.5 mono">✓ Konfirmasi Pembayaran</div>
@@ -4855,8 +4882,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       <div class="flex items-center gap-3">
         <div id="profile-avatar" class="w-12 h-12 rounded-md bg-gradient-to-br from-accent-mint to-accent-violet flex items-center justify-center text-white font-semibold text-base">RA</div>
         <div>
-          <div id="profile-name" class="text-base font-medium">Rizky Aditya</div>
-          <div id="profile-email" class="text-[11px] text-ink-400">rizky.aditya@email.com</div>
+          <div id="profile-name" class="text-base font-medium">Tamu</div>
+          <div id="profile-email" class="text-[11px] text-ink-400">—</div>
         </div>
       </div>
       <button id="profile-close" class="text-ink-400 hover:text-ink-100 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -4993,93 +5020,142 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function diffDays(a,b){ return Math.round((a - b) / (1000*60*60*24)); }
   function uid(p='id'){ return p + '_' + Math.random().toString(36).slice(2,9); }
 
-  // ───── Initial state ─────
+  // ───── Demo dataset (loaded ONLY when a guest taps "Muat Data Demo") ─────
+  // Returns a fresh deep copy each call so demo can be reloaded cleanly.
+  function makeDemoData(){
+    return {
+      user: {
+        name: 'Rizky Aditya',
+        email: 'rizky.aditya@email.com',
+        monthlyIncome: 22750000,
+        phone: '+62 812-3456-7890',
+        telegram: '@rizkyaditya',
+      },
+      debts: [
+        { id:'bca', logo:'BCA', logoColor:'coral', company:'Bank Central Asia', product:'Card Platinum',
+          accountNo:'**** **** **** 4421', category:'Kartu Kredit', isCC:true,
+          nominalAwal:50000000, statement:50000000, sisa:42300000, limit:75000000,
+          bunga:2.95, bungaUnit:'bln', biaya:650000, minPayment:4230000,
+          startDate:'2024-08-15', dueDate:'2026-05-15', dueDayOfMonth:15,
+          status:'active'
+        },
+        { id:'mandiri', logo:'MDR', logoColor:'mint', company:'Bank Mandiri', product:'KTA Tunai',
+          accountNo:'Acc 1393 5421 8842', category:'KTA', isCC:false,
+          nominalAwal:100000000, statement:null, sisa:67500000, limit:100000000,
+          bunga:1.45, bungaUnit:'bln', biaya:1200000, minPayment:2500000,
+          startDate:'2024-02-28', dueDate:'2026-05-28', dueDayOfMonth:28,
+          status:'active'
+        },
+        { id:'cimb', logo:'CMB', logoColor:'violet', company:'CIMB Niaga', product:'Personal Loan',
+          accountNo:'Acc 5621 8843 0019', category:'Pinjaman', isCC:false,
+          nominalAwal:50000000, statement:null, sisa:28750000, limit:50000000,
+          bunga:1.80, bungaUnit:'bln', biaya:480000, minPayment:1250000,
+          startDate:'2024-05-05', dueDate:'2026-06-05', dueDayOfMonth:5,
+          status:'active'
+        },
+        { id:'shopee', logo:'SHP', logoColor:'amber', company:'Shopee Indonesia', product:'PayLater',
+          accountNo:'rizky.aditya@email.com', category:'Paylater', isCC:false,
+          nominalAwal:6000000, statement:null, sisa:4200000, limit:6000000,
+          bunga:2.95, bungaUnit:'bln', biaya:30000, minPayment:700000,
+          startDate:'2026-03-25', dueDate:'2026-05-25', dueDayOfMonth:25,
+          status:'active'
+        },
+        { id:'bri', logo:'BRI', logoColor:'ink', company:'Bank BRI', product:'KPR Subsidi',
+          accountNo:'Acc 0012 4471 5588', category:'KPR', isCC:false,
+          nominalAwal:120000000, statement:null, sisa:44700000, limit:120000000,
+          bunga:6.5, bungaUnit:'thn', biaya:2500000, minPayment:1850000,
+          startDate:'2022-01-10', dueDate:'2026-06-10', dueDayOfMonth:10,
+          status:'active'
+        },
+        { id:'kredivo', logo:'KFI', logoColor:'ink', company:'Kredivo', product:'Cicilan 12 Bulan',
+          accountNo:'User rizky_aditya', category:'Paylater', isCC:false,
+          nominalAwal:12000000, statement:null, sisa:8000000, limit:15000000,
+          bunga:2.6, bungaUnit:'bln', biaya:120000, minPayment:1100000,
+          startDate:'2025-12-18', dueDate:'2026-05-18', dueDayOfMonth:18,
+          status:'active'
+        },
+        { id:'danamon', logo:'DAN', logoColor:'ink', company:'Bank Danamon', product:'Auto Loan',
+          accountNo:'Acc 4429 8821 6611', category:'Multiguna', isCC:false,
+          nominalAwal:35000000, statement:null, sisa:12000000, limit:35000000,
+          bunga:9.5, bungaUnit:'thn', biaya:750000, minPayment:950000,
+          startDate:'2023-09-22', dueDate:'2026-05-22', dueDayOfMonth:22,
+          status:'active'
+        },
+      ],
+      payments: [
+        { id:uid('p'), debtId:'mandiri', date:'2026-05-10', amount:2500000, method:'Autodebet', status:'sukses', note:'Cicilan Mei' },
+        { id:uid('p'), debtId:'cimb',    date:'2026-05-05', amount:1250000, method:'Transfer',  status:'sukses', note:'Cicilan Mei' },
+        { id:uid('p'), debtId:'bri',     date:'2026-05-02', amount:1850000, method:'Autodebet', status:'sukses', note:'Cicilan KPR' },
+        { id:uid('p'), debtId:'bca',     date:'2026-04-28', amount:4000000, method:'Transfer',  status:'cicil',  note:'Bayar sebagian' },
+        { id:uid('p'), debtId:'danamon', date:'2026-04-22', amount: 950000, method:'Autodebet', status:'sukses', note:'Cicilan April' },
+        { id:uid('p'), debtId:'kredivo', date:'2026-04-18', amount:1100000, method:'e-Wallet',  status:'sukses', note:'Cicilan April' },
+      ],
+      transactions: [
+        { id:uid('t'), debtId:'bca', date:'2026-05-10', type:'Belanja',    desc:'Tokopedia · Order #INV-5421', amount:1250000 },
+        { id:uid('t'), debtId:'bca', date:'2026-05-07', type:'Belanja',    desc:'Shell — SPBU Sunter',          amount: 425000 },
+        { id:uid('t'), debtId:'bca', date:'2026-05-05', type:'Bunga',      desc:'Bunga periode April',          amount:1475000 },
+        { id:uid('t'), debtId:'bca', date:'2026-04-22', type:'Travel',     desc:'Garuda Indonesia · GA-852',    amount:3850000 },
+        { id:uid('t'), debtId:'bca', date:'2026-04-18', type:'Belanja',    desc:'Apple Store Indonesia',        amount:2299000 },
+        { id:uid('t'), debtId:'bca', date:'2026-04-15', type:'Biaya',      desc:'Biaya Tahunan 2026',           amount: 600000 },
+      ],
+    };
+  }
+
+  // ───── Initial state — EMPTY by default (no demo data) ─────
   const state = {
     user: {
-      name: 'Rizky Aditya',
-      email: 'rizky.aditya@email.com',
-      monthlyIncome: 22750000,
+      name: 'Tamu',
+      email: '',
+      monthlyIncome: 0,
     },
-    debts: [
-      { id:'bca', logo:'BCA', logoColor:'coral', company:'Bank Central Asia', product:'Card Platinum',
-        accountNo:'**** **** **** 4421', category:'Kartu Kredit', isCC:true,
-        nominalAwal:50000000, statement:50000000, sisa:42300000, limit:75000000,
-        bunga:2.95, bungaUnit:'bln', biaya:650000, minPayment:4230000,
-        startDate:'2024-08-15', dueDate:'2026-05-15', dueDayOfMonth:15,
-        status:'active'
-      },
-      { id:'mandiri', logo:'MDR', logoColor:'mint', company:'Bank Mandiri', product:'KTA Tunai',
-        accountNo:'Acc 1393 5421 8842', category:'KTA', isCC:false,
-        nominalAwal:100000000, statement:null, sisa:67500000, limit:100000000,
-        bunga:1.45, bungaUnit:'bln', biaya:1200000, minPayment:2500000,
-        startDate:'2024-02-28', dueDate:'2026-05-28', dueDayOfMonth:28,
-        status:'active'
-      },
-      { id:'cimb', logo:'CMB', logoColor:'violet', company:'CIMB Niaga', product:'Personal Loan',
-        accountNo:'Acc 5621 8843 0019', category:'Pinjaman', isCC:false,
-        nominalAwal:50000000, statement:null, sisa:28750000, limit:50000000,
-        bunga:1.80, bungaUnit:'bln', biaya:480000, minPayment:1250000,
-        startDate:'2024-05-05', dueDate:'2026-06-05', dueDayOfMonth:5,
-        status:'active'
-      },
-      { id:'shopee', logo:'SHP', logoColor:'amber', company:'Shopee Indonesia', product:'PayLater',
-        accountNo:'rizky.aditya@email.com', category:'Paylater', isCC:false,
-        nominalAwal:6000000, statement:null, sisa:4200000, limit:6000000,
-        bunga:2.95, bungaUnit:'bln', biaya:30000, minPayment:700000,
-        startDate:'2026-03-25', dueDate:'2026-05-25', dueDayOfMonth:25,
-        status:'active'
-      },
-      { id:'bri', logo:'BRI', logoColor:'ink', company:'Bank BRI', product:'KPR Subsidi',
-        accountNo:'Acc 0012 4471 5588', category:'KPR', isCC:false,
-        nominalAwal:120000000, statement:null, sisa:44700000, limit:120000000,
-        bunga:6.5, bungaUnit:'thn', biaya:2500000, minPayment:1850000,
-        startDate:'2022-01-10', dueDate:'2026-06-10', dueDayOfMonth:10,
-        status:'active'
-      },
-      { id:'kredivo', logo:'KFI', logoColor:'ink', company:'Kredivo', product:'Cicilan 12 Bulan',
-        accountNo:'User rizky_aditya', category:'Paylater', isCC:false,
-        nominalAwal:12000000, statement:null, sisa:8000000, limit:15000000,
-        bunga:2.6, bungaUnit:'bln', biaya:120000, minPayment:1100000,
-        startDate:'2025-12-18', dueDate:'2026-05-18', dueDayOfMonth:18,
-        status:'active'
-      },
-      { id:'danamon', logo:'DAN', logoColor:'ink', company:'Bank Danamon', product:'Auto Loan',
-        accountNo:'Acc 4429 8821 6611', category:'Multiguna', isCC:false,
-        nominalAwal:35000000, statement:null, sisa:12000000, limit:35000000,
-        bunga:9.5, bungaUnit:'thn', biaya:750000, minPayment:950000,
-        startDate:'2023-09-22', dueDate:'2026-05-22', dueDayOfMonth:22,
-        status:'active'
-      },
-    ],
-    payments: [
-      { id:uid('p'), debtId:'mandiri', date:'2026-05-10', amount:2500000, method:'Autodebet', status:'sukses', note:'Cicilan Mei' },
-      { id:uid('p'), debtId:'cimb',    date:'2026-05-05', amount:1250000, method:'Transfer',  status:'sukses', note:'Cicilan Mei' },
-      { id:uid('p'), debtId:'bri',     date:'2026-05-02', amount:1850000, method:'Autodebet', status:'sukses', note:'Cicilan KPR' },
-      { id:uid('p'), debtId:'bca',     date:'2026-04-28', amount:4000000, method:'Transfer',  status:'cicil',  note:'Bayar sebagian' },
-      { id:uid('p'), debtId:'danamon', date:'2026-04-22', amount: 950000, method:'Autodebet', status:'sukses', note:'Cicilan April' },
-      { id:uid('p'), debtId:'kredivo', date:'2026-04-18', amount:1100000, method:'e-Wallet',  status:'sukses', note:'Cicilan April' },
-    ],
-    transactions: [
-      { id:uid('t'), debtId:'bca', date:'2026-05-10', type:'Belanja',    desc:'Tokopedia · Order #INV-5421', amount:1250000 },
-      { id:uid('t'), debtId:'bca', date:'2026-05-07', type:'Belanja',    desc:'Shell — SPBU Sunter',          amount: 425000 },
-      { id:uid('t'), debtId:'bca', date:'2026-05-05', type:'Bunga',      desc:'Bunga periode April',          amount:1475000 },
-      { id:uid('t'), debtId:'bca', date:'2026-04-22', type:'Travel',     desc:'Garuda Indonesia · GA-852',    amount:3850000 },
-      { id:uid('t'), debtId:'bca', date:'2026-04-18', type:'Belanja',    desc:'Apple Store Indonesia',        amount:2299000 },
-      { id:uid('t'), debtId:'bca', date:'2026-04-15', type:'Biaya',      desc:'Biaya Tahunan 2026',           amount: 600000 },
-    ],
+    debts: [],
+    payments: [],
+    transactions: [],
     nextDebtId: 1,
     daftarFilter: 'aktif',
-    paySelectedId: 'bca',
+    paySelectedId: null,
     payMode: 'cicil', // lunas | cicil | custom
-    editCompanyId: 'bca',
-    editAccountId: 'bca',  // single account per debt in our model
+    editCompanyId: null,
+    editAccountId: null,  // single account per debt in our model
     editActionPanel: 'tambah',
     calMode: 'week',
     calRefDate: new Date(TODAY),
     calSelected: '2026-05-17',
     currencyDisplay: 'rp', // 'rp' | 'idr' | 'rupiah' | 'plain'
     dashSort: { key: null, dir: null }, // dir: 'asc'|'desc'|null
+    demoLoaded: false,
   };
+
+  // ───── Demo data load / clear ─────
+  function loadDemoData(){
+    const d = makeDemoData();
+    state.user = Object.assign({}, state.user, d.user);
+    state.debts = d.debts;
+    state.payments = d.payments;
+    state.transactions = d.transactions;
+    state.paySelectedId  = d.debts[0] ? d.debts[0].id : null;
+    state.editCompanyId  = d.debts[0] ? d.debts[0].id : null;
+    state.editAccountId  = d.debts[0] ? d.debts[0].id : null;
+    state.demoLoaded = true;
+    if (typeof renderAll === 'function') renderAll();
+    if (typeof updateSidebarUserUI === 'function') updateSidebarUserUI();
+    if (typeof flash === 'function') flash('✓ Data demo dimuat — 7 hutang contoh untuk eksplorasi.');
+  }
+  function clearAllData(){
+    state.user = { name:'Tamu', email:'', monthlyIncome:0 };
+    state.debts = [];
+    state.payments = [];
+    state.transactions = [];
+    state.paySelectedId = null;
+    state.editCompanyId = null;
+    state.editAccountId = null;
+    state.demoLoaded = false;
+    if (typeof renderAll === 'function') renderAll();
+    if (typeof updateSidebarUserUI === 'function') updateSidebarUserUI();
+    if (typeof flash === 'function') flash('Semua data dikosongkan.');
+  }
+  window.loadDemoData = loadDemoData;
+  window.clearAllData = clearAllData;
 
   // ───── Logo color map ─────
   const logoColorMap = {
@@ -5561,7 +5637,25 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
   function renderPaymentSourceDetail(){
     const d = getDebt(state.paySelectedId);
-    if (!d) return;
+    if (!d){
+      const logo = document.getElementById('pay-src-logo');
+      if (logo){
+        logo.textContent = '—';
+        logo.className = 'w-8 h-8 rounded-md bg-ink-700/60 border border-ink-600/40 text-ink-200 flex items-center justify-center mono text-[10px]';
+      }
+      setText('pay-src-name', 'Belum ada hutang');
+      setText('pay-src-meta', 'Muat data demo atau tambah hutang dulu.');
+      const st = document.getElementById('pay-src-status');
+      if (st){ st.textContent = '—'; st.className = 'pill pill-info'; }
+      ['pay-src-stmt','pay-src-sisa','pay-src-min','pay-src-bunga'].forEach(id => setText(id, '—'));
+      const qb = document.getElementById('pay-quick-buttons');
+      if (qb) qb.innerHTML = '';
+      const amountInput = document.getElementById('pay-amount');
+      if (amountInput) amountInput.value = '';
+      const warn = document.getElementById('pay-src-warn');
+      if (warn) warn.style.display = 'none';
+      return;
+    }
     // logo
     const logo = document.getElementById('pay-src-logo');
     if (logo){
@@ -5631,7 +5725,17 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
   function renderPaymentSim(){
     const d = getDebt(state.paySelectedId);
-    if (!d) return;
+    if (!d){
+      setHTML('sim-current', fmtIDRc(0));
+      setHTML('sim-pay', fmtIDRc(0, {sign:'−'}));
+      setHTML('sim-bunga', fmtIDRc(0, {sign:'+'}));
+      setHTML('sim-result', fmtIDRc(0));
+      const br = document.getElementById('sim-bunga-row');
+      if (br) br.style.display = 'none';
+      const nt = document.getElementById('sim-note');
+      if (nt) nt.style.display = 'none';
+      return;
+    }
     const input = document.getElementById('pay-amount');
     const amt = parseIDR(input?.value || 0);
     setHTML('sim-current', fmtIDRc(d.sisa));
@@ -5742,7 +5846,23 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
   function renderEditDebtDetail(){
     const d = getDebt(state.editAccountId);
-    if (!d) return;
+    if (!d){
+      const logo = document.getElementById('edit-debt-logo');
+      if (logo){
+        logo.textContent = '—';
+        logo.className = 'w-11 h-11 rounded-md bg-ink-700/60 border border-ink-600/40 text-ink-200 flex items-center justify-center mono text-xs shrink-0';
+      }
+      setText('edit-debt-name', 'Belum ada hutang dipilih');
+      setText('edit-debt-meta', 'Tambah hutang lewat INPUT MANUAL atau muat data demo.');
+      const statusEl = document.getElementById('edit-debt-status');
+      if (statusEl){ statusEl.textContent = '—'; statusEl.className = 'pill pill-info'; }
+      ['d-nom-awal','d-stmt','d-sisa','d-jt','d-bunga','d-limit','d-avail','d-trx']
+        .forEach(id => setText(id, '—'));
+      setText('trx-target-name', '—');
+      setText('edit-detail-target', '—');
+      setText('riwayat-target', '—');
+      return;
+    }
     const logo = document.getElementById('edit-debt-logo');
     if (logo){
       logo.textContent = d.logo;
@@ -5769,6 +5889,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     setText('d-trx', `${trxCount} transaksi`);
 
     setText('trx-target-name', `${d.company} ${d.product}`.toUpperCase());
+    setText('edit-detail-target', `${d.company} ${d.product}`.toUpperCase());
+    setText('riwayat-target', `${d.company} ${d.product}`.toUpperCase());
   }
 
   function renderEditExisting(){
@@ -5796,18 +5918,34 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
   function renderTrxPreview(){
     const d = getDebt(state.editAccountId);
-    if (!d) return;
+    if (!d){
+      setHTML('trx-preview-cur', fmtIDRc(0));
+      setHTML('trx-preview-add', fmtIDRc(0, {sign:'+'}));
+      setHTML('trx-preview-stmt', fmtIDRc(0));
+      setHTML('trx-preview-new', fmtIDRc(0));
+      setText('trx-preview-avail', fmtIDR(0));
+      return;
+    }
     const input = document.getElementById('trx-amount');
     const amt = parseIDR(input?.value || 0);
+    const baseStmt = d.isCC ? (d.statement || 0) : d.sisa;
+    setHTML('trx-preview-cur', fmtIDRc(d.sisa));
     setHTML('trx-preview-add', fmtIDRc(amt, {sign:'+'}));
+    setHTML('trx-preview-stmt', fmtIDRc(baseStmt + amt));
     setHTML('trx-preview-new', fmtIDRc(d.sisa + amt));
+    const av = (typeof availableCredit === 'function') ? availableCredit(d) : null;
+    setText('trx-preview-avail', av === null ? '—' : fmtIDR(Math.max(0, av - amt)));
   }
 
   function renderRiwayatTable(){
     const panel = document.querySelector('.edit-action-panel[data-panel="riwayat"]');
     if (!panel) return;
     const d = getDebt(state.editAccountId);
-    if (!d) return;
+    if (!d){
+      const tb = panel.querySelector('tbody');
+      if (tb) tb.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-ink-400 text-sm">Belum ada transaksi.</td></tr>`;
+      return;
+    }
     const trx = state.transactions.filter(t => t.debtId === d.id)
       .sort((a,b) => b.date.localeCompare(a.date));
     // Find or create table body inside the riwayat panel
@@ -7098,7 +7236,87 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     renderEditExisting();
     refreshNavBadges();
     renderAddFormPreview();
+    applyEmptyStateUI();
   }
+
+  // ───── Empty-state handling: blank static demo bits when there is no data ─────
+  function hasAnyData(){ return state.debts && state.debts.length > 0; }
+
+  function applyEmptyStateUI(){
+    const empty = !hasAnyData();
+
+    // Dashboard "Total Hutang" trend pill is static markup — neutralize it
+    const trend = document.getElementById('dash-total-trend');
+    if (trend){
+      if (empty){
+        trend.className = 'pill pill-info';
+        trend.innerHTML = '<i data-lucide="minus" class="w-3 h-3"></i>—';
+      }
+    }
+
+    // AI Insight view — hide roadmap/strategy projection when there is no data
+    const insightView = document.getElementById('view-insight');
+    if (insightView){
+      let es = document.getElementById('insight-empty-state');
+      if (empty){
+        if (!es){
+          es = document.createElement('div');
+          es.id = 'insight-empty-state';
+          es.className = 'empty-state';
+          es.innerHTML = `
+            <div class="es-icn"><i data-lucide="sparkles" class="w-6 h-6"></i></div>
+            <h3>Belum ada data untuk dianalisis</h3>
+            <p>AI Insight, roadmap, dan strategi pelunasan akan muncul setelah Anda menambah hutang.</p>
+            <button class="es-btn" type="button" onclick="loadDemoData()"><i data-lucide="play" class="w-3.5 h-3.5"></i> Muat Data Demo</button>`;
+          insightView.appendChild(es);
+        }
+        Array.from(insightView.children).forEach(c => {
+          if (c.id !== 'insight-empty-state') c.style.display = 'none';
+        });
+        es.style.display = '';
+      } else {
+        Array.from(insightView.children).forEach(c => {
+          if (c.id !== 'insight-empty-state') c.style.display = '';
+        });
+        if (es) es.style.display = 'none';
+      }
+    }
+
+    // Dashboard chart card — show subtle empty note
+    const chartCanvas = document.getElementById('chartDebt');
+    if (chartCanvas){
+      let note = document.getElementById('chart-empty-note');
+      if (empty){
+        chartCanvas.style.opacity = '0.25';
+        if (!note && chartCanvas.parentElement){
+          note = document.createElement('div');
+          note.id = 'chart-empty-note';
+          note.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:var(--text-mute);pointer-events:none;';
+          note.textContent = 'Belum ada data hutang';
+          const p = chartCanvas.parentElement;
+          if (getComputedStyle(p).position === 'static') p.style.position = 'relative';
+          p.appendChild(note);
+        }
+        if (note) note.style.display = '';
+      } else {
+        chartCanvas.style.opacity = '';
+        if (note) note.style.display = 'none';
+      }
+    }
+
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+    refreshDemoButton();
+  }
+
+  // ───── Sidebar "Muat Data Demo" button — guest only ─────
+  function refreshDemoButton(){
+    const wrap = document.getElementById('sidebar-demo-wrap');
+    if (!wrap) return;
+    const loggedIn = !!(window.AUTH && AUTH.user);
+    // Hidden entirely for logged-in users; hidden once demo/real data is present
+    wrap.style.display = (loggedIn || hasAnyData()) ? 'none' : '';
+  }
+  window.refreshDemoButton = refreshDemoButton;
 
   // Set up the page on load
   renderAll();
@@ -7755,9 +7973,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     config: null,
     isConnected: false,
   };
+  window.AUTH = AUTH;
+  if (typeof refreshDemoButton === 'function') refreshDemoButton();
 
   const LOCAL_USER_KEY = 'df_user_profile';
-  const LOCAL_STATE_KEY = 'df_state_v1';
+  const LOCAL_STATE_KEY = 'df_state_v2'; // bumped: v1 may contain old auto-saved demo data
   const FIREBASE_CONFIG_KEY = 'df_firebase_config';
 
   // ─── Default Firebase config (built-in, dipakai otomatis jika user belum override) ───
@@ -7964,6 +8184,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       cog.setAttribute('data-lucide', AUTH.user ? 'settings-2' : 'log-in');
       lucide.createIcons();
     }
+    if (typeof refreshDemoButton === 'function') refreshDemoButton();
   }
 
   // ─── Login Modal handlers ───
@@ -7982,6 +8203,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function closeProfileModal(){ profileModal?.classList.remove('active'); }
 
   document.getElementById('sidebar-user-card')?.addEventListener('click', openLoginModal);
+  document.getElementById('sidebar-demo-btn')?.addEventListener('click', () => {
+    if (window.AUTH && AUTH.user) return; // safety: never for logged-in users
+    loadDemoData();
+    if (typeof closeSidebar === 'function') closeSidebar();
+  });
   document.getElementById('login-close')?.addEventListener('click', closeLoginModal);
   document.getElementById('profile-close')?.addEventListener('click', closeProfileModal);
   loginModal?.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
@@ -8163,9 +8389,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   // ═══════════════════════════════════════════════════════════════
   {
     // ─── Extend default profile so phone/npwp/telegram/tz are part of state.user ───
-    if (state.user.phone    === undefined) state.user.phone    = '+62 812-3456-7890';
+    if (state.user.phone    === undefined) state.user.phone    = '';
     if (state.user.npwp     === undefined) state.user.npwp     = '';
-    if (state.user.telegram === undefined) state.user.telegram = '@rizkyaditya';
+    if (state.user.telegram === undefined) state.user.telegram = '';
     if (state.user.tz       === undefined) state.user.tz       = 'WIB';
 
     // ─── Preferences persistence (toggles, selects, radios, button-groups) ───
@@ -8391,6 +8617,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       if (!confirm('Konfirmasi terakhir: yakin hapus SEMUA data?')) return;
       try {
         localStorage.removeItem('df_state_v1');
+        localStorage.removeItem('df_state_v2');
         localStorage.removeItem('df_preferences_v1');
         localStorage.removeItem('df_user_profile');
       } catch(e){}
