@@ -9722,6 +9722,27 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   window.renderAll = renderAll;
 
   // ─── Firebase remote sync ───
+  // Deep-sanitize: Firestore rejects `undefined` field values; convert to null
+  // and strip any non-serializable garbage that could come from form quirks.
+  function sanitizeForFirestore(v){
+    if (v === undefined) return null;
+    if (v === null) return null;
+    if (Array.isArray(v)) return v.map(sanitizeForFirestore);
+    if (typeof v === 'object'){
+      const out = {};
+      for (const k in v){
+        if (!Object.prototype.hasOwnProperty.call(v, k)) continue;
+        const sv = sanitizeForFirestore(v[k]);
+        // Drop functions; keep everything else (incl. nulls — Firestore allows them)
+        if (typeof sv === 'function') continue;
+        out[k] = sv;
+      }
+      return out;
+    }
+    if (typeof v === 'function') return null;
+    // Primitives: number, string, boolean — all fine
+    return v;
+  }
   async function saveStateRemote(){
     if (!AUTH.db || !AUTH.user) return;
     // Don't write while a remote load is in progress (login) — prevents the
@@ -9733,19 +9754,31 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     try {
       const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
       const ref = doc(AUTH.db, 'users', AUTH.user.uid);
-      const snapshot = {
+      const snapshot = sanitizeForFirestore({
         debts: state.debts,
         payments: state.payments,
         transactions: state.transactions,
         user: state.user,
         currencyDisplay: state.currencyDisplay,
+        nextDebtId: state.nextDebtId,
         updatedAt: Date.now(),
-      };
+      });
       await setDoc(ref, snapshot, { merge: true });
       updateSyncBadge('connected', '✓ Tersinkron · ' + new Date().toLocaleTimeString('id-ID'));
     } catch(e){
-      console.warn('Remote save failed', e);
-      updateSyncBadge('local', 'Offline · local only');
+      console.error('Remote save failed', e);
+      const code = (e && (e.code || e.name)) || 'unknown';
+      const msg  = (e && e.message) || String(e);
+      updateSyncBadge('local', '⚠ Sync gagal: ' + code);
+      // Surface the failure to the user — silent failure is exactly what
+      // caused "data hilang di device lain". Use flash() if available.
+      try {
+        if (typeof flash === 'function'){
+          flash('⚠ Sinkronisasi cloud gagal: ' + code + (code === 'permission-denied'
+            ? ' · Periksa Firestore rules di Firebase console.'
+            : ' · Cek koneksi internet.'));
+        }
+      } catch(_){}
     }
   }
   async function loadStateRemote(){
@@ -9763,7 +9796,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         if (Array.isArray(data.transactions)) state.transactions = data.transactions;
         if (data.user) state.user = { ...state.user, ...data.user };
         if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
+        if (typeof data.nextDebtId === 'number' && data.nextDebtId > state.nextDebtId){
+          state.nextDebtId = data.nextDebtId;
+        }
         if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
+        // CRITICAL: persist the loaded cloud data to localStorage so this device
+        // has an offline copy and won't show "empty" on next refresh before
+        // Firebase reconnects.
+        try { saveStateLocal(); } catch(_){}
       } else if (snap.exists()){
         // Cloud doc exists but has no portfolio. Keep whatever we already have
         // locally (don't wipe the screen) and merge any saved profile prefs.
@@ -9789,25 +9829,82 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           state.debts = data.debts;
           if (Array.isArray(data.payments)) state.payments = data.payments;
           if (Array.isArray(data.transactions)) state.transactions = data.transactions;
+          if (data.user) state.user = { ...state.user, ...data.user };
+          if (typeof data.nextDebtId === 'number' && data.nextDebtId > state.nextDebtId){
+            state.nextDebtId = data.nextDebtId;
+          }
           if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
-          _origRenderAll();
-          updateSyncBadge('connected', '↻ Update masuk dari device lain');
+          try { saveStateLocal(); } catch(_){}
+          // Use the fully patched renderAll (via window) so renderRecentActivity
+          // and renderUserUI also refresh — _origRenderAll would skip those.
+          if (typeof window.renderAll === 'function'){
+            // Mark as loading briefly so the patched renderAll's saveStateRemote
+            // doesn't echo this exact same data back to the cloud.
+            const wasLoading = AUTH.remoteLoading;
+            AUTH.remoteLoading = true;
+            try { window.renderAll(); } finally { AUTH.remoteLoading = wasLoading; }
+          } else {
+            _origRenderAll();
+          }
+          updateSyncBadge('connected', '↻ Update masuk dari device lain · ' + new Date().toLocaleTimeString('id-ID'));
         }
+      }, err => {
+        console.error('onSnapshot error', err);
+        const code = (err && (err.code || err.name)) || 'unknown';
+        updateSyncBadge('local', '⚠ Listener gagal: ' + code);
+        try { if (typeof flash === 'function') flash('⚠ Realtime sync gagal: ' + code); } catch(_){}
       });
-      _origRenderAll();
+      // First render after login: use the FULL patched renderAll so every
+      // UI surface (dashboard, list, recent activity, user card, sidebar)
+      // reflects the loaded cloud data. _origRenderAll would skip the QA
+      // layer additions.
+      if (typeof window.renderAll === 'function'){
+        const wasLoading = AUTH.remoteLoading;
+        AUTH.remoteLoading = true;
+        try { window.renderAll(); } finally { AUTH.remoteLoading = wasLoading; }
+      } else {
+        _origRenderAll();
+      }
       return true;
     } catch(e){
-      console.warn('Remote load failed', e);
+      console.error('Remote load failed', e);
       AUTH.remoteLoading = false;
+      const code = (e && (e.code || e.name)) || 'unknown';
+      updateSyncBadge('local', '⚠ Gagal memuat cloud: ' + code);
+      // This is the EXACT failure mode that makes data appear "hilang/zero"
+      // on a different device. Tell the user instead of silently failing.
+      try {
+        if (typeof flash === 'function'){
+          flash('⚠ Gagal memuat data dari cloud: ' + code + (code === 'permission-denied'
+            ? ' · Cek Firestore rules.'
+            : ' · Coba refresh atau klik "Tarik dari Cloud" di profil.'));
+        }
+      } catch(_){}
       return false;
     }
   }
+  // Manual recovery — exposes a "pull from cloud" function the user can call
+  // from the profile modal / sync UI. Useful when device-B shows zero data.
+  window.reloadFromCloud = async function(){
+    if (!AUTH || !AUTH.user){
+      try { if (typeof flash === 'function') flash('Login dulu untuk menarik data cloud.'); } catch(_){}
+      return false;
+    }
+    try { if (typeof flash === 'function') flash('↻ Menarik data dari cloud…'); } catch(_){}
+    AUTH.remoteLoading = true;
+    const ok = await loadStateRemote();
+    AUTH.remoteLoading = false;
+    if (ok){
+      try { if (typeof flash === 'function') flash('✓ Data berhasil dimuat dari cloud.'); } catch(_){}
+    }
+    return ok;
+  };
 
   // ─── Firebase init from saved config ───
   async function initFirebase(config){
     try {
       const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
-      const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
+      const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile, setPersistence, browserLocalPersistence, indexedDBLocalPersistence } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
       const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
 
       AUTH.firebaseApp = initializeApp(config);
@@ -9815,6 +9912,17 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       AUTH.db = getFirestore(AUTH.firebaseApp);
       AUTH.config = config;
       AUTH.isConnected = true;
+
+      // CRITICAL: explicitly persist auth to local storage so the user stays
+      // logged in across browser sessions on every device. Without this, some
+      // browsers/private-modes default to session-only persistence and the
+      // user gets silently logged out — which then makes their data appear
+      // "missing" on the next visit because loadStateRemote is never called.
+      try {
+        await setPersistence(AUTH.auth, indexedDBLocalPersistence);
+      } catch(_){
+        try { await setPersistence(AUTH.auth, browserLocalPersistence); } catch(_){}
+      }
 
       // Expose auth methods
       AUTH._signIn = signInWithEmailAndPassword;
@@ -9829,17 +9937,37 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           AUTH.user = {
             uid: firebaseUser.uid,
             email: firebaseUser.email,
-            displayName: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+            displayName: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'User'),
             photoURL: firebaseUser.photoURL,
           };
-          state.user.name = AUTH.user.displayName;
-          state.user.email = AUTH.user.email;
+          // Don't overwrite a previously-saved profile name from cloud here;
+          // loadStateRemote will merge cloud user data on top. We only seed
+          // sensible defaults so the UI doesn't flash "Tamu".
+          if (!state.user.name || state.user.name === 'Tamu') state.user.name = AUTH.user.displayName;
+          if (!state.user.email) state.user.email = AUTH.user.email;
           AUTH.remoteLoading = true;   // block auto-save until cloud data is fetched
-          await loadStateRemote();
+          updateSyncBadge('connected', '↻ Memuat data dari cloud…');
+          const ok = await loadStateRemote();
           AUTH.remoteLoading = false;
-          updateSyncBadge('connected', 'Tersinkron antar perangkat');
+          if (ok){
+            const debtCount = (state.debts || []).length;
+            if (debtCount > 0){
+              updateSyncBadge('connected', '✓ Tersinkron · ' + debtCount + ' hutang dari cloud');
+            } else {
+              updateSyncBadge('connected', '✓ Login berhasil · belum ada data di cloud');
+            }
+          }
           updateSidebarUserUI();
           updateLoginUI();
+          // Trigger the FULL patched renderAll so every UI surface reflects
+          // the cloud data (the renderAll inside loadStateRemote also does
+          // this; this is a safety net for any UI bits added post-login).
+          try {
+            if (typeof window.renderAll === 'function'){
+              AUTH.remoteLoading = true;
+              try { window.renderAll(); } finally { AUTH.remoteLoading = false; }
+            }
+          } catch(_){}
           flash('✓ Selamat datang, ' + AUTH.user.displayName + '!');
           closeLoginModal();
         } else {
@@ -10035,11 +10163,28 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     closeProfileModal();
   });
 
-  // Force sync
+  // Force sync — push local THEN pull from cloud (so it works as recovery
+  // when "data hilang di device lain"). If local is empty, just pull.
   document.getElementById('btn-force-sync')?.addEventListener('click', async () => {
     if (!AUTH.user){ flash('Login dulu untuk sinkronisasi.'); return; }
     flash('↻ Menyinkronkan…');
-    await saveStateRemote();
+    try {
+      // If we have local data, push it first (seeds cloud for first-timers).
+      if (state.debts && state.debts.length > 0){
+        await saveStateRemote();
+      }
+      // Then pull the latest from cloud (recovery path).
+      if (typeof window.reloadFromCloud === 'function'){
+        await window.reloadFromCloud();
+      } else {
+        AUTH.remoteLoading = true;
+        await loadStateRemote();
+        AUTH.remoteLoading = false;
+      }
+    } catch(e){
+      console.error('Force sync failed', e);
+      flash('⚠ Sinkronisasi gagal: ' + ((e && (e.code || e.message)) || 'unknown'));
+    }
   });
 
   // Export downloads
