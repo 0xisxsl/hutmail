@@ -3613,7 +3613,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
             <div>
               <label class="text-xs text-ink-300">Perusahaan / Kreditur</label>
-              <input name="company" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Nama bank / lembaga / kreditur">
+              <input name="company" list="im-company-suggestions" autocomplete="off" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Nama bank / lembaga / kreditur">
+              <datalist id="im-company-suggestions"></datalist>
+              <div class="text-[10px] text-ink-400 mt-1">Ketik untuk melihat perusahaan yang sudah pernah dimasukkan.</div>
             </div>
             <div>
               <label class="text-xs text-ink-300">Akun Kredit</label>
@@ -3631,6 +3633,37 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <option>Multiguna</option>
                 <option>Pinjaman</option>
               </select>
+            </div>
+            <!-- ▸ Jenis Kartu — only visible when Kategori Hutang = Kartu Kredit -->
+            <div id="im-card-type-wrap">
+              <label class="text-xs text-ink-300 flex items-center gap-1.5">
+                Jenis Kartu
+                <span class="help-tip" data-tip="Pilih atau ketik jenis kartu (Visa Platinum, Mastercard World, JCB Gold, dll). Membantu membedakan antar kartu dari bank yang sama.">?</span>
+              </label>
+              <input name="cardType" list="im-card-type-list" autocomplete="off" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Misal: Visa Platinum, Mastercard World">
+              <datalist id="im-card-type-list">
+                <option value="Visa Classic"></option>
+                <option value="Visa Gold"></option>
+                <option value="Visa Platinum"></option>
+                <option value="Visa Signature"></option>
+                <option value="Visa Infinite"></option>
+                <option value="Mastercard Standard"></option>
+                <option value="Mastercard Gold"></option>
+                <option value="Mastercard Titanium"></option>
+                <option value="Mastercard Platinum"></option>
+                <option value="Mastercard World"></option>
+                <option value="Mastercard World Elite"></option>
+                <option value="JCB Standard"></option>
+                <option value="JCB Gold"></option>
+                <option value="JCB Platinum"></option>
+                <option value="JCB Precious"></option>
+                <option value="American Express Gold"></option>
+                <option value="American Express Platinum"></option>
+                <option value="UnionPay Gold"></option>
+                <option value="UnionPay Diamond"></option>
+                <option value="GPN"></option>
+              </datalist>
+              <div class="text-[10px] text-ink-400 mt-1">Tampil di Step 02 agar tidak bingung antar kartu di bank yang sama.</div>
             </div>
             <div>
               <label class="text-xs text-ink-300">Nominal Awal Hutang</label>
@@ -6355,30 +6388,103 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   }
 
   // ── Edit existing (cascading picker) ──
+  // Helper: escape a string for use as an HTML attribute / text value
+  function escAttr(s){
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // Group all debts by company name → { "BNI": [debt, debt, ...], "Pegadaian": [...] }
+  function getDebtsByCompany(){
+    const groups = {};
+    (state.debts || []).forEach(d => {
+      const key = (d.company || '').trim() || '(tanpa nama)';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(d);
+    });
+    return groups;
+  }
+
+  // Normalize state.editCompanyId so it holds a company NAME (not a debt id).
+  // Old callsites that set editCompanyId to a debt id still work — we resolve them here.
+  function normalizeEditCompanyId(){
+    if (!state.editCompanyId){
+      // Try to derive from editAccountId
+      const acc = state.debts.find(d => d.id === state.editAccountId);
+      if (acc) state.editCompanyId = acc.company;
+      return;
+    }
+    // If it's actually a debt id, replace with that debt's company name
+    const byId = state.debts.find(d => d.id === state.editCompanyId);
+    if (byId){
+      state.editCompanyId = byId.company;
+      return;
+    }
+    // If it's not a known company name, try deriving from editAccountId
+    const groups = getDebtsByCompany();
+    if (!groups[state.editCompanyId]){
+      const acc = state.debts.find(d => d.id === state.editAccountId);
+      state.editCompanyId = acc ? acc.company : null;
+    }
+  }
+
   function renderEditCompanySelect(){
     const sel = document.getElementById('edit-company-sel');
     if (!sel) return;
+    normalizeEditCompanyId();
+
+    const groups = getDebtsByCompany();
+    const companies = Object.keys(groups).sort((a,b) => a.localeCompare(b, 'id'));
+
     sel.innerHTML = '<option value="">— Pilih perusahaan penerbit —</option>' +
-      state.debts.map(d =>
-        `<option value="${d.id}"${d.id===state.editCompanyId?' selected':''}>${d.company} · 1 akun</option>`).join('');
+      companies.map(c => {
+        const count = groups[c].length;
+        const isSel = c === state.editCompanyId ? ' selected' : '';
+        return `<option value="${escAttr(c)}"${isSel}>${escAttr(c)} · ${count} akun</option>`;
+      }).join('');
+
     renderEditAccountSelect();
   }
 
   function renderEditAccountSelect(){
     const sel = document.getElementById('edit-account-sel');
     if (!sel) return;
-    const d = getDebt(state.editCompanyId);
-    if (!d){
+    const companyName = state.editCompanyId;
+    const accounts = (state.debts || []).filter(d => d.company === companyName);
+
+    if (accounts.length === 0){
       sel.innerHTML = '<option>— Pilih perusahaan dulu —</option>';
       sel.disabled = true;
+      state.editAccountId = null;
+      renderEditDebtDetail();
       return;
     }
     sel.disabled = false;
-    const acctLabel = d.isCC
-      ? `${d.product} · ${d.accountNo.slice(-4).padStart(8,'•')} · ${d.status}`
-      : `${d.product} · ${d.accountNo} · ${d.status}`;
-    sel.innerHTML = `<option value="${d.id}">${acctLabel}</option>`;
-    state.editAccountId = d.id;
+
+    // Ensure editAccountId belongs to the selected company; otherwise default to first
+    if (!accounts.some(a => a.id === state.editAccountId)){
+      state.editAccountId = accounts[0].id;
+    }
+
+    sel.innerHTML = accounts.map(d => {
+      // Build a clean, informative label. Card type (d.product) is shown first
+      // so the user can tell their Visa Platinum from their Mastercard World at a glance.
+      let acctTail;
+      if (d.isCC){
+        // For credit cards, mask all but the last 4 digits
+        const digits = (d.accountNo || '').replace(/\D/g, '');
+        const last4 = digits.slice(-4);
+        acctTail = last4 ? `•••• ${last4}` : (d.accountNo || '—');
+      } else {
+        acctTail = d.accountNo || '—';
+      }
+      const statusLabel = d.status === 'active' ? 'aktif'
+                       : d.status === 'lunas'   ? 'lunas'
+                       : d.status;
+      const label = `${d.product || d.category || 'Akun'} · ${acctTail} · ${statusLabel}`;
+      const isSel = d.id === state.editAccountId ? ' selected' : '';
+      return `<option value="${escAttr(d.id)}"${isSel}>${escAttr(label)}</option>`;
+    }).join('');
+
     renderEditDebtDetail();
   }
 
@@ -7048,11 +7154,16 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const company    = f.querySelector('[name="company"]')?.value?.trim();
     const accountNo  = f.querySelector('[name="accountNo"]')?.value?.trim();
     const category   = f.querySelector('[name="category"]')?.value;
+    const cardType   = f.querySelector('[name="cardType"]')?.value?.trim();
     const nominal    = parseIDR(f.querySelector('[name="nominalAwal"]')?.value);
     const bunga      = parseFloat(f.querySelector('[name="bunga"]')?.value || '0');
     const bungaUnit  = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
     const startDate  = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
     const method     = f.querySelector('[name="method"]')?.value || 'revolving';
+
+    // For credit cards, the "product" exposed in dropdowns is the card type
+    // (e.g. "Visa Platinum"). For other categories the product = category.
+    const productLabel = (category === 'Kartu Kredit' && cardType) ? cardType : category;
 
     // Method-specific inputs
     const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
@@ -7103,7 +7214,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       const dueDate = parseKey(dueKey);
       const stmt = statement || nominal;
       newDebt = {
-        id, logo, logoColor, company, product: category, accountNo,
+        id, logo, logoColor, company, product: productLabel, accountNo,
         category, isCC: true, method: 'revolving',
         nominalAwal: nominal,
         statement: stmt,
@@ -7125,7 +7236,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       let nextDue = new Date(today.getFullYear(), today.getMonth(), dueDayOfMonth);
       if (nextDue < today) nextDue = new Date(today.getFullYear(), today.getMonth()+1, dueDayOfMonth);
       newDebt = {
-        id, logo, logoColor, company, product: category, accountNo,
+        id, logo, logoColor, company, product: productLabel, accountNo,
         category, isCC: false, method: 'installment',
         nominalAwal: nominal,
         statement: null,
@@ -7166,11 +7277,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const company    = f.querySelector('[name="company"]')?.value?.trim();
     const accountNo  = f.querySelector('[name="accountNo"]')?.value?.trim();
     const category   = f.querySelector('[name="category"]')?.value;
+    const cardType   = f.querySelector('[name="cardType"]')?.value?.trim();
     const nominal    = parseIDR(f.querySelector('[name="nominalAwal"]')?.value);
     const bunga      = parseFloat(f.querySelector('[name="bunga"]')?.value || '0');
     const bungaUnit  = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
     const startDate  = f.querySelector('[name="startDate"]')?.value || d.startDate;
     const method     = f.querySelector('[name="method"]')?.value || getMethod(d);
+
+    const productLabel = (category === 'Kartu Kredit' && cardType) ? cardType : category;
 
     // Method-specific inputs
     const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
@@ -7202,7 +7316,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     d.company = company;
     d.accountNo = accountNo || d.accountNo;
     d.category = category;
-    d.product = category;
+    d.product = productLabel;
     d.nominalAwal = nominal;
     d.bunga = bunga;
     d.bungaUnit = bungaUnit;
@@ -7563,6 +7677,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (feeList) feeList.innerHTML = '';
     addFeeRow();
     setInputManualMethod('revolving');
+    // After reset, default category is "Kartu Kredit" so the Jenis Kartu field
+    // should be visible — but reflect whatever is in the select.
+    if (typeof updateCardTypeVisibility === 'function') updateCardTypeVisibility();
     renderAddFormPreview();
   }
 
@@ -7575,6 +7692,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     f.querySelector('[name="company"]').value = d.company || '';
     f.querySelector('[name="accountNo"]').value = d.accountNo || '';
     f.querySelector('[name="category"]').value = d.category || 'Kartu Kredit';
+    // Card type: only meaningful for Kartu Kredit; otherwise leave blank
+    const cardTypeEl = f.querySelector('[name="cardType"]');
+    if (cardTypeEl){
+      // If product looks like a card-type label (i.e. not the same as the category), use it
+      cardTypeEl.value = (d.category === 'Kartu Kredit' && d.product && d.product !== d.category) ? d.product : '';
+    }
+    // Show/hide the card-type field based on the loaded category
+    if (typeof updateCardTypeVisibility === 'function') updateCardTypeVisibility();
     f.querySelector('[name="nominalAwal"]').value = (d.nominalAwal || 0).toLocaleString('id-ID');
     f.querySelector('[name="bunga"]').value = d.bunga || 0;
     f.querySelector('[name="bungaUnit"]').value = d.bungaUnit || 'bln';
@@ -7998,7 +8123,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
   // Edit existing — cascading selectors
   document.getElementById('edit-company-sel')?.addEventListener('change', e => {
-    state.editCompanyId = e.target.value;
+    state.editCompanyId = e.target.value;        // now stores the COMPANY NAME
+    // Reset editAccountId so renderEditAccountSelect picks the first account of this company
+    state.editAccountId = null;
     renderEditAccountSelect();
   });
   document.getElementById('edit-account-sel')?.addEventListener('change', e => {
@@ -8137,6 +8264,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     refreshNavBadges();
     renderAddFormPreview();
     if (typeof renderInputManualEditSelector === 'function') renderInputManualEditSelector();
+    if (typeof refreshCompanySuggestions === 'function') refreshCompanySuggestions();
     applyEmptyStateUI();
   }
 
@@ -8349,8 +8477,42 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
     // Listen to all inputs in add-form for preview
     document.getElementById('add-form')?.addEventListener('input', renderAddFormPreview);
+
+    // Show/hide the "Jenis Kartu" field based on selected category
+    window.updateCardTypeVisibility = function(){
+      const f = document.getElementById('add-form');
+      if (!f) return;
+      const cat = f.querySelector('[name="category"]')?.value;
+      const wrap = document.getElementById('im-card-type-wrap');
+      if (!wrap) return;
+      if (cat === 'Kartu Kredit'){
+        wrap.classList.remove('hidden');
+      } else {
+        wrap.classList.add('hidden');
+        const ct = f.querySelector('[name="cardType"]');
+        if (ct) ct.value = '';
+      }
+    };
+    updateCardTypeVisibility();
+
+    // Refresh the company suggestions datalist from existing debts (deduplicated, sorted)
+    window.refreshCompanySuggestions = function(){
+      const dl = document.getElementById('im-company-suggestions');
+      if (!dl) return;
+      const seen = new Set();
+      (state.debts || []).forEach(d => {
+        const c = (d.company || '').trim();
+        if (c) seen.add(c);
+      });
+      const names = Array.from(seen).sort((a,b) => a.localeCompare(b, 'id'));
+      dl.innerHTML = names.map(n => `<option value="${escAttr(n)}"></option>`).join('');
+    };
+    refreshCompanySuggestions();
+
     // Auto-fill bunga & bungaUnit when Gadai is selected
     document.getElementById('add-form')?.querySelector('[name="category"]')?.addEventListener('change', function(){
+      // First: toggle Jenis Kartu visibility based on the new category
+      updateCardTypeVisibility();
       const hint = document.getElementById('gadai-bunga-hint');
       if (this.value === 'Gadai'){
         const form = document.getElementById('add-form');
