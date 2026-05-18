@@ -221,6 +221,51 @@ tailwind.config = {
     background: rgba(124, 58, 237, 0.06);
   }
 
+  /* ─── Method Tabs (Revolving vs Installment) inside INPUT MANUAL ─── */
+  .method-tab {
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .method-tab:hover {
+    background: var(--bg-tint);
+    color: var(--text-strong);
+  }
+  .method-tab.is-active {
+    background: var(--bg-surface);
+    color: var(--text-strong);
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .method-tab[data-method="revolving"].is-active {
+    color: var(--coral);
+    border-color: rgba(220, 38, 38, 0.30);
+    background: rgba(220, 38, 38, 0.05);
+  }
+  .method-tab[data-method="installment"].is-active {
+    color: var(--mint);
+    border-color: rgba(8, 145, 178, 0.30);
+    background: rgba(8, 145, 178, 0.05);
+  }
+
+  /* INPUT MANUAL header tab (Tambah Baru vs Edit Existing) — when in edit mode */
+  #input-manual-tabs button[data-im-mode="edit"].is-active {
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--violet);
+  }
+  #input-manual-tabs button[data-im-mode="new"].is-active {
+    background: rgba(37, 99, 235, 0.15);
+    color: var(--primary);
+  }
+
+  /* When editing existing, the whole input manual card gets a subtle violet hint */
+  #input-manual-card.is-edit-mode {
+    border-color: rgba(124, 58, 237, 0.35);
+    box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.10), var(--shadow-md);
+  }
+
   /* ─── Strategy comparison cards (click to activate) ─── */
   .strat-card { position: relative; cursor: pointer; }
   .strat-card:hover {
@@ -2444,6 +2489,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <span class="ml-auto mono text-[10px] text-ink-400">6</span>
       </a>
 
+      <a href="#" data-view="bantuan" data-tip="Bantuan & Support" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-md text-sm text-ink-200">
+        <i data-lucide="life-buoy" class="w-4 h-4 shrink-0"></i>
+        <span>Bantuan</span>
+      </a>
+
     </nav>
 
     <!-- Guest-only: load sample/demo dataset -->
@@ -3220,7 +3270,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <div class="mono mt-1" id="d-nom-awal">—</div>
               </div>
               <div>
-                <div class="text-ink-400">Tagihan Statement</div>
+                <div class="text-ink-400" id="d-stmt-label">Tagihan Statement</div>
                 <div class="mono mt-1" id="d-stmt">—</div>
               </div>
               <div>
@@ -3236,7 +3286,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <div class="mono mt-1" id="d-bunga">—</div>
               </div>
               <div>
-                <div class="text-ink-400">Limit Kartu</div>
+                <div class="text-ink-400" id="d-limit-label">Limit Kartu</div>
                 <div class="mono mt-1" id="d-limit">—</div>
               </div>
               <div>
@@ -3375,31 +3425,36 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <div>
                 <label class="text-xs text-ink-300">Suku Bunga Baru</label>
                 <div class="flex gap-2 mt-1.5">
-                  <input class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" placeholder="0.00">
-                  <select class="input-field px-3 py-2 rounded-md text-sm w-28"><option selected>% / Bulan</option></select>
+                  <input id="edit-detail-bunga" class="input-field flex-1 px-3 py-2 rounded-md text-sm mono" placeholder="0.00">
+                  <select id="edit-detail-bunga-unit" class="input-field px-3 py-2 rounded-md text-sm w-28">
+                    <option value="hari">% / Hari</option>
+                    <option value="15hari">% / 15 Hari</option>
+                    <option value="bln" selected>% / Bulan</option>
+                    <option value="thn">% / Tahun</option>
+                  </select>
                 </div>
               </div>
               <div>
-                <label class="text-xs text-ink-300">Limit Kartu</label>
+                <label class="text-xs text-ink-300" id="edit-detail-limit-label">Limit Kartu</label>
                 <div class="relative mt-1.5">
                   <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                  <input class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
+                  <input id="edit-detail-limit" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
                 </div>
               </div>
               <div>
                 <label class="text-xs text-ink-300">Tanggal Cetak Statement</label>
-                <select class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
-                  <option>Tanggal 1</option>
-                  <option selected>Tanggal 5</option>
-                  <option>Tanggal 10</option>
-                  <option>Tanggal 15</option>
-                  <option>Tanggal 20</option>
-                  <option>Tanggal 25</option>
+                <select id="edit-detail-cetak" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
+                  <option value="1">Tanggal 1</option>
+                  <option value="5" selected>Tanggal 5</option>
+                  <option value="10">Tanggal 10</option>
+                  <option value="15">Tanggal 15</option>
+                  <option value="20">Tanggal 20</option>
+                  <option value="25">Tanggal 25</option>
                 </select>
               </div>
               <div>
                 <label class="text-xs text-ink-300">Tenor Pembayaran</label>
-                <select class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
+                <select id="edit-detail-tenor" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
                   <option selected>10 hari setelah cetak</option>
                   <option>15 hari setelah cetak</option>
                   <option>20 hari setelah cetak</option>
@@ -3407,7 +3462,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               </div>
               <div class="sm:col-span-2">
                 <label class="text-xs text-ink-300">Catatan / Alasan Perubahan</label>
-                <input class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Contoh: kenaikan bunga efektif 1 Juni 2026">
+                <input id="edit-detail-note" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm" placeholder="Contoh: kenaikan bunga efektif 1 Juni 2026">
               </div>
             </div>
 
@@ -3415,9 +3470,20 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <button id="confirm-edit-detail" type="button" class="btn-primary px-4 py-2 rounded-md text-sm flex items-center gap-2">
                 <i data-lucide="save" class="w-4 h-4"></i> Update Detail
               </button>
+              <button id="goto-full-edit" type="button" class="btn-ghost px-4 py-2 rounded-md text-sm text-accent-violet flex items-center gap-2">
+                <i data-lucide="edit" class="w-4 h-4"></i> Full Edit (semua field)
+              </button>
               <button id="confirm-delete-debt" type="button" class="btn-ghost px-4 py-2 rounded-md text-sm text-accent-coral flex items-center gap-2">
                 <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Hutang (jika sudah lunas)
               </button>
+            </div>
+            <div class="mt-3 p-2.5 rounded-md bg-accent-violet/5 border border-accent-violet/20 text-[11px] leading-relaxed">
+              <div class="flex items-start gap-2">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-accent-violet shrink-0 mt-0.5"></i>
+                <div class="text-ink-300">
+                  Untuk mengubah <strong class="text-ink-200">semua field</strong> termasuk metode hutang (Revolving ↔ Cicilan Tetap), nama kreditur, kategori, dll — gunakan tombol <strong class="text-accent-violet">Full Edit</strong>.
+                </div>
+              </div>
             </div>
           </div>
 
@@ -3481,18 +3547,69 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
         <!-- ▸ RIGHT — INPUT MANUAL -->
         <!-- Manual form -->
-        <div class="card rounded-xl p-4 lg:p-6">
+        <div class="card rounded-xl p-4 lg:p-6" id="input-manual-card">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div>
               <div class="num-prefix">INPUT MANUAL</div>
+              <div id="input-manual-mode-label" class="text-xs text-ink-400 mt-1">Tambah hutang baru ke database.</div>
             </div>
-            <div class="flex p-1 bg-ink-800/60 rounded-md text-xs">
-              <button class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">Tambah Baru</button>
-              <button class="px-3 py-1 rounded text-ink-400">Edit Existing</button>
+            <div id="input-manual-tabs" class="flex p-1 bg-ink-800/60 rounded-md text-xs">
+              <button type="button" data-im-mode="new" class="px-3 py-1 rounded bg-accent-lime/15 text-accent-lime">Tambah Baru</button>
+              <button type="button" data-im-mode="edit" class="px-3 py-1 rounded text-ink-400">Edit Existing</button>
+            </div>
+          </div>
+
+          <!-- ▸ Edit Existing — debt selector (hidden by default) -->
+          <div id="im-edit-selector" class="hidden mb-5 p-3 rounded-lg bg-accent-violet/5 border border-accent-violet/25">
+            <div class="num-prefix mb-2 flex items-center gap-2">
+              <i data-lucide="edit-3" class="w-3 h-3 text-accent-violet"></i>
+              <span>PILIH HUTANG UNTUK DI-EDIT (FULL EDIT)</span>
+              <span class="help-tip" data-tip="Edit semua field dari awal — termasuk perusahaan, metode hutang, nominal, bunga, dll. Untuk perubahan kecil (rate naik/turun saja), gunakan EDIT DETAIL di sebelah kiri.">?</span>
+            </div>
+            <select id="im-edit-debt-sel" class="input-field w-full px-3 py-2.5 rounded-md text-sm">
+              <option value="">— Pilih hutang untuk di-edit —</option>
+            </select>
+            <div class="text-[10px] text-ink-400 mt-2 leading-relaxed">
+              Mode ini memungkinkan Anda mengubah <strong class="text-accent-violet">semua field</strong> termasuk metode hutang. Riwayat transaksi & pembayaran tidak terhapus.
             </div>
           </div>
 
           <form id="add-form" onsubmit="return false">
+
+          <!-- ▸ METODE HUTANG sub-tabs -->
+          <div class="mb-5">
+            <label class="text-xs text-ink-300 block mb-2">Metode Hutang</label>
+            <div id="method-tabs" class="grid grid-cols-2 gap-2 p-1 bg-ink-800/60 rounded-lg">
+              <button type="button" data-method="revolving" class="method-tab is-active px-3 py-2.5 rounded-md text-xs font-medium flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="credit-card" class="w-4 h-4"></i>
+                <span>Revolving / Kartu Kredit</span>
+              </button>
+              <button type="button" data-method="installment" class="method-tab px-3 py-2.5 rounded-md text-xs font-medium flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                <span>Cicilan Tetap per Bulan</span>
+              </button>
+            </div>
+            <input type="hidden" name="method" value="revolving">
+            <div id="method-hint-revolving" class="method-hint mt-2 p-2.5 rounded-md bg-accent-coral/5 border border-accent-coral/20 text-[11px] leading-relaxed">
+              <div class="flex items-start gap-2">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-accent-coral shrink-0 mt-0.5"></i>
+                <div class="text-ink-200">
+                  <strong>Revolving / Kartu Kredit:</strong>
+                  <span class="text-ink-300">Pembayaran fleksibel (minimum hingga lunas total). Bunga dihitung dari <strong>tagihan statement</strong>, bukan sisa setelah cicilan. Cocok untuk Kartu Kredit, Paylater, KTA Revolving.</span>
+                </div>
+              </div>
+            </div>
+            <div id="method-hint-installment" class="method-hint hidden mt-2 p-2.5 rounded-md bg-accent-mint/5 border border-accent-mint/20 text-[11px] leading-relaxed">
+              <div class="flex items-start gap-2">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-accent-mint shrink-0 mt-0.5"></i>
+                <div class="text-ink-200">
+                  <strong>Cicilan Tetap per Bulan:</strong>
+                  <span class="text-ink-300">Pembayaran tetap setiap bulan dengan tenor jelas. Sisa hutang berkurang setiap pembayaran. Cocok untuk KTA, KPR, Auto Loan, Multiguna, Cicilan COA.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
             <div>
               <label class="text-xs text-ink-300">Perusahaan / Kreditur</label>
@@ -3547,23 +3664,105 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <label class="text-xs text-ink-300">Tanggal Awal Hutang</label>
               <input name="startDate" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono">
             </div>
-            <div class="sm:col-span-2">
-              <label class="text-xs text-ink-300">Tagihan Statement Terakhir <span class="text-accent-amber">(Wajib untuk Kartu Kredit)</span></label>
-              <div class="relative mt-1.5">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
-                <input name="statement" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
+          </div>
+
+          <!-- ▸ REVOLVING-specific fields -->
+          <div id="method-fields-revolving" class="method-fields mt-3 lg:mt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+              <div class="sm:col-span-2">
+                <label class="text-xs text-ink-300">Tagihan Statement Terakhir <span class="text-accent-amber">(Wajib untuk Revolving)</span></label>
+                <div class="relative mt-1.5">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
+                  <input name="statement" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
+                </div>
               </div>
-              <div class="mt-2 p-2.5 rounded-md bg-accent-amber/5 border border-accent-amber/20 text-[11px] leading-relaxed">
-                <div class="flex items-start gap-2">
-                  <i data-lucide="info" class="w-3.5 h-3.5 text-accent-amber shrink-0 mt-0.5"></i>
-                  <div class="text-ink-200">
-                    <strong>Cara Perhitungan Bunga Kartu Kredit Indonesia:</strong>
-                    <div class="text-ink-300 mt-1">
-                      Bunga bulanan dikalikan <strong class="text-accent-amber">tagihan statement terakhir</strong>,
-                      BUKAN sisa setelah pembayaran sebagian. Contoh: statement Rp 50jt, bayar Rp 5jt,
-                      bunga tetap dihitung 2.95% × Rp 50jt = Rp 1.475.000. Untuk menghindari bunga, harus <strong>lunas total</strong> sebelum jatuh tempo.
-                    </div>
+              <div>
+                <label class="text-xs text-ink-300">Limit Kartu / Plafon</label>
+                <div class="relative mt-1.5">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
+                  <input name="limit" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-ink-300">Tanggal Cetak Statement</label>
+                <select name="cetakStatementDay" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
+                  <option value="1">Tanggal 1</option>
+                  <option value="5" selected>Tanggal 5</option>
+                  <option value="10">Tanggal 10</option>
+                  <option value="15">Tanggal 15</option>
+                  <option value="20">Tanggal 20</option>
+                  <option value="25">Tanggal 25</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="text-xs text-ink-300">Tanggal Jatuh Tempo</label>
+                <input name="dueDate" type="date" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm mono">
+                <div class="text-[10px] text-ink-400 mt-1">Biasanya 10-20 hari setelah tanggal cetak statement.</div>
+              </div>
+            </div>
+            <div class="mt-3 p-2.5 rounded-md bg-accent-amber/5 border border-accent-amber/20 text-[11px] leading-relaxed">
+              <div class="flex items-start gap-2">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-accent-amber shrink-0 mt-0.5"></i>
+                <div class="text-ink-200">
+                  <strong>Perhitungan Bunga Revolving:</strong>
+                  <div class="text-ink-300 mt-1">
+                    Bunga dikalikan <strong class="text-accent-amber">tagihan statement terakhir</strong>, BUKAN sisa setelah pembayaran sebagian. Contoh: statement Rp 50jt, bayar Rp 5jt, bunga tetap = bunga × Rp 50jt. Untuk menghindari bunga, harus <strong>lunas total</strong>.
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ▸ INSTALLMENT-specific fields -->
+          <div id="method-fields-installment" class="method-fields hidden mt-3 lg:mt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+              <div>
+                <label class="text-xs text-ink-300">Cicilan per Bulan <span class="text-accent-mint">(Wajib)</span></label>
+                <div class="relative mt-1.5">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
+                  <input name="installmentAmount" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="0">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-ink-300">Tenor (Jumlah Bulan Cicilan)</label>
+                <div class="relative mt-1.5">
+                  <input name="tenorMonths" type="number" min="1" class="input-field w-full pl-3 pr-12 py-2 rounded-md text-sm mono" placeholder="24">
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400">bulan</span>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-ink-300">Tanggal Cicilan Setiap Bulan</label>
+                <select name="dueDayOfMonth" class="input-field w-full mt-1.5 px-3 py-2 rounded-md text-sm">
+                  <option value="1">Tanggal 1</option>
+                  <option value="5">Tanggal 5</option>
+                  <option value="10" selected>Tanggal 10</option>
+                  <option value="15">Tanggal 15</option>
+                  <option value="20">Tanggal 20</option>
+                  <option value="25">Tanggal 25</option>
+                  <option value="28">Tanggal 28</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-ink-300">Sisa Hutang Saat Ini <span class="text-ink-400">(opsional)</span></label>
+                <div class="relative mt-1.5">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs text-ink-400 currency-symbol">Rp</span>
+                  <input name="sisaInstallment" class="input-field w-full pl-10 pr-3 py-2 rounded-md text-sm mono" placeholder="Kosongkan = sama dengan nominal awal">
+                </div>
+              </div>
+            </div>
+            <div id="installment-summary" class="mt-3 p-3 rounded-md bg-accent-mint/5 border border-accent-mint/20 text-[11px] leading-relaxed">
+              <div class="grid grid-cols-3 gap-3">
+                <div>
+                  <div class="text-ink-400">Total Pembayaran</div>
+                  <div class="mono text-accent-mint mt-1" id="im-installment-total">Rp 0</div>
+                </div>
+                <div>
+                  <div class="text-ink-400">Estimasi Bunga Total</div>
+                  <div class="mono text-accent-amber mt-1" id="im-installment-bunga">Rp 0</div>
+                </div>
+                <div>
+                  <div class="text-ink-400">Selesai (Estimasi)</div>
+                  <div class="mono text-ink-200 mt-1" id="im-installment-eta">—</div>
                 </div>
               </div>
             </div>
@@ -3595,11 +3794,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           </div>
 
 
-          <div class="flex gap-2 mt-6">
+          <div class="flex flex-wrap gap-2 mt-6">
             <button type="button" id="add-debt-btn" class="btn-primary px-5 py-2.5 rounded-md text-sm flex items-center gap-2">
-              <i data-lucide="save" class="w-4 h-4"></i> Simpan Hutang
+              <i data-lucide="save" class="w-4 h-4"></i> <span id="add-debt-btn-label">Simpan Hutang</span>
             </button>
-            <button type="reset" class="btn-ghost px-5 py-2.5 rounded-md text-sm">Batal</button>
+            <button type="button" id="im-cancel-btn" class="btn-ghost px-5 py-2.5 rounded-md text-sm">Batal / Reset</button>
+            <button type="button" id="im-delete-btn" class="hidden btn-ghost px-4 py-2.5 rounded-md text-sm text-accent-coral flex items-center gap-2 ml-auto">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Hutang
+            </button>
           </div>
           </form>
         </div>
@@ -4671,7 +4873,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <h2 class="display text-xl lg:text-2xl font-medium mt-1">WhatsApp Bot Notifikasi</h2>
             <p class="text-sm text-ink-300 mt-2 leading-relaxed">Terima pengingat tagihan, ringkasan harian, dan laporan pembayaran langsung di WhatsApp.</p>
           </div>
-          <div class="conn-status offline shrink-0"><span class="dot"></span> Belum terhubung</div>
+          <div id="wa-conn-status" class="conn-status offline shrink-0"><span class="dot"></span> <span class="status-text">Belum terhubung</span></div>
         </div>
       </div>
 
@@ -4683,17 +4885,17 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           </div>
           <label class="block text-sm text-ink-200 mb-2">Nomor WhatsApp</label>
           <div class="flex gap-2">
-            <select class="input-field px-3 py-2.5 rounded-md text-sm w-24">
-              <option>+62</option>
-              <option>+60</option>
-              <option>+65</option>
+            <select id="wa-country" class="input-field px-3 py-2.5 rounded-md text-sm w-24">
+              <option value="+62">+62</option>
+              <option value="+60">+60</option>
+              <option value="+65">+65</option>
             </select>
-            <input type="tel" placeholder="812 3456 7890" class="input-field flex-1 px-3 py-2.5 rounded-md text-sm">
+            <input id="wa-phone" type="tel" placeholder="812 3456 7890" class="input-field flex-1 px-3 py-2.5 rounded-md text-sm">
           </div>
-          <button class="btn-primary w-full mt-4 py-2.5 rounded-md text-sm flex items-center justify-center gap-2">
-            <i data-lucide="link" class="w-4 h-4"></i> Hubungkan WhatsApp
+          <button id="wa-connect-btn" class="btn-primary w-full mt-4 py-2.5 rounded-md text-sm flex items-center justify-center gap-2">
+            <i data-lucide="link" class="w-4 h-4"></i> <span class="wa-btn-label">Hubungkan WhatsApp</span>
           </button>
-          <p class="text-[11px] text-ink-400 mt-3 leading-relaxed">Kami akan mengirim kode verifikasi 6 digit ke nomor di atas. Tarif SMS standar berlaku.</p>
+          <p class="text-[11px] text-ink-400 mt-3 leading-relaxed">Nomor akan disimpan ke profil Anda dan dipakai untuk WhatsApp Bot pengingat tagihan. Anda bisa lepaskan kapan saja.</p>
         </div>
 
         <div class="card rounded-xl p-5">
@@ -4704,19 +4906,19 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="space-y-2.5">
             <div class="setting-row" style="padding:10px 0;">
               <div class="meta"><div class="label">Pengingat Jatuh Tempo</div><div class="desc">H-3 sebelum tagihan jatuh tempo</div></div>
-              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              <label class="toggle"><input type="checkbox" data-wa-notif="due_reminder" checked><span class="toggle-slider"></span></label>
             </div>
             <div class="setting-row" style="padding:10px 0;">
               <div class="meta"><div class="label">Konfirmasi Pembayaran</div><div class="desc">Saat pembayaran berhasil dicatat</div></div>
-              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              <label class="toggle"><input type="checkbox" data-wa-notif="payment_confirm" checked><span class="toggle-slider"></span></label>
             </div>
             <div class="setting-row" style="padding:10px 0;">
               <div class="meta"><div class="label">Ringkasan Mingguan</div><div class="desc">Setiap Senin pukul 09:00</div></div>
-              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+              <label class="toggle"><input type="checkbox" data-wa-notif="weekly_summary"><span class="toggle-slider"></span></label>
             </div>
             <div class="setting-row" style="padding:10px 0; border-bottom:none;">
               <div class="meta"><div class="label">Alert Bunga Tinggi</div><div class="desc">AI deteksi bunga di atas rata-rata</div></div>
-              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              <label class="toggle"><input type="checkbox" data-wa-notif="high_interest_alert" checked><span class="toggle-slider"></span></label>
             </div>
           </div>
         </div>
@@ -4754,7 +4956,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <h2 class="display text-xl lg:text-2xl font-medium mt-1">Telegram Bot Asisten</h2>
             <p class="text-sm text-ink-300 mt-2 leading-relaxed">Bot Telegram <b>@DebtFreeBot</b> untuk cek tagihan, catat pembayaran, dan minta saran AI lewat chat.</p>
           </div>
-          <div class="conn-status offline shrink-0"><span class="dot"></span> Belum terhubung</div>
+          <div id="tg-conn-status" class="conn-status offline shrink-0"><span class="dot"></span> <span class="status-text">Belum terhubung</span></div>
         </div>
       </div>
 
@@ -4771,7 +4973,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               </div>
             </div>
             <p class="text-sm text-ink-300 mt-3">Scan QR atau buka link bot</p>
-            <a href="#" class="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm mt-3">
+            <a href="https://t.me/DebtFreeBot" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm mt-3">
               <i data-lucide="external-link" class="w-4 h-4"></i> Buka @DebtFreeBot
             </a>
           </div>
@@ -4884,26 +5086,29 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs text-ink-300 mb-1.5">Periode</label>
-            <select class="input-field w-full px-3 py-2 rounded-md text-sm">
-              <option>Semua waktu</option>
-              <option>Bulan ini</option>
-              <option>3 bulan terakhir</option>
-              <option>Tahun ini</option>
-              <option>Custom range...</option>
+            <select id="export-filter-period" class="input-field w-full px-3 py-2 rounded-md text-sm">
+              <option value="all">Semua waktu</option>
+              <option value="month">Bulan ini</option>
+              <option value="3months">3 bulan terakhir</option>
+              <option value="year">Tahun ini</option>
             </select>
           </div>
           <div>
             <label class="block text-xs text-ink-300 mb-1.5">Kategori Hutang</label>
-            <select class="input-field w-full px-3 py-2 rounded-md text-sm">
-              <option>Semua kategori</option>
-              <option>Kartu Kredit</option>
-              <option>KTA</option>
-              <option>KPR</option>
-              <option>Paylater</option>
-              <option>Gadai</option>
-              <option>Pinjaman</option>
+            <select id="export-filter-category" class="input-field w-full px-3 py-2 rounded-md text-sm">
+              <option value="all">Semua kategori</option>
+              <option value="Kartu Kredit">Kartu Kredit</option>
+              <option value="KTA">KTA</option>
+              <option value="KPR">KPR</option>
+              <option value="Paylater">Paylater</option>
+              <option value="Gadai">Gadai</option>
+              <option value="Pinjaman">Pinjaman</option>
+              <option value="Multiguna">Multiguna</option>
             </select>
           </div>
+        </div>
+        <div id="export-filter-summary" class="mt-3 text-[11px] text-ink-400">
+          Filter aktif: <span class="text-ink-200">semua waktu</span> · <span class="text-ink-200">semua kategori</span>
         </div>
       </div>
     </section>
@@ -5294,50 +5499,64 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       debts: [
         { id:'bca', logo:'BCA', logoColor:'coral', company:'Bank Central Asia', product:'Card Platinum',
           accountNo:'**** **** **** 4421', category:'Kartu Kredit', isCC:true,
+          method:'revolving',
           nominalAwal:50000000, statement:50000000, sisa:42300000, limit:75000000,
           bunga:2.95, bungaUnit:'bln', biaya:650000, minPayment:4230000,
+          cetakStatementDay:5,
           startDate:'2024-08-15', dueDate:'2026-05-15', dueDayOfMonth:15,
           status:'active'
         },
         { id:'mandiri', logo:'MDR', logoColor:'mint', company:'Bank Mandiri', product:'KTA Tunai',
           accountNo:'Acc 1393 5421 8842', category:'KTA', isCC:false,
+          method:'installment',
           nominalAwal:100000000, statement:null, sisa:67500000, limit:100000000,
           bunga:1.45, bungaUnit:'bln', biaya:1200000, minPayment:2500000,
+          installmentAmount:2500000, tenorMonths:48,
           startDate:'2024-02-28', dueDate:'2026-05-28', dueDayOfMonth:28,
           status:'active'
         },
         { id:'cimb', logo:'CMB', logoColor:'violet', company:'CIMB Niaga', product:'Personal Loan',
           accountNo:'Acc 5621 8843 0019', category:'Pinjaman', isCC:false,
+          method:'installment',
           nominalAwal:50000000, statement:null, sisa:28750000, limit:50000000,
           bunga:1.80, bungaUnit:'bln', biaya:480000, minPayment:1250000,
+          installmentAmount:1250000, tenorMonths:48,
           startDate:'2024-05-05', dueDate:'2026-06-05', dueDayOfMonth:5,
           status:'active'
         },
         { id:'shopee', logo:'SHP', logoColor:'amber', company:'Shopee Indonesia', product:'PayLater',
           accountNo:'rizky.aditya@email.com', category:'Paylater', isCC:false,
-          nominalAwal:6000000, statement:null, sisa:4200000, limit:6000000,
+          method:'revolving',
+          nominalAwal:6000000, statement:4800000, sisa:4200000, limit:6000000,
           bunga:2.95, bungaUnit:'bln', biaya:30000, minPayment:700000,
+          cetakStatementDay:15,
           startDate:'2026-03-25', dueDate:'2026-05-25', dueDayOfMonth:25,
           status:'active'
         },
         { id:'bri', logo:'BRI', logoColor:'ink', company:'Bank BRI', product:'KPR Subsidi',
           accountNo:'Acc 0012 4471 5588', category:'KPR', isCC:false,
+          method:'installment',
           nominalAwal:120000000, statement:null, sisa:44700000, limit:120000000,
           bunga:6.5, bungaUnit:'thn', biaya:2500000, minPayment:1850000,
+          installmentAmount:1850000, tenorMonths:240,
           startDate:'2022-01-10', dueDate:'2026-06-10', dueDayOfMonth:10,
           status:'active'
         },
         { id:'kredivo', logo:'KFI', logoColor:'ink', company:'Kredivo', product:'Cicilan 12 Bulan',
           accountNo:'User rizky_aditya', category:'Paylater', isCC:false,
+          method:'installment',
           nominalAwal:12000000, statement:null, sisa:8000000, limit:15000000,
           bunga:2.6, bungaUnit:'bln', biaya:120000, minPayment:1100000,
+          installmentAmount:1100000, tenorMonths:12,
           startDate:'2025-12-18', dueDate:'2026-05-18', dueDayOfMonth:18,
           status:'active'
         },
         { id:'danamon', logo:'DAN', logoColor:'ink', company:'Bank Danamon', product:'Auto Loan',
           accountNo:'Acc 4429 8821 6611', category:'Multiguna', isCC:false,
+          method:'installment',
           nominalAwal:35000000, statement:null, sisa:12000000, limit:35000000,
           bunga:9.5, bungaUnit:'thn', biaya:750000, minPayment:950000,
+          installmentAmount:950000, tenorMonths:36,
           startDate:'2023-09-22', dueDate:'2026-05-22', dueDayOfMonth:22,
           status:'active'
         },
@@ -5378,6 +5597,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     editCompanyId: null,
     editAccountId: null,  // single account per debt in our model
     editActionPanel: 'tambah',
+    inputManualMode: 'new', // 'new' | 'edit' — controls the right-side INPUT MANUAL toggle
+    inputManualEditId: null, // id of debt currently being edited via Input Manual (full edit)
     calMode: 'week',
     calRefDate: new Date(TODAY),
     calSelected: '2026-05-17',
@@ -5394,6 +5615,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     state.debts = d.debts;
     state.payments = d.payments;
     state.transactions = d.transactions;
+    normalizeAllDebts();
     state.paySelectedId  = d.debts[0] ? d.debts[0].id : null;
     state.editCompanyId  = d.debts[0] ? d.debts[0].id : null;
     state.editAccountId  = d.debts[0] ? d.debts[0].id : null;
@@ -5440,6 +5662,52 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function activeDebts(){ return state.debts.filter(d => d.status === 'active'); }
   function lunasDebts(){ return state.debts.filter(d => d.status === 'lunas'); }
 
+  // ── Method helpers (revolving vs installment) ──
+  // Canonical method derivation: use d.method if set, else fall back to legacy isCC flag.
+  function getMethod(d){
+    if (!d) return 'revolving';
+    if (d.method === 'revolving' || d.method === 'installment') return d.method;
+    return d.isCC ? 'revolving' : 'installment';
+  }
+  function isRevolving(d){ return getMethod(d) === 'revolving'; }
+  function isInstallment(d){ return getMethod(d) === 'installment'; }
+  // Normalize a debt object in-place to ensure method-related fields exist (used after loading old data).
+  function normalizeDebt(d){
+    if (!d) return d;
+    d.method = getMethod(d);
+    d.isCC = (d.method === 'revolving'); // keep legacy field in sync
+    if (d.method === 'installment'){
+      if (typeof d.installmentAmount !== 'number' || d.installmentAmount <= 0){
+        d.installmentAmount = d.minPayment || Math.round((d.nominalAwal || 0) / 24) || 0;
+      }
+      if (typeof d.tenorMonths !== 'number' || d.tenorMonths <= 0){
+        d.tenorMonths = d.installmentAmount > 0 ? Math.max(1, Math.ceil((d.nominalAwal || 0) / d.installmentAmount)) : 24;
+      }
+      // Force minPayment = installmentAmount for installment debts
+      d.minPayment = d.installmentAmount;
+    } else {
+      // revolving — ensure cetakStatementDay exists
+      if (typeof d.cetakStatementDay !== 'number'){
+        // Derive: typically dueDayOfMonth - 10 (with wrap)
+        const due = d.dueDayOfMonth || 15;
+        let c = due - 10;
+        if (c <= 0) c += 30;
+        d.cetakStatementDay = c;
+      }
+      if (typeof d.statement !== 'number' || d.statement === null){
+        d.statement = d.sisa || d.nominalAwal || 0;
+      }
+      // Min payment defaults to 10% of statement for revolving
+      if (!d.minPayment || d.minPayment <= 0){
+        d.minPayment = Math.round((d.statement || 0) * 0.10);
+      }
+    }
+    return d;
+  }
+  function normalizeAllDebts(){
+    (state.debts || []).forEach(normalizeDebt);
+  }
+
   function totalHutang(){ return activeDebts().reduce((s,d) => s + d.sisa, 0); }
   function totalNominalAwal(){ return state.debts.reduce((s,d) => s + d.nominalAwal, 0); }
   function totalBiaya(){ return state.debts.reduce((s,d) => s + d.biaya, 0); }
@@ -5476,19 +5744,19 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     return { label:`AKTIF · CICILAN TGL ${debt.dueDayOfMonth}`, cls:'pill-active' };
   }
 
-  // Compute interest for next period (CC: bunga × statement; loan: bunga × sisa)
+  // Compute interest for next period (Revolving: bunga × statement; Installment: bunga × sisa)
   function bungaPeriode(debt){
     const rate = debt.bunga / 100;
-    const base = debt.isCC ? (debt.statement || 0) : debt.sisa;
+    const base = isRevolving(debt) ? (debt.statement || 0) : debt.sisa;
     if (debt.bungaUnit === 'bln') return base * rate;
     if (debt.bungaUnit === '15hari') return base * rate * (30/15); // 2× per bulan
     return base * rate / 12; // thn
   }
 
-  // Available credit (only meaningful for CC/paylater with rotating limit)
+  // Available credit (only meaningful for revolving / rotating limit accounts)
   function availableCredit(debt){
-    if (debt.category === 'Kartu Kredit' || debt.category === 'Paylater') {
-      return Math.max(0, debt.limit - debt.sisa);
+    if (isRevolving(debt) || debt.category === 'Kartu Kredit' || debt.category === 'Paylater') {
+      return Math.max(0, (debt.limit || 0) - (debt.sisa || 0));
     }
     return null;
   }
@@ -5686,6 +5954,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           </td>
           <td class="p-2.5 hidden md:table-cell">
             <span class="pill pill-info">${d.category}</span>
+            <div class="text-[9px] ${isRevolving(d) ? 'text-accent-coral' : 'text-accent-mint'} mt-1">${isRevolving(d) ? '⟳ Revolving' : '📅 Cicilan' + (d.tenorMonths ? ' · ' + d.tenorMonths + 'bln' : '')}</div>
           </td>
           <td class="p-2.5 text-right ha-sisa-cell">
             <div class="mono text-sm text-ink-100" data-amt="${d.sisa}">${fmtIDRc(d.sisa)}</div>
@@ -5771,6 +6040,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       const action = (u === 'urgent' || u === 'overdue') ? 'bayar' : 'cicil';
       const actionLabel = (u === 'urgent' || u === 'overdue') ? 'Bayar' : 'Cicil';
       const rateColor = d.bunga >= 2.5 ? 'text-accent-coral' : (d.bunga >= 1.5 ? 'text-accent-amber' : 'text-accent-mint');
+      const m = getMethod(d);
+      const methodBadge = m === 'revolving'
+        ? '<span class="text-[9px] text-accent-coral block mt-0.5">⟳ Revolving</span>'
+        : `<span class="text-[9px] text-accent-mint block mt-0.5">📅 Cicilan${d.tenorMonths ? ' · ' + d.tenorMonths + 'bln' : ''}</span>`;
       return `
         <tr class="row-hover" data-debt-row="${d.id}">
           <td class="p-3">
@@ -5782,7 +6055,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               </div>
             </div>
           </td>
-          <td class="p-3 text-ink-200 text-xs">${d.category}</td>
+          <td class="p-3 text-ink-200 text-xs">
+            ${d.category}
+            ${methodBadge}
+          </td>
           <td class="p-3 text-right mono">${fmtIDRc(d.nominalAwal)}</td>
           <td class="p-3 text-right mono ${rateColor}">${d.bunga}% ${ddLabel}</td>
           <td class="p-3 text-right mono text-ink-300">${fmtIDRc(d.biaya, {cls:'cur-sm'})}</td>
@@ -6130,9 +6406,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       logo.textContent = d.logo;
       logo.className = 'w-11 h-11 rounded-md ' + logoColorMap[d.logoColor] + ' flex items-center justify-center mono text-xs shrink-0';
     }
+    const methodLabel = isRevolving(d) ? 'Revolving' : 'Cicilan Tetap';
     setText('edit-debt-name', `${d.company} · ${d.product}`);
     const startD = parseKey(d.startDate);
-    setText('edit-debt-meta', `${d.accountNo} · ${d.category} · aktif sejak ${fmtDateID(startD)}`);
+    setText('edit-debt-meta', `${d.accountNo} · ${d.category} · ${methodLabel} · aktif sejak ${fmtDateID(startD)}`);
     const sp = statusPill(d);
     const statusEl = document.getElementById('edit-debt-status');
     if (statusEl){
@@ -6140,11 +6417,21 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       statusEl.className = 'pill ' + sp.cls;
     }
     setText('d-nom-awal', fmtIDR(d.nominalAwal));
-    setText('d-stmt', d.isCC ? fmtIDR(d.statement || 0) : '— (loan, bukan CC)');
+    if (isRevolving(d)){
+      setText('d-stmt-label', 'Tagihan Statement');
+      setText('d-stmt', fmtIDR(d.statement || 0));
+      setText('d-limit-label', 'Limit Kartu');
+    } else {
+      const inst = d.installmentAmount || d.minPayment || 0;
+      const tenor = d.tenorMonths || 0;
+      setText('d-stmt-label', 'Cicilan / Bulan');
+      setText('d-stmt', tenor > 0 ? `${fmtIDR(inst)} × ${tenor}bln` : fmtIDR(inst));
+      setText('d-limit-label', 'Plafon');
+    }
     setText('d-sisa', fmtIDR(d.sisa));
     setText('d-jt', fmtDateID(parseKey(d.dueDate)));
-    setText('d-bunga', `${d.bunga}% / ${d.bungaUnit} × ${d.isCC?'statement':'sisa pokok'}`);
-    setText('d-limit', fmtIDR(d.limit));
+    setText('d-bunga', `${d.bunga}% / ${d.bungaUnit} × ${isRevolving(d)?'statement':'sisa pokok'}`);
+    setText('d-limit', isRevolving(d) ? fmtIDR(d.limit) : '— (cicilan)');
     const av = availableCredit(d);
     setText('d-avail', av === null ? '— (loan tertutup)' : fmtIDR(av));
     const trxCount = state.transactions.filter(t => t.debtId === d.id).length;
@@ -6153,6 +6440,22 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     setText('trx-target-name', `${d.company} ${d.product}`.toUpperCase());
     setText('edit-detail-target', `${d.company} ${d.product}`.toUpperCase());
     setText('riwayat-target', `${d.company} ${d.product}`.toUpperCase());
+
+    // Populate Edit Detail panel inputs with current values
+    const edBunga = document.getElementById('edit-detail-bunga');
+    if (edBunga) edBunga.value = d.bunga;
+    const edBungaUnit = document.getElementById('edit-detail-bunga-unit');
+    if (edBungaUnit) edBungaUnit.value = d.bungaUnit;
+    const edLimit = document.getElementById('edit-detail-limit');
+    if (edLimit) edLimit.value = (d.limit || 0).toLocaleString('id-ID');
+    const edLimitLbl = document.getElementById('edit-detail-limit-label');
+    if (edLimitLbl) edLimitLbl.textContent = isRevolving(d) ? 'Limit Kartu' : 'Plafon';
+    const edCetak = document.getElementById('edit-detail-cetak');
+    if (edCetak && isRevolving(d) && d.cetakStatementDay){
+      const opts = Array.from(edCetak.options).map(o => parseInt(o.value, 10));
+      const closest = opts.reduce((a,b) => Math.abs(b-d.cetakStatementDay) < Math.abs(a-d.cetakStatementDay) ? b : a, opts[0]);
+      edCetak.value = String(closest);
+    }
   }
 
   function renderEditExisting(){
@@ -6736,6 +7039,12 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function confirmAddDebt(){
     const f = document.getElementById('add-form');
     if (!f) return;
+
+    // If we're in "Edit Existing" mode, route to confirmEditDebtFull instead.
+    if (state.inputManualMode === 'edit'){
+      return confirmEditDebtFull();
+    }
+
     const company    = f.querySelector('[name="company"]')?.value?.trim();
     const accountNo  = f.querySelector('[name="accountNo"]')?.value?.trim();
     const category   = f.querySelector('[name="category"]')?.value;
@@ -6743,15 +7052,31 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const bunga      = parseFloat(f.querySelector('[name="bunga"]')?.value || '0');
     const bungaUnit  = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
     const startDate  = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
-    const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
+    const method     = f.querySelector('[name="method"]')?.value || 'revolving';
 
+    // Method-specific inputs
+    const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
+    const limitVal   = parseIDR(f.querySelector('[name="limit"]')?.value);
+    const cetakDay   = parseInt(f.querySelector('[name="cetakStatementDay"]')?.value, 10) || 5;
+    const dueDateRaw = f.querySelector('[name="dueDate"]')?.value;
+    const installmentAmount = parseIDR(f.querySelector('[name="installmentAmount"]')?.value);
+    const tenorMonths       = parseInt(f.querySelector('[name="tenorMonths"]')?.value, 10) || 0;
+    const dueDayOfMonth     = parseInt(f.querySelector('[name="dueDayOfMonth"]')?.value, 10) || 10;
+    const sisaInstallment   = parseIDR(f.querySelector('[name="sisaInstallment"]')?.value);
+
+    // Common validations
     if (!company){ flash('⚠ Nama perusahaan/kreditur wajib diisi.'); return; }
     if (nominal <= 0){ flash('⚠ Nominal awal harus lebih dari 0.'); return; }
 
-    const isCC = category === 'Kartu Kredit';
+    // Method-specific validations
+    if (method === 'installment'){
+      if (installmentAmount <= 0){ flash('⚠ Cicilan per bulan wajib diisi untuk metode Cicilan Tetap.'); return; }
+      if (tenorMonths <= 0){ flash('⚠ Tenor (jumlah bulan) wajib diisi.'); return; }
+    }
+
+    const isCC = (method === 'revolving');
     const id = 'd' + (state.nextDebtId++) + '_' + Math.random().toString(36).slice(2,6);
     const logo = (company.split(' ')[1] || company).slice(0,3).toUpperCase();
-    // Pick a color based on category
     const colorMap = { 'Kartu Kredit':'coral', 'KTA':'mint', 'KPR':'amber', 'Paylater':'violet', 'Pinjaman Online':'ink', 'Pinjaman':'violet', 'Gadai':'amber' };
     const logoColor = colorMap[category] || 'ink';
 
@@ -6764,34 +7089,165 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       else biaya += v;
     });
 
-    // Default minimum payment = 10% of statement (CC) or nominal/24 (loan)
-    const minPayment = isCC ? Math.round((statement || nominal) * 0.10) : Math.round(nominal / 24);
-
-    // Default due date = today + 30 days
-    const due = new Date(TODAY); due.setDate(due.getDate() + 30);
-
-    const newDebt = {
-      id, logo, logoColor, company, product: category, accountNo,
-      category, isCC,
-      nominalAwal: nominal,
-      statement: isCC ? (statement || nominal) : null,
-      sisa: nominal,
-      limit: nominal,
-      bunga, bungaUnit, biaya, minPayment,
-      startDate,
-      dueDate: fmtKey(due),
-      dueDayOfMonth: due.getDate(),
-      status: 'active',
-    };
+    // Build the debt object based on method
+    let newDebt;
+    if (method === 'revolving'){
+      // Due date: use provided or default 10 days after cetak (≈ today + 30 if neither)
+      let dueKey;
+      if (dueDateRaw){
+        dueKey = dueDateRaw;
+      } else {
+        const due = new Date(TODAY); due.setDate(due.getDate() + 30);
+        dueKey = fmtKey(due);
+      }
+      const dueDate = parseKey(dueKey);
+      const stmt = statement || nominal;
+      newDebt = {
+        id, logo, logoColor, company, product: category, accountNo,
+        category, isCC: true, method: 'revolving',
+        nominalAwal: nominal,
+        statement: stmt,
+        sisa: stmt, // for revolving, sisa starts at statement amount
+        limit: limitVal > 0 ? limitVal : nominal,
+        bunga, bungaUnit, biaya,
+        minPayment: Math.round(stmt * 0.10),
+        cetakStatementDay: cetakDay,
+        startDate,
+        dueDate: dueKey,
+        dueDayOfMonth: dueDate.getDate(),
+        status: 'active',
+      };
+    } else {
+      // Installment
+      const sisa = sisaInstallment > 0 ? sisaInstallment : nominal;
+      // Build dueDate: next occurrence of dueDayOfMonth
+      const today = new Date(TODAY);
+      let nextDue = new Date(today.getFullYear(), today.getMonth(), dueDayOfMonth);
+      if (nextDue < today) nextDue = new Date(today.getFullYear(), today.getMonth()+1, dueDayOfMonth);
+      newDebt = {
+        id, logo, logoColor, company, product: category, accountNo,
+        category, isCC: false, method: 'installment',
+        nominalAwal: nominal,
+        statement: null,
+        sisa,
+        limit: nominal,
+        bunga, bungaUnit, biaya,
+        minPayment: installmentAmount,
+        installmentAmount,
+        tenorMonths,
+        startDate,
+        dueDate: fmtKey(nextDue),
+        dueDayOfMonth,
+        status: 'active',
+      };
+    }
     state.debts.push(newDebt);
     renderAll();
     if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
-    flash(`✓ Hutang ${company} berhasil ditambahkan. Sisa: ${fmtIDR(nominal)}.`);
+    flash(`✓ Hutang ${company} (${method === 'revolving' ? 'Revolving' : 'Cicilan Tetap'}) berhasil ditambahkan.`);
     f.reset();
     // Reset fee list
     const feeList = document.getElementById('fee-list');
     if (feeList) feeList.innerHTML = '';
     addFeeRow();
+    // Re-default method to revolving
+    if (typeof setInputManualMethod === 'function') setInputManualMethod('revolving');
+    renderAddFormPreview();
+  }
+
+  // Full edit of an existing debt — keeps id, history, but updates all fields including method.
+  function confirmEditDebtFull(){
+    const f = document.getElementById('add-form');
+    if (!f) return;
+    const targetId = state.inputManualEditId;
+    const d = getDebt(targetId);
+    if (!d){ flash('⚠ Pilih hutang dulu untuk di-edit.'); return; }
+
+    const company    = f.querySelector('[name="company"]')?.value?.trim();
+    const accountNo  = f.querySelector('[name="accountNo"]')?.value?.trim();
+    const category   = f.querySelector('[name="category"]')?.value;
+    const nominal    = parseIDR(f.querySelector('[name="nominalAwal"]')?.value);
+    const bunga      = parseFloat(f.querySelector('[name="bunga"]')?.value || '0');
+    const bungaUnit  = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
+    const startDate  = f.querySelector('[name="startDate"]')?.value || d.startDate;
+    const method     = f.querySelector('[name="method"]')?.value || getMethod(d);
+
+    // Method-specific inputs
+    const statement  = parseIDR(f.querySelector('[name="statement"]')?.value);
+    const limitVal   = parseIDR(f.querySelector('[name="limit"]')?.value);
+    const cetakDay   = parseInt(f.querySelector('[name="cetakStatementDay"]')?.value, 10) || 5;
+    const dueDateRaw = f.querySelector('[name="dueDate"]')?.value;
+    const installmentAmount = parseIDR(f.querySelector('[name="installmentAmount"]')?.value);
+    const tenorMonths       = parseInt(f.querySelector('[name="tenorMonths"]')?.value, 10) || 0;
+    const dueDayOfMonth     = parseInt(f.querySelector('[name="dueDayOfMonth"]')?.value, 10) || 10;
+    const sisaInstallment   = parseIDR(f.querySelector('[name="sisaInstallment"]')?.value);
+
+    if (!company){ flash('⚠ Nama perusahaan/kreditur wajib diisi.'); return; }
+    if (nominal <= 0){ flash('⚠ Nominal awal harus lebih dari 0.'); return; }
+    if (method === 'installment'){
+      if (installmentAmount <= 0){ flash('⚠ Cicilan per bulan wajib diisi.'); return; }
+      if (tenorMonths <= 0){ flash('⚠ Tenor (jumlah bulan) wajib diisi.'); return; }
+    }
+
+    // Compute biaya from fee list
+    let biaya = 0;
+    document.querySelectorAll('#fee-list .fee-row').forEach(row => {
+      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value);
+      const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
+      if (unit === '%') biaya += Math.round(nominal * v / 100);
+      else biaya += v;
+    });
+
+    // Apply all changes — preserve id, status, history; update everything else.
+    d.company = company;
+    d.accountNo = accountNo || d.accountNo;
+    d.category = category;
+    d.product = category;
+    d.nominalAwal = nominal;
+    d.bunga = bunga;
+    d.bungaUnit = bungaUnit;
+    d.startDate = startDate;
+    d.biaya = biaya;
+    // Re-derive logo
+    d.logo = (company.split(' ')[1] || company).slice(0,3).toUpperCase();
+    const colorMap = { 'Kartu Kredit':'coral', 'KTA':'mint', 'KPR':'amber', 'Paylater':'violet', 'Pinjaman Online':'ink', 'Pinjaman':'violet', 'Gadai':'amber' };
+    d.logoColor = colorMap[category] || d.logoColor || 'ink';
+
+    if (method === 'revolving'){
+      d.method = 'revolving';
+      d.isCC = true;
+      d.statement = statement > 0 ? statement : (d.statement || nominal);
+      d.limit = limitVal > 0 ? limitVal : (d.limit || nominal);
+      d.cetakStatementDay = cetakDay;
+      d.minPayment = Math.round((d.statement || 0) * 0.10);
+      // Clean up installment-only fields
+      delete d.installmentAmount;
+      delete d.tenorMonths;
+      if (dueDateRaw){
+        d.dueDate = dueDateRaw;
+        d.dueDayOfMonth = parseKey(dueDateRaw).getDate();
+      }
+    } else {
+      d.method = 'installment';
+      d.isCC = false;
+      d.installmentAmount = installmentAmount;
+      d.tenorMonths = tenorMonths;
+      d.minPayment = installmentAmount;
+      d.sisa = sisaInstallment > 0 ? sisaInstallment : (d.sisa || nominal);
+      d.dueDayOfMonth = dueDayOfMonth;
+      d.statement = null;
+      // Clean up revolving-only fields
+      delete d.cetakStatementDay;
+      // Recompute next due date based on dueDayOfMonth
+      const today = new Date(TODAY);
+      let nextDue = new Date(today.getFullYear(), today.getMonth(), dueDayOfMonth);
+      if (nextDue < today) nextDue = new Date(today.getFullYear(), today.getMonth()+1, dueDayOfMonth);
+      d.dueDate = fmtKey(nextDue);
+    }
+    normalizeDebt(d);
+    renderAll();
+    if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
+    flash(`✓ Hutang ${company} berhasil di-update (full edit).`);
   }
 
   function confirmAddTransaction(){
@@ -6828,14 +7284,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     // Refund reduces; everything else adds
     if (type === 'Refund'){
       d.sisa = Math.max(0, d.sisa - amt);
-      if (d.isCC) d.statement = Math.max(0, (d.statement || 0) - amt);
+      if (isRevolving(d)) d.statement = Math.max(0, (d.statement || 0) - amt);
     } else {
       d.sisa += amt;
-      if (d.isCC) d.statement = (d.statement || 0) + amt;
+      if (isRevolving(d)) d.statement = (d.statement || 0) + amt;
     }
 
-    // Recompute min payment for CC
-    if (d.isCC){
+    // Recompute min payment for revolving
+    if (isRevolving(d)){
       d.minPayment = Math.round((d.statement || 0) * 0.10);
     }
 
@@ -6849,13 +7305,24 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function confirmEditDetail(){
     const d = getDebt(state.editAccountId);
     if (!d){ flash('⚠ Pilih hutang dulu.'); return; }
-    const panel = document.querySelector('.edit-action-panel[data-panel="detail"]');
-    if (!panel) return;
-    const inputs = panel.querySelectorAll('input, select');
-    // Order: bunga, bungaUnit, limit, statementDay, tenor, note
-    if (inputs[0]) d.bunga = parseFloat(inputs[0].value.replace(',','.')) || d.bunga;
-    if (inputs[2]) d.limit = parseIDR(inputs[2].value);
-    // (statement day and tenor are presentational only)
+    const bungaEl = document.getElementById('edit-detail-bunga');
+    const bungaUnitEl = document.getElementById('edit-detail-bunga-unit');
+    const limitEl = document.getElementById('edit-detail-limit');
+    const cetakEl = document.getElementById('edit-detail-cetak');
+    if (bungaEl && bungaEl.value.trim()){
+      const v = parseFloat(bungaEl.value.replace(',','.'));
+      if (!isNaN(v)) d.bunga = v;
+    }
+    if (bungaUnitEl && bungaUnitEl.value) d.bungaUnit = bungaUnitEl.value;
+    if (limitEl && limitEl.value.trim()){
+      const v = parseIDR(limitEl.value);
+      if (v > 0) d.limit = v;
+    }
+    if (cetakEl && cetakEl.value && isRevolving(d)){
+      const v = parseInt(cetakEl.value, 10);
+      if (v > 0) d.cetakStatementDay = v;
+    }
+    normalizeDebt(d);
     renderAll();
     if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
     flash(`✓ Detail ${d.company} ${d.product} diperbarui.`);
@@ -6902,16 +7369,20 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
       flash(`✓ Statement OCR berhasil diterapkan ke BCA Card Platinum.`);
     } else {
-      state.debts.push({
+      const newDebt = {
         id, logo:'BCA', logoColor:'coral',
         company:'Bank Central Asia', product:'Card Platinum',
         accountNo:'**** **** **** 4421',
         category:'Kartu Kredit', isCC:true,
+        method:'revolving',
         nominalAwal:50000000, statement:50000000, sisa:42300000, limit:75000000,
         bunga:2.95, bungaUnit:'bln', biaya:650000, minPayment:4230000,
+        cetakStatementDay:5,
         startDate:fmtKey(TODAY), dueDate:'2026-05-15', dueDayOfMonth:15,
         status:'active',
-      });
+      };
+      normalizeDebt(newDebt);
+      state.debts.push(newDebt);
       renderAll();
       if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
       flash(`✓ Hutang baru dari OCR berhasil disimpan.`);
@@ -6978,6 +7449,173 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     setText('preview-bunga-days', `+ Biaya Bunga Berjalan (${days} hari)`);
     setHTML('preview-current', fmtIDRc(nominal + biaya + bungaBerjalan));
     setText('preview-fee-total', '+ ' + fmtIDR(biaya));
+
+    // Installment summary preview (only meaningful when installment method active)
+    const method = f.querySelector('[name="method"]')?.value || 'revolving';
+    if (method === 'installment'){
+      const inst   = parseIDR(f.querySelector('[name="installmentAmount"]')?.value) || 0;
+      const tenor  = parseInt(f.querySelector('[name="tenorMonths"]')?.value, 10) || 0;
+      const totalPay = inst * tenor;
+      const totalBunga = Math.max(0, totalPay - nominal);
+      setText('im-installment-total', totalPay > 0 ? fmtIDR(totalPay) : 'Rp 0');
+      setText('im-installment-bunga', totalBunga > 0 ? fmtIDR(totalBunga) : 'Rp 0');
+      if (tenor > 0){
+        const eta = new Date(TODAY); eta.setMonth(eta.getMonth() + tenor);
+        setText('im-installment-eta', `${months[eta.getMonth()]} ${eta.getFullYear()} · ${tenor} bln`);
+      } else {
+        setText('im-installment-eta', '—');
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────
+  // INPUT MANUAL — method tabs & Tambah Baru / Edit Existing toggle
+  // ─────────────────────────────────────────────────────
+  function setInputManualMethod(method){
+    const form = document.getElementById('add-form');
+    if (!form) return;
+    const hidden = form.querySelector('[name="method"]');
+    if (hidden) hidden.value = method;
+    document.querySelectorAll('#method-tabs .method-tab').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.method === method);
+    });
+    const revFields = document.getElementById('method-fields-revolving');
+    const insFields = document.getElementById('method-fields-installment');
+    const revHint   = document.getElementById('method-hint-revolving');
+    const insHint   = document.getElementById('method-hint-installment');
+    if (revFields) revFields.classList.toggle('hidden', method !== 'revolving');
+    if (insFields) insFields.classList.toggle('hidden', method !== 'installment');
+    if (revHint)   revHint.classList.toggle('hidden', method !== 'revolving');
+    if (insHint)   insHint.classList.toggle('hidden', method !== 'installment');
+    renderAddFormPreview();
+  }
+
+  function setInputManualMode(mode){
+    state.inputManualMode = mode;
+    const wrap = document.getElementById('input-manual-tabs');
+    if (wrap){
+      wrap.querySelectorAll('button[data-im-mode]').forEach(b => {
+        const active = b.dataset.imMode === mode;
+        b.classList.toggle('is-active', active);
+        if (active){
+          if (mode === 'new'){
+            b.classList.add('bg-accent-lime/15','text-accent-lime');
+            b.classList.remove('text-ink-400');
+          } else {
+            b.classList.add('bg-accent-violet/15','text-accent-violet');
+            b.classList.remove('text-ink-400');
+          }
+        } else {
+          b.classList.remove('bg-accent-lime/15','text-accent-lime','bg-accent-violet/15','text-accent-violet');
+          b.classList.add('text-ink-400');
+        }
+      });
+    }
+    const selectorWrap = document.getElementById('im-edit-selector');
+    const card = document.getElementById('input-manual-card');
+    const btnLabel = document.getElementById('add-debt-btn-label');
+    const modeLabel = document.getElementById('input-manual-mode-label');
+    const deleteBtn = document.getElementById('im-delete-btn');
+
+    if (mode === 'edit'){
+      if (selectorWrap) selectorWrap.classList.remove('hidden');
+      if (card) card.classList.add('is-edit-mode');
+      if (btnLabel) btnLabel.textContent = 'Update Hutang';
+      if (modeLabel) modeLabel.textContent = 'Edit semua field dari awal — termasuk metode hutang.';
+      if (deleteBtn) deleteBtn.classList.remove('hidden');
+      renderInputManualEditSelector();
+    } else {
+      if (selectorWrap) selectorWrap.classList.add('hidden');
+      if (card) card.classList.remove('is-edit-mode');
+      if (btnLabel) btnLabel.textContent = 'Simpan Hutang';
+      if (modeLabel) modeLabel.textContent = 'Tambah hutang baru ke database.';
+      if (deleteBtn) deleteBtn.classList.add('hidden');
+      // Clear edit id
+      state.inputManualEditId = null;
+      // Reset form when switching to new mode
+      resetInputManualForm();
+    }
+  }
+
+  function renderInputManualEditSelector(){
+    const sel = document.getElementById('im-edit-debt-sel');
+    if (!sel) return;
+    if (!state.debts.length){
+      sel.innerHTML = '<option value="">— Belum ada hutang — tambah baru dulu —</option>';
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+    const opts = state.debts.map(d => {
+      const m = getMethod(d);
+      const mlabel = m === 'revolving' ? 'Revolving' : 'Cicilan';
+      const statusLabel = d.status === 'lunas' ? ' · LUNAS' : '';
+      return `<option value="${d.id}"${d.id===state.inputManualEditId?' selected':''}>${d.company} · ${d.product} · ${mlabel}${statusLabel}</option>`;
+    }).join('');
+    sel.innerHTML = '<option value="">— Pilih hutang untuk di-edit —</option>' + opts;
+  }
+
+  function resetInputManualForm(){
+    const f = document.getElementById('add-form');
+    if (!f) return;
+    f.reset();
+    const feeList = document.getElementById('fee-list');
+    if (feeList) feeList.innerHTML = '';
+    addFeeRow();
+    setInputManualMethod('revolving');
+    renderAddFormPreview();
+  }
+
+  function populateInputManualFromDebt(d){
+    const f = document.getElementById('add-form');
+    if (!f || !d) return;
+    normalizeDebt(d);
+    const method = getMethod(d);
+    // Common fields
+    f.querySelector('[name="company"]').value = d.company || '';
+    f.querySelector('[name="accountNo"]').value = d.accountNo || '';
+    f.querySelector('[name="category"]').value = d.category || 'Kartu Kredit';
+    f.querySelector('[name="nominalAwal"]').value = (d.nominalAwal || 0).toLocaleString('id-ID');
+    f.querySelector('[name="bunga"]').value = d.bunga || 0;
+    f.querySelector('[name="bungaUnit"]').value = d.bungaUnit || 'bln';
+    f.querySelector('[name="startDate"]').value = d.startDate || fmtKey(TODAY);
+    // Method-specific
+    setInputManualMethod(method);
+    if (method === 'revolving'){
+      f.querySelector('[name="statement"]').value = (d.statement || 0).toLocaleString('id-ID');
+      f.querySelector('[name="limit"]').value = (d.limit || 0).toLocaleString('id-ID');
+      const csd = d.cetakStatementDay || 5;
+      const csdSel = f.querySelector('[name="cetakStatementDay"]');
+      if (csdSel){
+        // Pick closest matching option
+        const opts = Array.from(csdSel.options).map(o => parseInt(o.value, 10));
+        const closest = opts.reduce((a,b) => Math.abs(b-csd) < Math.abs(a-csd) ? b : a, opts[0]);
+        csdSel.value = String(closest);
+      }
+      if (d.dueDate) f.querySelector('[name="dueDate"]').value = d.dueDate;
+    } else {
+      f.querySelector('[name="installmentAmount"]').value = (d.installmentAmount || d.minPayment || 0).toLocaleString('id-ID');
+      f.querySelector('[name="tenorMonths"]').value = d.tenorMonths || 24;
+      const ddSel = f.querySelector('[name="dueDayOfMonth"]');
+      if (ddSel){
+        const dd = d.dueDayOfMonth || 10;
+        const opts = Array.from(ddSel.options).map(o => parseInt(o.value, 10));
+        const closest = opts.reduce((a,b) => Math.abs(b-dd) < Math.abs(a-dd) ? b : a, opts[0]);
+        ddSel.value = String(closest);
+      }
+      f.querySelector('[name="sisaInstallment"]').value = (d.sisa || 0).toLocaleString('id-ID');
+    }
+    // Repopulate fee list — single row with current biaya
+    const feeList = document.getElementById('fee-list');
+    if (feeList){
+      feeList.innerHTML = '';
+      if ((d.biaya || 0) > 0){
+        addFeeRow({ amount: (d.biaya || 0).toLocaleString('id-ID') });
+      } else {
+        addFeeRow();
+      }
+    }
+    renderAddFormPreview();
   }
 
   // ─────────────────────────────────────────────────────
@@ -7498,6 +8136,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     renderEditExisting();
     refreshNavBadges();
     renderAddFormPreview();
+    if (typeof renderInputManualEditSelector === 'function') renderInputManualEditSelector();
     applyEmptyStateUI();
   }
 
@@ -7597,6 +8236,28 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       e.preventDefault();
       confirmEditDetail();
     });
+    document.getElementById('goto-full-edit')?.addEventListener('click', e => {
+      e.preventDefault();
+      // Switch to Edit Existing mode in Input Manual and populate the currently selected debt
+      const id = state.editAccountId || state.editCompanyId;
+      if (!id){ flash('⚠ Pilih hutang dulu di sebelah kiri.'); return; }
+      state.inputManualEditId = id;
+      setInputManualMode('edit');
+      // Sync the dropdown selection
+      const sel = document.getElementById('im-edit-debt-sel');
+      if (sel) sel.value = id;
+      const d = getDebt(id);
+      if (d) populateInputManualFromDebt(d);
+      // Scroll to the input manual card
+      const target = document.getElementById('input-manual-card');
+      if (target){
+        target.scrollIntoView({ behavior:'smooth', block:'start' });
+        target.style.transition = 'box-shadow 0.4s ease';
+        target.style.boxShadow = '0 0 0 4px rgba(124, 58, 237, 0.25)';
+        setTimeout(() => { target.style.boxShadow = ''; }, 1800);
+      }
+      flash('✏️ Full Edit aktif — edit semua field termasuk metode hutang.');
+    });
     document.getElementById('confirm-delete-debt')?.addEventListener('click', e => {
       e.preventDefault();
       confirmDeleteDebt();
@@ -7609,6 +8270,83 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       e.preventDefault();
       addFeeRow();
     });
+
+    // ── INPUT MANUAL: method tabs (Revolving vs Installment) ──
+    document.querySelectorAll('#method-tabs .method-tab').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        setInputManualMethod(btn.dataset.method);
+      });
+    });
+
+    // ── INPUT MANUAL: Tambah Baru / Edit Existing toggle ──
+    document.querySelectorAll('#input-manual-tabs button[data-im-mode]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        setInputManualMode(btn.dataset.imMode);
+      });
+    });
+
+    // ── INPUT MANUAL: Debt selector for Edit Existing ──
+    document.getElementById('im-edit-debt-sel')?.addEventListener('change', e => {
+      const id = e.target.value;
+      state.inputManualEditId = id || null;
+      if (id){
+        const d = getDebt(id);
+        if (d) populateInputManualFromDebt(d);
+      } else {
+        resetInputManualForm();
+      }
+    });
+
+    // ── INPUT MANUAL: Cancel / Reset button ──
+    document.getElementById('im-cancel-btn')?.addEventListener('click', e => {
+      e.preventDefault();
+      if (state.inputManualMode === 'edit'){
+        // Stay in edit mode but reset selection & form
+        state.inputManualEditId = null;
+        const sel = document.getElementById('im-edit-debt-sel');
+        if (sel) sel.value = '';
+        resetInputManualForm();
+        setInputManualMethod('revolving');
+        flash('Form di-reset. Pilih hutang lain untuk edit, atau kembali ke "Tambah Baru".');
+      } else {
+        resetInputManualForm();
+        flash('Form di-reset.');
+      }
+    });
+
+    // ── INPUT MANUAL: Delete button (visible only in edit mode) ──
+    document.getElementById('im-delete-btn')?.addEventListener('click', e => {
+      e.preventDefault();
+      const id = state.inputManualEditId;
+      const d = getDebt(id);
+      if (!d){ flash('⚠ Pilih hutang dulu untuk dihapus.'); return; }
+      if (d.sisa > 0 && !confirm(`${d.company} ${d.product} masih punya sisa hutang ${fmtIDR(d.sisa)}. Hapus tetap?`)) return;
+      if (!confirm(`Yakin hapus ${d.company} ${d.product}? Riwayat pembayaran & transaksi terkait akan ikut hilang.`)) return;
+      state.debts = state.debts.filter(x => x.id !== d.id);
+      state.payments = state.payments.filter(p => p.debtId !== d.id);
+      state.transactions = state.transactions.filter(t => t.debtId !== d.id);
+      // Pick a new selected debt for left-side cascade
+      if (state.debts.length){
+        state.editCompanyId = state.debts[0].id;
+        state.editAccountId = state.debts[0].id;
+        state.paySelectedId = state.debts[0].id;
+      } else {
+        state.editCompanyId = null;
+        state.editAccountId = null;
+        state.paySelectedId = null;
+      }
+      state.inputManualEditId = null;
+      const sel = document.getElementById('im-edit-debt-sel');
+      if (sel) sel.value = '';
+      resetInputManualForm();
+      renderInputManualEditSelector();
+      renderAll();
+      if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
+      flash(`✓ ${d.company} ${d.product} dihapus.`);
+    });
+
     // Listen to all inputs in add-form for preview
     document.getElementById('add-form')?.addEventListener('input', renderAddFormPreview);
     // Auto-fill bunga & bungaUnit when Gadai is selected
@@ -7626,6 +8364,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         if (hint) hint.classList.add('hidden');
       }
     });
+
+    // Initialize: ensure default mode and method are set, fee row exists
+    setInputManualMethod('revolving');
+    setInputManualMode('new');
+    if (!document.querySelector('#fee-list .fee-row')) addFeeRow();
     renderAddFormPreview();
   }, 50);
 
@@ -8779,6 +9522,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       if (snap.transactions) state.transactions = snap.transactions;
       if (snap.user) state.user = { ...state.user, ...snap.user };
       if (snap.currencyDisplay) state.currencyDisplay = snap.currencyDisplay;
+      if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
       return true;
     } catch(e){ return false; }
   }
@@ -8857,6 +9601,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         if (Array.isArray(data.transactions)) state.transactions = data.transactions;
         if (data.user) state.user = { ...state.user, ...data.user };
         if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
+        if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
       } else if (snap.exists()){
         // Cloud doc exists but has no portfolio. Keep whatever we already have
         // locally (don't wipe the screen) and merge any saved profile prefs.
@@ -8882,6 +9627,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           state.debts = data.debts;
           if (Array.isArray(data.payments)) state.payments = data.payments;
           if (Array.isArray(data.transactions)) state.transactions = data.transactions;
+          if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
           _origRenderAll();
           updateSyncBadge('connected', '↻ Update masuk dari device lain');
         }
@@ -9659,18 +10405,27 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
   // Generate Excel-compatible HTML table that Excel opens as .xls
   function buildXLSFromDebts(debts){
-    const rows = debts.map(d => `
+    const rows = debts.map(d => {
+      const m = getMethod(d);
+      const methodLabel = m === 'revolving' ? 'Revolving' : 'Cicilan Tetap';
+      const cicilan = m === 'installment'
+        ? `${(d.installmentAmount || d.minPayment || 0).toLocaleString('id-ID')} × ${d.tenorMonths || 0}bln`
+        : `Statement: ${(d.statement || 0).toLocaleString('id-ID')}`;
+      return `
       <tr>
         <td>${d.company} ${d.product}</td>
         <td>${d.category}</td>
+        <td>${methodLabel}</td>
         <td>${d.nominalAwal}</td>
         <td>${d.bunga}% / ${d.bungaUnit}</td>
         <td>${d.biaya}</td>
+        <td>${cicilan}</td>
         <td>${d.startDate}</td>
         <td>${d.sisa}</td>
         <td>${d.status}</td>
         <td>${d.dueDate}</td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
     return `<?xml version="1.0"?>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:x="urn:schemas-microsoft-com:office:excel"
@@ -9681,8 +10436,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 <p>Diekspor: ${new Date().toLocaleString('id-ID')}</p>
 <table>
 <thead><tr>
-<th>Kreditur</th><th>Kategori</th><th>Nominal Awal</th><th>Bunga</th><th>Biaya</th>
-<th>Tanggal Awal</th><th>Sisa</th><th>Status</th><th>Jatuh Tempo</th>
+<th>Kreditur</th><th>Kategori</th><th>Metode</th><th>Nominal Awal</th><th>Bunga</th><th>Biaya</th>
+<th>Cicilan / Statement</th><th>Tanggal Awal</th><th>Sisa</th><th>Status</th><th>Jatuh Tempo</th>
 </tr></thead>
 <tbody>${rows}</tbody>
 </table>
@@ -9699,12 +10454,23 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     lines.push('═══════════════════════════════════════════════════');
     lines.push('');
     debts.forEach((d, i) => {
+      const m = getMethod(d);
+      const methodLabel = m === 'revolving' ? 'Revolving / Kartu Kredit' : 'Cicilan Tetap per Bulan';
       lines.push(`[${i+1}] ${d.company} — ${d.product}`);
       lines.push(`    Kategori     : ${d.category}`);
-      lines.push(`    Nominal Awal : Rp ${d.nominalAwal.toLocaleString('id-ID')}`);
-      lines.push(`    Sisa         : Rp ${d.sisa.toLocaleString('id-ID')}`);
+      lines.push(`    Metode       : ${methodLabel}`);
+      lines.push(`    Nominal Awal : Rp ${(d.nominalAwal||0).toLocaleString('id-ID')}`);
+      lines.push(`    Sisa         : Rp ${(d.sisa||0).toLocaleString('id-ID')}`);
       lines.push(`    Bunga        : ${d.bunga}% / ${d.bungaUnit}`);
-      lines.push(`    Biaya        : Rp ${d.biaya.toLocaleString('id-ID')}`);
+      lines.push(`    Biaya        : Rp ${(d.biaya||0).toLocaleString('id-ID')}`);
+      if (m === 'installment'){
+        lines.push(`    Cicilan/bln  : Rp ${(d.installmentAmount || d.minPayment || 0).toLocaleString('id-ID')}`);
+        lines.push(`    Tenor        : ${d.tenorMonths || 0} bulan`);
+      } else {
+        lines.push(`    Statement    : Rp ${(d.statement||0).toLocaleString('id-ID')}`);
+        lines.push(`    Limit Kartu  : Rp ${(d.limit||0).toLocaleString('id-ID')}`);
+        if (d.cetakStatementDay) lines.push(`    Cetak Stmt   : Tanggal ${d.cetakStatementDay}`);
+      }
       lines.push(`    Mulai        : ${d.startDate}`);
       lines.push(`    Jatuh Tempo  : ${d.dueDate}`);
       lines.push(`    Status       : ${d.status.toUpperCase()}`);
@@ -9979,12 +10745,15 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         const mode = btn.dataset.tambahMode;
         highlight(btn);
         if (mode === 'new'){
-          scrollTo('add-form');
+          // Switch INPUT MANUAL to "Tambah Baru" and scroll the form into view
+          if (typeof setInputManualMode === 'function') setInputManualMode('new');
+          scrollTo('input-manual-card');
           flash('➕ Mode: Tambah Hutang Baru');
         } else if (mode === 'edit'){
-          scrollTo('edit-existing-card');
-          if (typeof setEditActionPanel === 'function') setEditActionPanel('detail');
-          flash('✏️ Mode: Edit Hutang Existing');
+          // Switch INPUT MANUAL to "Edit Existing" (full edit) and scroll there
+          if (typeof setInputManualMode === 'function') setInputManualMode('edit');
+          scrollTo('input-manual-card');
+          flash('✏️ Mode: Edit Hutang Existing (Full Edit) — pilih hutang di dropdown atau gunakan Edit Detail di sebelah kiri untuk perubahan kecil.');
         } else if (mode === 'statement'){
           scrollTo('edit-existing-card');
           if (typeof setEditActionPanel === 'function') setEditActionPanel('statement');
@@ -10388,7 +11157,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     ctx += `Debt-to-income ratio: ${income > 0 ? Math.round(totalMin/income*100) : '?'}%\n\n`;
     ctx += `DAFTAR HUTANG (${debts.length} hutang):\n`;
     debts.forEach((d, i) => {
-      ctx += `${i+1}. ${d.kreditur} — ${d.category}\n`;
+      const name = `${d.company || ''} ${d.product || ''}`.trim() || '(tanpa nama)';
+      ctx += `${i+1}. ${name} — ${d.category}\n`;
       ctx += `   Sisa: ${fmt(d.sisa)} | Bunga: ${d.bunga}%/${d.bungaUnit} | Min: ${fmt(d.minPayment)} | JT: ${d.dueDate}\n`;
     });
     return ctx;
@@ -11005,6 +11775,286 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   syncAISettingsUI();
 
 
+  // ═══════════════════════════════════════════════════════════════
+  // v1.3.0 patch — Wire up previously-decorative controls
+  // (WhatsApp form, Telegram CTA, Export Center filters)
+  // ═══════════════════════════════════════════════════════════════
+
+  // ─── WhatsApp Bot: connect/disconnect + notification preferences ───
+  (function wireWhatsApp(){
+    const PREF_KEY = 'df_wa_settings_v1';
+
+    function loadWA(){
+      try { return JSON.parse(localStorage.getItem(PREF_KEY) || '{}'); } catch { return {}; }
+    }
+    function saveWA(obj){
+      try { localStorage.setItem(PREF_KEY, JSON.stringify(obj)); } catch {}
+    }
+
+    function refreshConnUI(){
+      const cfg = loadWA();
+      const statusEl = document.getElementById('wa-conn-status');
+      const btn = document.getElementById('wa-connect-btn');
+      const label = btn?.querySelector('.wa-btn-label');
+      const countrySel = document.getElementById('wa-country');
+      const phoneInp = document.getElementById('wa-phone');
+      if (cfg.connected && cfg.phone){
+        if (statusEl){
+          statusEl.classList.remove('offline');
+          statusEl.classList.add('online');
+          const txt = statusEl.querySelector('.status-text');
+          if (txt) txt.textContent = 'Terhubung · ' + cfg.country + ' ' + cfg.phone;
+        }
+        if (label) label.textContent = 'Putuskan WhatsApp';
+        if (countrySel) countrySel.value = cfg.country || '+62';
+        if (phoneInp) phoneInp.value = cfg.phone || '';
+        // Sync to global state so other UI bits can see it
+        if (state.user) state.user.whatsapp = (cfg.country || '+62') + ' ' + cfg.phone;
+      } else {
+        if (statusEl){
+          statusEl.classList.add('offline');
+          statusEl.classList.remove('online');
+          const txt = statusEl.querySelector('.status-text');
+          if (txt) txt.textContent = 'Belum terhubung';
+        }
+        if (label) label.textContent = 'Hubungkan WhatsApp';
+        if (state.user) state.user.whatsapp = '';
+      }
+    }
+
+    function isValidPhone(raw){
+      const digits = raw.replace(/\D/g, '');
+      return digits.length >= 8 && digits.length <= 15;
+    }
+
+    document.getElementById('wa-connect-btn')?.addEventListener('click', e => {
+      e.preventDefault();
+      const cfg = loadWA();
+      if (cfg.connected){
+        // Disconnect flow
+        if (!confirm('Putuskan WhatsApp dari akun ini?')) return;
+        saveWA({ ...cfg, connected: false });
+        refreshConnUI();
+        if (typeof flash === 'function') flash('🔌 WhatsApp diputuskan.');
+        return;
+      }
+      // Connect flow
+      const country = (document.getElementById('wa-country')?.value || '+62').trim();
+      const phoneRaw = (document.getElementById('wa-phone')?.value || '').trim();
+      if (!phoneRaw){
+        if (typeof flash === 'function') flash('⚠ Isi nomor WhatsApp dulu.');
+        return;
+      }
+      if (!isValidPhone(phoneRaw)){
+        if (typeof flash === 'function') flash('⚠ Nomor tidak valid (8–15 digit).');
+        return;
+      }
+      saveWA({ ...cfg, connected: true, country, phone: phoneRaw, connectedAt: Date.now() });
+      refreshConnUI();
+      if (typeof flash === 'function') flash('✓ WhatsApp ' + country + ' ' + phoneRaw + ' terhubung.');
+    });
+
+    // Restore + bind notification toggles
+    document.querySelectorAll('[data-wa-notif]').forEach(cb => {
+      const key = cb.dataset.waNotif;
+      const cfg = loadWA();
+      if (cfg.notif && key in cfg.notif) cb.checked = !!cfg.notif[key];
+      cb.addEventListener('change', () => {
+        const cur = loadWA();
+        cur.notif = cur.notif || {};
+        cur.notif[key] = cb.checked;
+        saveWA(cur);
+        if (typeof flash === 'function'){
+          const labelEl = cb.closest('.setting-row')?.querySelector('.label');
+          const label = labelEl ? labelEl.textContent.trim() : key;
+          flash('✓ ' + label + ': ' + (cb.checked ? 'aktif' : 'nonaktif'));
+        }
+      });
+    });
+
+    refreshConnUI();
+  })();
+
+  // ─── Telegram: detect connection from saved profile ───
+  (function wireTelegram(){
+    function refresh(){
+      const tg = (state.user && state.user.telegram) || '';
+      const statusEl = document.getElementById('tg-conn-status');
+      if (!statusEl) return;
+      const txt = statusEl.querySelector('.status-text');
+      if (tg){
+        statusEl.classList.remove('offline');
+        statusEl.classList.add('online');
+        if (txt) txt.textContent = 'Terhubung · ' + tg;
+      } else {
+        statusEl.classList.add('offline');
+        statusEl.classList.remove('online');
+        if (txt) txt.textContent = 'Belum terhubung';
+      }
+    }
+    // Refresh whenever the telegram view opens
+    const tgView = document.getElementById('view-telegram');
+    if (tgView){
+      const obs = new MutationObserver(() => {
+        if (tgView.classList.contains('active')) refresh();
+      });
+      obs.observe(tgView, { attributes: true, attributeFilter: ['class'] });
+    }
+    refresh();
+  })();
+
+  // ─── Export Center: filter Periode + Kategori (applied to all export buttons) ───
+  (function wireExportFilters(){
+    const periodSel = document.getElementById('export-filter-period');
+    const catSel = document.getElementById('export-filter-category');
+    const summary = document.getElementById('export-filter-summary');
+    if (!periodSel || !catSel) return;
+
+    function periodLabel(v){
+      return ({ all:'semua waktu', month:'bulan ini', '3months':'3 bulan terakhir', year:'tahun ini' })[v] || v;
+    }
+    function catLabel(v){ return v === 'all' ? 'semua kategori' : v; }
+
+    function refreshSummary(){
+      if (!summary) return;
+      summary.innerHTML = 'Filter aktif: <span class="text-ink-200">' + periodLabel(periodSel.value) +
+        '</span> · <span class="text-ink-200">' + catLabel(catSel.value) + '</span>';
+    }
+
+    // Compute a start date based on selected period (null = no lower bound)
+    function periodStart(){
+      const v = periodSel.value;
+      const t = new Date(TODAY);
+      if (v === 'month')   return new Date(t.getFullYear(), t.getMonth(), 1);
+      if (v === '3months'){ const d = new Date(t); d.setMonth(d.getMonth() - 3); return d; }
+      if (v === 'year')    return new Date(t.getFullYear(), 0, 1);
+      return null;
+    }
+
+    // Public helper used by export handlers
+    window.__exportFilter = {
+      filterDebts: function(debts){
+        const cat = catSel.value;
+        let out = debts.slice();
+        if (cat !== 'all') out = out.filter(d => d.category === cat);
+        const start = periodStart();
+        if (start){
+          // Period filter on debts = startDate within range (when debt began)
+          out = out.filter(d => {
+            if (!d.startDate) return true;
+            return parseKey(d.startDate) >= start;
+          });
+        }
+        return out;
+      },
+      filterPayments: function(payments){
+        const start = periodStart();
+        let out = payments.slice();
+        if (start){
+          out = out.filter(p => parseKey(p.date) >= start);
+        }
+        const cat = catSel.value;
+        if (cat !== 'all'){
+          out = out.filter(p => {
+            const d = getDebt(p.debtId);
+            return d && d.category === cat;
+          });
+        }
+        return out;
+      },
+      describe: function(){
+        return periodLabel(periodSel.value) + ' · ' + catLabel(catSel.value);
+      }
+    };
+
+    periodSel.addEventListener('change', refreshSummary);
+    catSel.addEventListener('change', refreshSummary);
+    refreshSummary();
+  })();
+
+  // ─── Rewire Export Center export buttons to honor filters ───
+  (function applyFiltersToExports(){
+    const F = window.__exportFilter;
+    if (!F) return;
+
+    document.querySelectorAll('[data-export-type]').forEach(btn => {
+      const type = btn.dataset.exportType;
+      // Clone to drop prior listeners safely
+      const fresh = btn.cloneNode(true);
+      btn.replaceWith(fresh);
+
+      fresh.addEventListener('click', () => {
+        const filteredDebts = F.filterDebts(state.debts);
+        const filteredPays = F.filterPayments(state.payments);
+
+        if (type === 'csv'){
+          if (!filteredDebts.length){ flash('Tidak ada hutang yang cocok dengan filter.'); return; }
+          const csv = [
+            ['Perusahaan','Produk','Kategori','Nominal Awal','Bunga','Biaya','Tanggal Awal','Sisa','Status'].join(','),
+            ...filteredDebts.map(d => [
+              '"' + (d.company || '') + '"', '"' + (d.product || '') + '"', d.category,
+              d.nominalAwal, d.bunga + '% /' + d.bungaUnit, d.biaya, d.startDate, d.sisa, d.status
+            ].join(','))
+          ].join('\n');
+          downloadBlob('debtfree-debts-' + Date.now() + '.csv', csv, 'text/csv;charset=utf-8');
+          flash('✓ CSV diunduh (' + filteredDebts.length + ' hutang · ' + F.describe() + ').');
+        }
+        else if (type === 'json'){
+          const data = JSON.stringify({
+            filter: F.describe(),
+            debts: filteredDebts,
+            payments: filteredPays,
+            transactions: state.transactions,
+            user: state.user,
+            exportedAt: new Date().toISOString(),
+          }, null, 2);
+          downloadBlob('debtfree-backup-' + Date.now() + '.json', data, 'application/json');
+          flash('✓ JSON Backup diunduh (filter: ' + F.describe() + ').');
+        }
+        else if (type === 'pdf'){
+          flash('🖨️ Menyiapkan Laporan PDF — pilih "Save as PDF".');
+          if (!document.getElementById('view-dashboard').classList.contains('active')){
+            switchView('dashboard');
+            setTimeout(() => printView('view-dashboard', 'Laporan Hutang — ' + F.describe()), 400);
+          } else {
+            printView('view-dashboard', 'Laporan Hutang — ' + F.describe());
+          }
+        }
+        else if (type === 'excel'){
+          if (!filteredDebts.length){ flash('Tidak ada hutang yang cocok dengan filter.'); return; }
+          const xml = buildXLSFromDebts(filteredDebts);
+          downloadBlob('debtfree-laporan-' + Date.now() + '.xls', xml, 'application/vnd.ms-excel');
+          flash('✓ Excel terunduh — ' + filteredDebts.length + ' hutang · ' + F.describe() + '.');
+        }
+        else if (type === 'invoice'){
+          if (!filteredPays.length){ flash('Tidak ada pembayaran cocok dengan filter.'); return; }
+          const lines = ['No,Tanggal,Kreditur,Produk,Nominal,Metode,Status'];
+          filteredPays.forEach((p, i) => {
+            const d = getDebt(p.debtId);
+            lines.push((i+1) + ',' + p.date + ',"' + (d?.company || '') + '","' + (d?.product || '') + '",' + p.amount + ',' + p.method + ',' + p.status);
+          });
+          downloadBlob('bukti-pembayaran-' + Date.now() + '.csv', lines.join('\n'), 'text/csv;charset=utf-8');
+          flash('✓ Bukti pembayaran (' + filteredPays.length + ' baris · ' + F.describe() + ') terunduh.');
+        }
+        else if (type === 'cloud'){
+          const data = JSON.stringify({
+            filter: F.describe(),
+            debts: filteredDebts,
+            payments: filteredPays,
+            transactions: state.transactions,
+            user: state.user,
+            exportedAt: new Date().toISOString(),
+          }, null, 2);
+          downloadBlob('debtfree-cloud-backup-' + Date.now() + '.json', data, 'application/json');
+          window.open('https://drive.google.com/drive/my-drive', '_blank', 'noopener');
+          flash('☁️ Backup terunduh + Google Drive dibuka.');
+        }
+      });
+    });
+  })();
+
+  // ─── Re-render lucide icons after all the new DOM wiring above ───
+  if (window.lucide?.createIcons) lucide.createIcons();
 
 </script>
 
