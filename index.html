@@ -2714,28 +2714,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             </div>
           </div>
           <div class="card-body">
-            <div class="space-y-2.5">
-              <div class="flex items-start gap-2 p-2.5 rounded-md bg-accent-coral/5 border border-accent-coral/15">
-                <div class="w-1.5 h-1.5 rounded-full bg-accent-coral mt-1.5 pulse-dot"></div>
-                <div class="flex-1 text-xs">
-                  <div class="text-ink-100">2 tagihan jatuh tempo dalam 7 hari</div>
-                  <div class="text-ink-400 mt-0.5">Total Rp 6.6jt</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-2 p-2.5 rounded-md bg-accent-amber/5 border border-accent-amber/15">
-                <div class="w-1.5 h-1.5 rounded-full bg-accent-amber mt-1.5"></div>
-                <div class="flex-1 text-xs">
-                  <div class="text-ink-100">Debt ratio 38.4% melebihi batas sehat</div>
-                  <div class="text-ink-400 mt-0.5">Pertimbangkan refinancing</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-2 p-2.5 rounded-md bg-accent-violet/5 border border-accent-violet/15">
-                <div class="w-1.5 h-1.5 rounded-full bg-accent-violet mt-1.5"></div>
-                <div class="flex-1 text-xs">
-                  <div class="text-ink-100">Suku bunga BCA Card naik 0.25%</div>
-                  <div class="text-ink-400 mt-0.5">Efektif Juni 2026</div>
-                </div>
-              </div>
+            <div id="warning-status-list" class="space-y-2.5">
+              <!-- Diisi oleh renderWarningStatus() -->
             </div>
           </div>
         </div>
@@ -2773,23 +2753,23 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           <div class="p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
             <div class="text-xs text-ink-400">Bunga Berjalan / Hari</div>
-            <div class="mono text-lg mt-1.5 text-accent-coral">Rp 247.300</div>
-            <div class="text-[10px] text-ink-400 mt-1">≈ Rp 7.4jt / bulan</div>
+            <div class="mono text-lg mt-1.5 text-accent-coral" id="fi-bunga-hari">Rp —</div>
+            <div class="text-[10px] text-ink-400 mt-1" id="fi-bunga-bulan">≈ Rp — / bulan</div>
           </div>
           <div class="p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
             <div class="text-xs text-ink-400">Total Biaya Tambahan</div>
-            <div class="mono text-lg mt-1.5">Rp 1.840.000</div>
+            <div class="mono text-lg mt-1.5" id="fi-biaya-total">Rp —</div>
             <div class="text-[10px] text-ink-400 mt-1">Admin + denda + materai</div>
           </div>
           <div class="p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
             <div class="text-xs text-ink-400">Hemat dengan Avalanche</div>
-            <div class="mono text-lg mt-1.5 text-accent-lime">Rp 14.800.000</div>
-            <div class="text-[10px] text-ink-400 mt-1">Estimasi 24 bulan</div>
+            <div class="mono text-lg mt-1.5 text-accent-lime" id="fi-hemat-avalanche">Rp —</div>
+            <div class="text-[10px] text-ink-400 mt-1" id="fi-hemat-sub">Estimasi pelunasan optimal</div>
           </div>
           <div class="p-4 rounded-lg bg-ink-900/40 border border-ink-700/30">
             <div class="text-xs text-ink-400">Cashflow Risk Score</div>
-            <div class="display text-lg mt-1.5">62<span class="mono text-sm text-ink-400">/100</span></div>
-            <div class="text-[10px] text-accent-amber mt-1">Tingkat sedang</div>
+            <div class="display text-lg mt-1.5"><span id="fi-risk-score">—</span><span class="mono text-sm text-ink-400">/100</span></div>
+            <div class="text-[10px] mt-1" id="fi-risk-label">—</div>
           </div>
         </div>
       </div>
@@ -3946,11 +3926,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <p class="text-xs text-ink-400 mt-2 leading-relaxed">Lunasi hutang terkecil dulu. Memberikan dorongan psikologis dari kemenangan kecil.</p>
               <div class="mt-3 flex justify-between text-xs">
                 <span class="text-ink-400">Estimasi</span>
-                <span class="mono text-ink-100">38 bulan</span>
+                <span class="mono text-ink-100" id="strat-snowball-months">— bulan</span>
               </div>
               <div class="flex justify-between text-xs mt-1">
-                <span class="text-ink-400">Total bunga</span>
-                <span class="mono text-accent-coral">Rp 89.4jt</span>
+                <span class="text-ink-400">Hemat vs tanpa strategi</span>
+                <span class="mono text-accent-coral" id="strat-snowball-saving">Rp —</span>
               </div>
             </div>
 
@@ -3964,11 +3944,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <p class="text-xs text-ink-400 mt-2 leading-relaxed">Lunasi bunga tertinggi dulu. Secara matematis paling hemat untuk biaya bunga total.</p>
               <div class="mt-3 flex justify-between text-xs">
                 <span class="text-ink-400">Estimasi</span>
-                <span class="mono text-ink-100">34 bulan</span>
+                <span class="mono text-ink-100" id="strat-avalanche-months">— bulan</span>
               </div>
               <div class="flex justify-between text-xs mt-1">
-                <span class="text-ink-400">Total bunga</span>
-                <span class="mono text-accent-lime">Rp 74.6jt</span>
+                <span class="text-ink-400">Hemat vs tanpa strategi</span>
+                <span class="mono text-accent-lime" id="strat-avalanche-saving">Rp —</span>
               </div>
             </div>
 
@@ -3982,11 +3962,11 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <p class="text-xs text-ink-400 mt-2 leading-relaxed">Refinance hutang bunga tinggi (KK · paylater) ke KTA tunggal bunga rendah. Cicilan ringan & terstruktur.</p>
               <div class="mt-3 flex justify-between text-xs">
                 <span class="text-ink-400">Estimasi</span>
-                <span class="mono text-ink-100">30 bulan</span>
+                <span class="mono text-ink-100" id="strat-consolidation-months">— bulan</span>
               </div>
               <div class="flex justify-between text-xs mt-1">
-                <span class="text-ink-400">Total bunga</span>
-                <span class="mono text-accent-violet">Rp 58.2jt</span>
+                <span class="text-ink-400">Hemat vs tanpa strategi</span>
+                <span class="mono text-accent-violet" id="strat-consolidation-saving">Rp —</span>
               </div>
             </div>
           </div>
@@ -4000,43 +3980,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <div class="card rounded-xl p-5">
             <div class="num-prefix mb-3">PAYMENT PRIORITY</div>
             <h3 class="text-sm font-medium mb-3">Urutan Pelunasan AI</h3>
-            <div class="space-y-2.5">
-              <div class="flex items-center gap-3">
-                <div class="display text-2xl text-accent-coral w-6">1</div>
-                <div class="flex-1">
-                  <div class="text-sm">BCA Card Platinum</div>
-                  <div class="text-[10px] text-ink-400">Bunga 2.95% / bln · tertinggi</div>
-                </div>
-                <i data-lucide="flame" class="w-4 h-4 text-accent-coral"></i>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="display text-2xl text-accent-amber w-6">2</div>
-                <div class="flex-1">
-                  <div class="text-sm">Shopee PayLater</div>
-                  <div class="text-[10px] text-ink-400">Bunga 2.95% / bln · jatuh tempo dekat</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="display text-2xl text-ink-300 w-6">3</div>
-                <div class="flex-1">
-                  <div class="text-sm">Kredivo Cicilan</div>
-                  <div class="text-[10px] text-ink-400">Bunga 2.6% / bln</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="display text-2xl text-ink-300 w-6">4</div>
-                <div class="flex-1">
-                  <div class="text-sm">CIMB Personal Loan</div>
-                  <div class="text-[10px] text-ink-400">Bunga 1.80% / bln</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="display text-2xl text-ink-400 w-6">5</div>
-                <div class="flex-1">
-                  <div class="text-sm">Mandiri KTA</div>
-                  <div class="text-[10px] text-ink-400">Bunga 1.45% / bln</div>
-                </div>
-              </div>
+            <div id="payment-priority-list" class="space-y-2.5">
+              <!-- Diisi oleh renderPaymentPriority() -->
             </div>
           </div>
 
@@ -4047,30 +3992,30 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <div>
                 <div class="flex justify-between text-xs mb-1">
                   <span class="text-ink-300">Debt-to-Income Ratio</span>
-                  <span class="mono text-accent-amber">38.4%</span>
+                  <span class="mono" id="risk-dti-val">—</span>
                 </div>
-                <div class="seg-bar bg-ink-700/40"><div style="width:38.4%; background:#D97706"></div></div>
+                <div class="seg-bar bg-ink-700/40"><div id="risk-dti-bar" style="width:0%; background:#D97706"></div></div>
               </div>
               <div>
                 <div class="flex justify-between text-xs mb-1">
                   <span class="text-ink-300">Cashflow Risk</span>
-                  <span class="mono text-accent-amber">62 / 100</span>
+                  <span class="mono" id="risk-cashflow-val">—</span>
                 </div>
-                <div class="seg-bar bg-ink-700/40"><div style="width:62%; background:#D97706"></div></div>
+                <div class="seg-bar bg-ink-700/40"><div id="risk-cashflow-bar" style="width:0%; background:#D97706"></div></div>
               </div>
               <div>
                 <div class="flex justify-between text-xs mb-1">
                   <span class="text-ink-300">Interest Burden</span>
-                  <span class="mono text-accent-coral">74 / 100</span>
+                  <span class="mono" id="risk-interest-val">—</span>
                 </div>
-                <div class="seg-bar bg-ink-700/40"><div style="width:74%; background:#DC2626"></div></div>
+                <div class="seg-bar bg-ink-700/40"><div id="risk-interest-bar" style="width:0%; background:#DC2626"></div></div>
               </div>
               <div>
                 <div class="flex justify-between text-xs mb-1">
                   <span class="text-ink-300">Repayment Capacity</span>
-                  <span class="mono text-accent-mint">81 / 100</span>
+                  <span class="mono" id="risk-capacity-val">—</span>
                 </div>
-                <div class="seg-bar bg-ink-700/40"><div style="width:81%; background:#0891B2"></div></div>
+                <div class="seg-bar bg-ink-700/40"><div id="risk-capacity-bar" style="width:0%; background:#0891B2"></div></div>
               </div>
             </div>
           </div>
@@ -7955,6 +7900,508 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   } catch(e){}
   applyStrategy(_savedStrat);
 
+
+  // ═══════════════════════════════════════════════════════════════
+  // REAL-DATA RENDERS: Warning Status, Financial Insight, Payment
+  // Priority, Risk Analysis, Strategy Engine cards, Roadmap dynamic
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── Helper: format number short (already defined as _fmtIDRshort above, alias)
+  function _fmtS(n){ return _fmtIDRshort ? _fmtIDRshort(n) : ('Rp ' + Math.round(n).toLocaleString('id-ID')); }
+
+  // ────────────────────────────────────────────────────
+  // 1. WARNING STATUS — driven by real state.debts
+  // ────────────────────────────────────────────────────
+  function renderWarningStatus(){
+    const el = document.getElementById('warning-status-list');
+    if (!el) return;
+    const debts = activeDebts();
+    const items = [];
+
+    // A) Overdue debts
+    const overdue = debts.filter(d => daysToDue(d) < 0);
+    if (overdue.length) {
+      const total = overdue.reduce((s,d) => s + d.minPayment, 0);
+      items.push({
+        color:'coral', pulse:true,
+        title: `${overdue.length} tagihan TERLAMBAT — segera bayar`,
+        sub: `Total tertunggak ${_fmtS(total)}`
+      });
+    }
+
+    // B) Due within 7 days
+    const soon = debts.filter(d => { const dd = daysToDue(d); return dd >= 0 && dd <= 7; });
+    if (soon.length) {
+      const total = soon.reduce((s,d) => s + d.minPayment, 0);
+      items.push({
+        color:'coral', pulse: overdue.length === 0,
+        title: `${soon.length} tagihan jatuh tempo dalam 7 hari`,
+        sub: `Total ${_fmtS(total)}`
+      });
+    }
+
+    // C) Debt-to-income ratio
+    const income = state.user.monthlyIncome || 0;
+    const totalDebt = debts.reduce((s,d) => s + d.sisa, 0);
+    const dti = income > 0 ? ((debts.reduce((s,d)=>s+d.minPayment,0) / income) * 100) : 0;
+    if (dti > 30) {
+      items.push({
+        color: dti > 50 ? 'coral' : 'amber', pulse:false,
+        title: `Debt ratio ${dti.toFixed(1)}% ${dti > 50 ? 'sangat tinggi' : 'melebihi batas sehat'}`,
+        sub: dti > 50 ? 'Pertimbangkan konsolidasi hutang segera' : 'Pertimbangkan refinancing'
+      });
+    }
+
+    // D) Highest interest debt warning (>2.5%/bln)
+    const highInt = debts.filter(d => {
+      const r = d.bungaUnit === 'thn' ? d.bunga/12 : d.bunga;
+      return r >= 2.5;
+    });
+    if (highInt.length) {
+      const top = highInt.slice().sort((a,b) => {
+        const ra = a.bungaUnit==='thn'?a.bunga/12:a.bunga;
+        const rb = b.bungaUnit==='thn'?b.bunga/12:b.bunga;
+        return rb - ra;
+      })[0];
+      const rateLabel = top.bungaUnit==='thn' ? (top.bunga/12).toFixed(2)+'%/bln' : top.bunga+'%/'+top.bungaUnit;
+      items.push({
+        color:'amber', pulse:false,
+        title: `${top.company} ${top.product} bunga ${rateLabel}`,
+        sub: 'Prioritaskan pelunasan hutang berbunga tinggi ini'
+      });
+    }
+
+    // E) No data
+    if (!debts.length) {
+      items.push({
+        color:'mint', pulse:false,
+        title: '✓ Tidak ada hutang aktif',
+        sub: 'Tambah hutang atau muat data demo'
+      });
+    }
+
+    // E) Cap to 4 items
+    const show = items.slice(0, 4);
+    const colorMap = {
+      coral: { dot:'bg-accent-coral', bg:'bg-accent-coral/5 border-accent-coral/15' },
+      amber: { dot:'bg-accent-amber', bg:'bg-accent-amber/5 border-accent-amber/15' },
+      violet:{ dot:'bg-accent-violet', bg:'bg-accent-violet/5 border-accent-violet/15' },
+      mint:  { dot:'bg-accent-mint',  bg:'bg-accent-mint/5 border-accent-mint/15' },
+    };
+    el.innerHTML = show.map(item => {
+      const cm = colorMap[item.color] || colorMap.amber;
+      return `<div class="flex items-start gap-2 p-2.5 rounded-md ${cm.bg}">
+        <div class="w-1.5 h-1.5 rounded-full ${cm.dot} mt-1.5${item.pulse ? ' pulse-dot' : ''}"></div>
+        <div class="flex-1 text-xs">
+          <div class="text-ink-100">${item.title}</div>
+          <div class="text-ink-400 mt-0.5">${item.sub}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ────────────────────────────────────────────────────
+  // 2. FINANCIAL INSIGHT strip — real calculations
+  // ────────────────────────────────────────────────────
+  function renderFinancialInsight(){
+    const debts = activeDebts();
+    const income = state.user.monthlyIncome || 0;
+
+    // Bunga berjalan/hari = sum over all active debts
+    const bungaPerHari = debts.reduce((s,d) => s + bungaPeriode(d) / 30, 0);
+    const bungaPerBulan = debts.reduce((s,d) => s + bungaPeriode(d), 0);
+    const biayaTotal = debts.reduce((s,d) => s + (d.biaya || 0), 0);
+
+    // Savings from Avalanche vs doing nothing
+    const avalMetrics = computeAdvisorMetrics('avalanche');
+    const savingsAval = avalMetrics.savingsNum || 0;
+    const monthsAval = avalMetrics.monthsNum || 0;
+
+    // Cashflow risk score (0–100): based on DTI
+    const minSum = debts.reduce((s,d) => s + d.minPayment, 0);
+    const dti = income ? minSum / income : 0;
+    const riskScore = Math.min(100, Math.round(dti * 200)); // 50% DTI → 100 score
+
+    const el = (id) => document.getElementById(id);
+    if (el('fi-bunga-hari'))
+      el('fi-bunga-hari').textContent = debts.length ? _fmtS(Math.round(bungaPerHari)) : 'Rp —';
+    if (el('fi-bunga-bulan'))
+      el('fi-bunga-bulan').textContent = debts.length ? `≈ ${_fmtS(Math.round(bungaPerBulan))} / bulan` : '≈ Rp — / bulan';
+    if (el('fi-biaya-total'))
+      el('fi-biaya-total').textContent = debts.length ? _fmtS(biayaTotal) : 'Rp —';
+    if (el('fi-hemat-avalanche'))
+      el('fi-hemat-avalanche').textContent = debts.length ? _fmtS(Math.round(savingsAval)) : 'Rp —';
+    if (el('fi-hemat-sub'))
+      el('fi-hemat-sub').textContent = debts.length && monthsAval ? `Estimasi ${monthsAval} bulan` : 'Estimasi pelunasan optimal';
+
+    const riskEl = el('fi-risk-score');
+    const riskLbl = el('fi-risk-label');
+    if (riskEl) riskEl.textContent = debts.length ? riskScore.toString() : '—';
+    if (riskLbl) {
+      let lbl = '—', cls = 'text-[10px] mt-1 text-ink-400';
+      if (debts.length) {
+        if (riskScore < 40) { lbl = 'Tingkat rendah'; cls = 'text-[10px] mt-1 text-accent-mint'; }
+        else if (riskScore < 70) { lbl = 'Tingkat sedang'; cls = 'text-[10px] mt-1 text-accent-amber'; }
+        else { lbl = 'Tingkat tinggi'; cls = 'text-[10px] mt-1 text-accent-coral'; }
+      }
+      riskLbl.textContent = lbl;
+      riskLbl.className = cls;
+    }
+  }
+
+  // ────────────────────────────────────────────────────
+  // 3. PAYMENT PRIORITY — ranked by avalanche (bunga tertinggi)
+  // ────────────────────────────────────────────────────
+  function renderPaymentPriority(){
+    const el = document.getElementById('payment-priority-list');
+    if (!el) return;
+    const debts = activeDebts();
+    if (!debts.length) {
+      el.innerHTML = `<div class="text-xs text-ink-400 text-center py-3">Belum ada hutang aktif.</div>`;
+      return;
+    }
+    // Sort by effective monthly rate desc
+    const sorted = debts.slice().sort((a,b) => {
+      const ra = a.bungaUnit==='thn' ? a.bunga/12 : a.bunga;
+      const rb = b.bungaUnit==='thn' ? b.bunga/12 : b.bunga;
+      return rb - ra;
+    });
+    const rankColors = ['text-accent-coral','text-accent-amber','text-ink-300','text-ink-300','text-ink-400'];
+    el.innerHTML = sorted.slice(0,5).map((d,i) => {
+      const rate = d.bungaUnit==='thn' ? (d.bunga/12).toFixed(2) : d.bunga;
+      const unit = d.bungaUnit==='thn' ? '/bln' : '/'+d.bungaUnit;
+      const urgLabel = i===0 ? ' · tertinggi' : (daysToDue(d) <= 7 && daysToDue(d) >= 0 ? ' · jatuh tempo dekat' : '');
+      const flame = i===0 ? '<i data-lucide="flame" class="w-4 h-4 text-accent-coral"></i>' : '';
+      return `<div class="flex items-center gap-3">
+        <div class="display text-2xl ${rankColors[i]||'text-ink-400'} w-6">${i+1}</div>
+        <div class="flex-1">
+          <div class="text-sm">${d.company} ${d.product}</div>
+          <div class="text-[10px] text-ink-400">Bunga ${rate}%${unit}${urgLabel}</div>
+        </div>
+        ${flame}
+      </div>`;
+    }).join('');
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+  }
+
+  // ────────────────────────────────────────────────────
+  // 4. RISK ANALYSIS panel — computed metrics
+  // ────────────────────────────────────────────────────
+  function renderRiskAnalysis(){
+    const debts = activeDebts();
+    const income = state.user.monthlyIncome || 0;
+    const minSum = debts.reduce((s,d) => s + d.minPayment, 0);
+    const totalDebt = debts.reduce((s,d) => s + d.sisa, 0);
+    const bungaTotal = debts.reduce((s,d) => s + bungaPeriode(d), 0);
+
+    // DTI = min payments / income
+    const dtiPct = income ? (minSum / income * 100) : 0;
+    // Cashflow risk (0–100)
+    const cashflowRisk = Math.min(100, Math.round(dtiPct * 2));
+    // Interest burden = monthly interest / total debt *100 (capped 100)
+    const interestBurden = totalDebt > 0 ? Math.min(100, Math.round(bungaTotal / totalDebt * 100 * 30)) : 0;
+    // Repayment capacity: inverse — how much income goes to min payments (inverted)
+    const repayCapacity = income > 0 ? Math.min(100, Math.max(0, Math.round((1 - minSum/income) * 100))) : 50;
+
+    function colorFor(v, invert=false){
+      const s = invert ? (100-v) : v;
+      if (s < 40) return { txt:'text-accent-mint', bg:'#0891B2' };
+      if (s < 70) return { txt:'text-accent-amber', bg:'#D97706' };
+      return { txt:'text-accent-coral', bg:'#DC2626' };
+    }
+
+    const dtiC = colorFor(dtiPct, false);
+    const cfC = colorFor(cashflowRisk, false);
+    const ibC = colorFor(interestBurden, false);
+    const rcC = colorFor(100-repayCapacity, false); // higher capacity = lower risk color
+
+    function setBar(valId, barId, val, label, cls) {
+      const ve = document.getElementById(valId);
+      const be = document.getElementById(barId);
+      if (ve) { ve.textContent = label; ve.className = 'mono ' + cls; }
+      if (be) { be.style.width = Math.min(100,val).toFixed(1)+'%'; be.style.background = (cls.includes('coral')?'#DC2626':cls.includes('amber')?'#D97706':'#0891B2'); }
+    }
+
+    if (!debts.length) {
+      ['risk-dti-val','risk-cashflow-val','risk-interest-val','risk-capacity-val'].forEach(id => {
+        const e = document.getElementById(id); if (e) { e.textContent = '—'; e.className = 'mono text-ink-400'; }
+      });
+      ['risk-dti-bar','risk-cashflow-bar','risk-interest-bar','risk-capacity-bar'].forEach(id => {
+        const e = document.getElementById(id); if (e) e.style.width = '0%';
+      });
+      return;
+    }
+
+    setBar('risk-dti-val','risk-dti-bar', dtiPct, dtiPct.toFixed(1)+'%', dtiC.txt);
+    setBar('risk-cashflow-val','risk-cashflow-bar', cashflowRisk, cashflowRisk+' / 100', cfC.txt);
+    setBar('risk-interest-val','risk-interest-bar', interestBurden, interestBurden+' / 100', ibC.txt);
+    setBar('risk-capacity-val','risk-capacity-bar', repayCapacity, repayCapacity+' / 100', rcC.txt);
+    // Capacity bar uses different direction — higher is better
+    const capBar = document.getElementById('risk-capacity-bar');
+    if (capBar) capBar.style.background = '#0891B2';
+  }
+
+  // ────────────────────────────────────────────────────
+  // 5. STRATEGY ENGINE cards — real computed months & savings
+  // ────────────────────────────────────────────────────
+  function renderStrategyEngineCards(){
+    const keys = ['snowball','avalanche','consolidation'];
+    keys.forEach(key => {
+      const m = computeAdvisorMetrics(key);
+      const mEl = document.getElementById('strat-'+key+'-months');
+      const sEl = document.getElementById('strat-'+key+'-saving');
+      if (mEl) mEl.textContent = (m.monthsNum && m.monthsNum < 999) ? m.monthsNum+' bulan' : '— bulan';
+      if (sEl) sEl.textContent = (m.savingsNum > 0) ? _fmtS(Math.round(m.savingsNum)) : 'Rp —';
+    });
+  }
+
+  // ────────────────────────────────────────────────────
+  // 6. ROADMAP — generate from real debt data per strategy
+  // ────────────────────────────────────────────────────
+  function buildRealRoadmap(stratKey){
+    const debts = activeDebts();
+    if (!debts.length) return [];
+
+    const mon = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    function addMonths(d, n){ const r = new Date(d); r.setMonth(r.getMonth()+n); return r; }
+    function fmt(d){ return mon[d.getMonth()]+' '+String(d.getFullYear()).slice(2); }
+
+    const totalDebt = debts.reduce((s,d) => s + d.sisa, 0);
+    const income = state.user.monthlyIncome || 0;
+    const minSum = debts.reduce((s,d) => s + d.minPayment, 0);
+    const capacity = Math.max(income * 0.55, minSum * 1.10);
+
+    // Sort debts per strategy
+    let order;
+    if (stratKey === 'snowball') {
+      order = debts.slice().sort((a,b) => a.sisa - b.sisa);
+    } else if (stratKey === 'avalanche') {
+      order = debts.slice().sort((a,b) => {
+        const ra = a.bungaUnit==='thn'?a.bunga/12:a.bunga;
+        const rb = b.bungaUnit==='thn'?b.bunga/12:b.bunga;
+        return rb - ra;
+      });
+    } else {
+      // consolidation: high interest first
+      order = debts.slice().sort((a,b) => {
+        const ra = a.bungaUnit==='thn'?a.bunga/12:a.bunga;
+        const rb = b.bungaUnit==='thn'?b.bunga/12:b.bunga;
+        return rb - ra;
+      });
+    }
+
+    const steps = [];
+    let balance = totalDebt;
+    let monthIdx = 0;
+    const today = new Date(TODAY);
+
+    if (stratKey === 'consolidation') {
+      // Step 1: apply KTA
+      steps.push({ m:'M1', date:fmt(today), kind:'focus',
+        action:'Apply KTA Konsolidasi',
+        target: order.slice(0,3).map(d=>d.company.split(' ')[0]).join(', ')+(order.length>3?` +${order.length-3} lain`:''),
+        amount:'Apply', balance: _fmtS(balance), tag:'Refinance start' });
+      steps.push({ m:'M2', date:fmt(addMonths(today,1)), kind:'milestone',
+        action:'KTA disetujui & cair',
+        target:`Tenor estimasi ${Math.ceil(totalDebt*0.75/capacity)} bulan`,
+        amount:'Cair', balance: _fmtS(balance), tag:'Approved ✓' });
+      monthIdx = 2;
+    }
+
+    // Walk through debts in order
+    let remaining = [...order.map(d => ({...d, _sisa: d.sisa}))];
+    let mOffset = monthIdx;
+
+    remaining.forEach((d, i) => {
+      const focusPayment = capacity - (remaining.filter((_,j)=>j!==i).reduce((s,x)=>s+x.minPayment,0));
+      const monthsToPayoff = focusPayment > 0 ? Math.ceil(d._sisa / focusPayment) : 99;
+      mOffset += Math.max(1, monthsToPayoff);
+      balance = Math.max(0, balance - d._sisa);
+      const dt = addMonths(today, mOffset);
+      if (steps.length < 10) {
+        steps.push({
+          m:'M'+mOffset, date:fmt(dt), kind:'milestone',
+          action:`Lunas ${i===order.length-1?'BEBAS HUTANG':d.company+' '+d.product}`,
+          target: i===order.length-1 ? 'Semua hutang terlunasi!' : `Fokus ke ${remaining[i+1]? remaining[i+1].company : '—'}`,
+          amount: _fmtS(Math.round(capacity)),
+          balance: _fmtS(balance),
+          tag: i===order.length-1 ? '🎉 Selesai' : `Quick win #${i+1}`
+        });
+      }
+      if (steps.length < 10 && i===0) {
+        // Insert first focus step at M1/M2
+        steps.unshift({
+          m:'M'+(monthIdx+1), date:fmt(addMonths(today, monthIdx+1)), kind:'focus',
+          action: stratKey==='snowball' ? 'Lunasi saldo terkecil' : 'Fokus bunga tertinggi',
+          target: `${d.company} ${d.product}`,
+          amount: _fmtS(d.minPayment),
+          balance: _fmtS(balance + d._sisa),
+          tag: stratKey==='snowball' ? 'Saldo terkecil' : 'Bunga tertinggi'
+        });
+      }
+    });
+
+    // Sort by month number
+    steps.sort((a,b) => parseInt(a.m.slice(1))||0 - parseInt(b.m.slice(1))||0);
+    return steps.slice(0,10);
+  }
+
+  // Override renderRoadmap to use real data when available
+  const _origRenderRoadmap = renderRoadmap;
+  window.renderRoadmap = function(stratKey){
+    const debts = activeDebts();
+    if (debts.length > 0) {
+      const wrap = document.getElementById('roadmap-timeline');
+      if (!wrap) return;
+      const steps = buildRealRoadmap(stratKey);
+      if (steps.length === 0) { _origRenderRoadmap(stratKey); return; }
+      wrap.innerHTML = steps.map(step => `
+        <div class="roadmap-month is-${step.kind}">
+          <div class="rm-marker"></div>
+          <div class="rm-month">${step.m} · ${step.date}</div>
+          <div class="rm-action">${step.action}</div>
+          <div class="rm-target">${step.target}</div>
+          <div class="rm-amount">${step.amount}</div>
+          <div class="rm-balance">Saldo: ${step.balance}</div>
+          <span class="rm-tag">${step.tag}</span>
+        </div>
+      `).join('');
+    } else {
+      _origRenderRoadmap(stratKey);
+    }
+    // Update roadmap header labels with real computed metrics
+    const metrics = computeAdvisorMetrics(stratKey);
+    const mon = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const eta = new Date(TODAY);
+    eta.setMonth(eta.getMonth() + (metrics.monthsNum < 999 ? metrics.monthsNum : 0));
+    const etaStr = metrics.monthsNum < 999 ? (mon[eta.getMonth()]+' '+eta.getFullYear()) : '—';
+    const income = state.user.monthlyIncome || 0;
+    const minSum = activeDebts().reduce((s,d)=>s+d.minPayment,0);
+    const payPerMonth = Math.max(income*0.55, minSum*1.10);
+
+    const pl = document.getElementById('roadmap-period');
+    if (pl) pl.textContent = activeDebts().length ? (mon[TODAY.getMonth()]+' '+TODAY.getFullYear()+' → '+etaStr) : '—';
+    const ml = document.getElementById('roadmap-monthly');
+    if (ml) ml.textContent = payPerMonth > 0 ? _fmtS(Math.round(payPerMonth))+'/bln' : 'Rp —';
+  };
+  renderRoadmap = window.renderRoadmap;
+
+  // ────────────────────────────────────────────────────
+  // 7. AI INSIGHT headline & metrics — real data
+  // ────────────────────────────────────────────────────
+  const _origApplyStrategy = applyStrategy;
+  window.applyStrategy = function(stratKey){
+    _origApplyStrategy(stratKey);
+    // Override static metric boxes with real computed values
+    const metrics = computeAdvisorMetrics(stratKey);
+    const mon = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const eta = new Date(TODAY);
+    eta.setMonth(eta.getMonth() + (metrics.monthsNum < 999 ? metrics.monthsNum : 0));
+
+    const etaNumEl = document.getElementById('insight-eta-num');
+    if (etaNumEl) etaNumEl.textContent = metrics.monthsNum < 999 ? metrics.monthsNum : '—';
+    const etaDateEl = document.getElementById('insight-eta-date');
+    if (etaDateEl) etaDateEl.textContent = metrics.monthsNum < 999 ? (mon[eta.getMonth()]+' '+eta.getFullYear()) : '—';
+    const etaBarEl = document.getElementById('insight-eta-bar');
+    if (etaBarEl) {
+      // Bar = inverse of months (fewer months = fuller bar)
+      const maxMonth = 60;
+      const pct = metrics.monthsNum < 999 ? Math.max(5, 100 - (metrics.monthsNum/maxMonth*100)) : 5;
+      etaBarEl.style.width = pct.toFixed(1)+'%';
+    }
+
+    const interestEl = document.getElementById('insight-interest');
+    if (interestEl) {
+      // Rough total interest = monthly interest * months
+      const bungaBulan = activeDebts().reduce((s,d)=>s+bungaPeriode(d),0);
+      const totalInt = bungaBulan * (metrics.monthsNum < 999 ? metrics.monthsNum/2 : 0);
+      interestEl.textContent = activeDebts().length ? _fmtS(Math.round(totalInt)) : '—';
+    }
+    const savingsEl = document.getElementById('insight-savings');
+    if (savingsEl) savingsEl.textContent = metrics.savingsNum > 0 ? 'hemat '+_fmtS(Math.round(metrics.savingsNum)) : '—';
+
+    // Headline with real months
+    const headline = document.getElementById('insight-headline');
+    const sName = document.getElementById('insight-strategy-name');
+    if (headline && metrics.monthsNum < 999 && activeDebts().length) {
+      const stratNames = {snowball:'Snowball',avalanche:'Avalanche',consolidation:'Consolidation'};
+      const colors = {snowball:'text-accent-mint',avalanche:'text-accent-lime',consolidation:'text-accent-violet'};
+      headline.innerHTML = `Anda <span class="grad-text">${metrics.monthsNum} bulan</span> menuju bebas hutang jika strategi <span class="${colors[stratKey]||'text-accent-lime'}">${stratNames[stratKey]||stratKey}</span> diterapkan mulai bulan ini.`;
+    }
+
+    // Risk score from real DTI
+    const riskNum = document.getElementById('insight-risk-num');
+    const riskBar = document.getElementById('insight-risk-bar');
+    const riskPill = document.getElementById('insight-risk-pill');
+    const income = state.user.monthlyIncome || 0;
+    const minSum = activeDebts().reduce((s,d)=>s+d.minPayment,0);
+    const dti = income ? minSum/income : 0;
+    const riskScore = Math.min(100, Math.round(dti*200));
+    if (riskNum && activeDebts().length) riskNum.innerHTML = riskScore+'<span class="mono text-base text-ink-400">/100</span>';
+    if (riskBar && activeDebts().length) {
+      riskBar.style.width = riskScore+'%';
+      riskBar.style.background = riskScore<40?'#0891B2':riskScore<70?'#D97706':'#DC2626';
+    }
+    if (riskPill && activeDebts().length) {
+      const rl = riskScore<40?'LOW':riskScore<70?'MEDIUM':'HIGH';
+      const rc = riskScore<40?'pill-active':riskScore<70?'pill-warn':'pill-danger';
+      riskPill.textContent = rl;
+      riskPill.className = 'pill text-[10px] '+rc;
+    }
+
+    // Sync description with real debt count
+    const descEl = document.getElementById('insight-description');
+    if (descEl && activeDebts().length) {
+      const payStr = income > 0 ? _fmtS(Math.round(Math.max(income*0.55, minSum*1.10)))+'/bln' : 'minimum payment';
+      const stratDescs = {
+        snowball: `<strong class="text-ink-200">Snowball</strong> · Lunasi hutang dengan saldo terkecil terlebih dahulu untuk membangun momentum & dorongan psikologis. Cocok jika butuh motivasi visual. Analisis dari ${activeDebts().length} hutang aktif & cashflow ${payStr}.`,
+        avalanche: `<strong class="text-ink-200">Avalanche</strong> · Lunasi hutang dengan suku bunga tertinggi terlebih dahulu — secara matematis paling hemat untuk total bunga. Analisis berdasarkan ${activeDebts().length} hutang aktif & estimasi cashflow ${payStr}.`,
+        consolidation: `<strong class="text-ink-200">Consolidation</strong> · Refinance hutang bunga tinggi ke <strong class="text-accent-violet">satu KTA bunga rendah</strong>. Cicilan terstruktur, lebih ringan, dan hemat bunga. Analisis dari ${activeDebts().length} hutang aktif & cashflow yang lebih ringan.`,
+      };
+      if (stratDescs[stratKey]) descEl.innerHTML = stratDescs[stratKey];
+    }
+
+    // Update all other panels
+    renderPaymentPriority();
+    renderRiskAnalysis();
+    renderStrategyEngineCards();
+    renderWarningStatus();
+    renderFinancialInsight();
+    // Rebuild projection chart with real base
+    if (chartProjectionRef) { chartProjectionRef.destroy(); chartProjectionRef = null; }
+    buildChartProjection();
+  };
+  applyStrategy = window.applyStrategy;
+
+  // ────────────────────────────────────────────────────
+  // 8. Patch renderAll to call all new renders
+  // ────────────────────────────────────────────────────
+  const _origRenderAllFinal = renderAll;
+  renderAll = function(){
+    _origRenderAllFinal();
+    renderWarningStatus();
+    renderFinancialInsight();
+    renderPaymentPriority();
+    renderRiskAnalysis();
+    renderStrategyEngineCards();
+    // Rebuild projection chart whenever data changes
+    if (typeof buildChartProjection === 'function'){
+      if (chartProjectionRef){ try{ chartProjectionRef.destroy(); }catch(e){} chartProjectionRef = null; }
+      buildChartProjection();
+    }
+    // Re-apply current strategy metrics
+    if (typeof applyStrategy === 'function'){
+      applyStrategy(window.currentStrategy || currentStrategy || 'avalanche');
+    }
+  };
+  window.renderAll = renderAll;
+
+  // Initial paint of all new panels
+  renderWarningStatus();
+  renderFinancialInsight();
+  renderPaymentPriority();
+  renderRiskAnalysis();
+  renderStrategyEngineCards();
 
   // Expose for debugging
   window.DEBTFREE = { state, renderAll, confirmPayment, confirmAddDebt };
