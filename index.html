@@ -3819,8 +3819,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="mt-4 p-3 rounded-md bg-accent-lime/5 border border-accent-lime/15 flex items-center gap-3">
               <i data-lucide="calculator" class="w-4 h-4 text-accent-lime"></i>
               <div class="text-xs flex-1">
-                <span class="text-ink-300">Total biaya akan dihitung otomatis ke</span>
-                <span class="text-ink-100 font-medium">nominal hutang berjalan</span>
+                <span class="text-ink-300">Biaya bisa</span>
+                <span class="text-ink-100 font-medium">ditambahkan ke hutang</span>
+                <span class="text-ink-300">atau</span>
+                <span class="text-ink-100 font-medium">dipotong dari pencairan awal</span>
               </div>
               <div id="preview-fee-total" class="mono text-sm text-accent-lime">+ Rp 0</div>
             </div>
@@ -3990,8 +3992,16 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 <span id="preview-nominal" class="mono text-sm"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">50.000.000</span></span></span>
               </div>
               <div class="flex justify-between items-baseline">
-                <span class="text-xs text-ink-300">+ Biaya Komponen</span>
+                <span class="text-xs text-ink-300">+ Biaya ke Hutang</span>
                 <span id="preview-biaya" class="mono text-sm text-accent-amber"><span class="cur"><span class="cur-sign">+</span><span class="cur-rp">Rp</span><span class="cur-amt">650.000</span></span></span>
+              </div>
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs text-ink-300">− Dipotong di Awal</span>
+                <span id="preview-fee-deducted" class="mono text-sm text-accent-coral"><span class="cur"><span class="cur-sign">−</span><span class="cur-rp">Rp</span><span class="cur-amt">0</span></span></span>
+              </div>
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs text-ink-300">Nominal Diterima</span>
+                <span id="preview-net-disbursed" class="mono text-sm text-accent-mint"><span class="cur"><span class="cur-sign"></span><span class="cur-rp">Rp</span><span class="cur-amt">50.000.000</span></span></span>
               </div>
               <div class="flex justify-between items-baseline">
                 <span id="preview-bunga-days" class="text-xs text-ink-300">+ Biaya Bunga Berjalan</span>
@@ -5217,9 +5227,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="w-9 h-9 rounded-md bg-emerald-50 flex items-center justify-center"><i data-lucide="message-circle" class="w-4 h-4 text-emerald-600"></i></div>
             <div class="min-w-0"><div class="text-sm font-medium">Live Chat</div><div class="text-[11px] text-ink-400">Senin–Sabtu 8–22 WIB</div></div>
           </a>
-          <a href="mailto:support@debtfree.id?subject=Bantuan%20DEBT%20FREE&body=Halo%20tim%20support%2C%0A%0ASaya%20butuh%20bantuan%20terkait%3A%20" id="bantuan-email" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
+          <a href="/cdn-cgi/l/email-protection#c5b6b0b5b5aab7b185a1a0a7b1a3b7a0a0ebaca1fab6b0a7afa0a6b1f887a4abb1b0a4abe0f7f581808791e0f7f583978080e3a7aaa1bcf88da4a9aae0f7f5b1aca8e0f7f5b6b0b5b5aab7b1e0f786e0f584e0f58496a4bca4e0f7f5a7b0b1b0ade0f7f5a7a4abb1b0a4abe0f7f5b1a0b7aea4acb1e0f684e0f7f5" id="bantuan-email" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
             <div class="w-9 h-9 rounded-md bg-blue-50 flex items-center justify-center"><i data-lucide="mail" class="w-4 h-4 text-blue-600"></i></div>
-            <div class="min-w-0"><div class="text-sm font-medium">Email</div><div class="text-[11px] text-ink-400 truncate">support@debtfree.id</div></div>
+            <div class="min-w-0"><div class="text-sm font-medium">Email</div><div class="text-[11px] text-ink-400 truncate"><span class="__cf_email__" data-cfemail="d1a2a4a1a1bea3a591b5b4b3a5b7a3b4b4ffb8b5">[email&#160;protected]</span></div></div>
           </a>
           <a href="tel:+62211500DEBT" id="bantuan-phone" class="flex items-center gap-3 p-3 rounded-md row-hover border border-ink-700/20">
             <div class="w-9 h-9 rounded-md bg-amber-50 flex items-center justify-center"><i data-lucide="phone" class="w-4 h-4 text-amber-600"></i></div>
@@ -5459,7 +5469,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
 
 <!-- ─────────────────────────  JAVASCRIPT  ───────────────────────── -->
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   /* ═════════════════════════════════════════════════════════════════
      DEBT FREE — State-driven engine
      Single source of truth: state.debts / state.payments / state.transactions
@@ -5515,6 +5525,62 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function fmtDateID(d){ return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
   function fmtDateShort(d){ return `${d.getDate()} ${months[d.getMonth()]}`; }
   function parseIDR(s){ return parseInt(String(s).replace(/\D/g,'') || '0', 10); }
+
+  // Build monthly day options dynamically so every account can use any billing date (1–31).
+  // For months that do not have the selected date (e.g. 31 February), calculations clamp to the last day of that month.
+  function clampMonthlyDay(year, monthIndex, day){
+    const maxDay = new Date(year, monthIndex + 1, 0).getDate();
+    const n = Math.max(1, Math.min(31, parseInt(day, 10) || 1));
+    return Math.min(n, maxDay);
+  }
+  function getMonthlyDueDate(day, refDate){
+    const base = refDate ? new Date(refDate) : new Date(TODAY);
+    let y = base.getFullYear();
+    let m = base.getMonth();
+    let due = new Date(y, m, clampMonthlyDay(y, m, day));
+    if (due < base){
+      m += 1;
+      if (m > 11){ m = 0; y += 1; }
+      due = new Date(y, m, clampMonthlyDay(y, m, day));
+    }
+    return due;
+  }
+  function setDayOptions(select, selectedDay){
+    if (!select) return;
+    const current = selectedDay || parseInt(select.value, 10) || 1;
+    select.innerHTML = Array.from({ length: 31 }, (_, i) => {
+      const day = i + 1;
+      return `<option value="${day}">Tanggal ${day}</option>`;
+    }).join('');
+    select.value = String(Math.max(1, Math.min(31, parseInt(current, 10) || 1)));
+  }
+  function initDaySelectOptions(){
+    const f = document.getElementById('add-form');
+    setDayOptions(f?.querySelector('[name="cetakStatementDay"]'), 5);
+    setDayOptions(f?.querySelector('[name="dueDayOfMonth"]'), 10);
+    setDayOptions(document.getElementById('edit-detail-cetak'), 5);
+  }
+  function parsePercentValue(s){
+    const raw = String(s || '').trim();
+    if (!raw) return 0;
+    // Indonesian decimal comma: 2,5 => 2.5. Dot remains usable as decimal: 2.5 => 2.5.
+    if (raw.includes(',')) return parseFloat(raw.replace(/\./g, '').replace(',', '.')) || 0;
+    return parseFloat(raw.replace(/[^0-9.]/g, '')) || 0;
+  }
+  function getFeeBreakdown(nominal){
+    const result = { added: 0, deducted: 0, total: 0 };
+    document.querySelectorAll('#fee-list .fee-row').forEach(row => {
+      const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
+      const raw = row.querySelector('[name="feeAmount"]')?.value || '';
+      const baseValue = unit === '%' ? parsePercentValue(raw) : parseIDR(raw);
+      const amount = unit === '%' ? Math.round((nominal || 0) * baseValue / 100) : baseValue;
+      const treatment = row.querySelector('[name="feeTreatment"]')?.value || 'add';
+      if (treatment === 'deduct') result.deducted += amount;
+      else result.added += amount;
+      result.total += amount;
+    });
+    return result;
+  }
   function diffDays(a,b){ return Math.round((a - b) / (1000*60*60*24)); }
   function uid(p='id'){ return p + '_' + Math.random().toString(36).slice(2,9); }
 
@@ -5709,6 +5775,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (!d) return d;
     d.method = getMethod(d);
     d.isCC = (d.method === 'revolving'); // keep legacy field in sync
+    if (typeof d.biayaAdded !== 'number') d.biayaAdded = d.biaya || 0;
+    if (typeof d.biayaDeducted !== 'number') d.biayaDeducted = 0;
+    if (typeof d.nominalDiterima !== 'number') d.nominalDiterima = Math.max(0, (d.nominalAwal || 0) - (d.biayaDeducted || 0));
     if (d.method === 'installment'){
       if (typeof d.installmentAmount !== 'number' || d.installmentAmount <= 0){
         d.installmentAmount = d.minPayment || Math.round((d.nominalAwal || 0) / 24) || 0;
@@ -5894,9 +5963,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         if (d.isCC && d.dueDate) return parseKey(d.dueDate).getTime();
         // non-CC: compute next occurrence of dueDayOfMonth
         const day = d.dueDayOfMonth || 1;
-        const today = new Date(TODAY);
-        let next = new Date(today.getFullYear(), today.getMonth(), day);
-        if (next < today) next = new Date(today.getFullYear(), today.getMonth()+1, day);
+        const next = getMonthlyDueDate(day, TODAY);
         return next.getTime();
       }
       case 'status': {
@@ -6558,9 +6625,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (edLimitLbl) edLimitLbl.textContent = isRevolving(d) ? 'Limit Kartu' : 'Plafon';
     const edCetak = document.getElementById('edit-detail-cetak');
     if (edCetak && isRevolving(d) && d.cetakStatementDay){
-      const opts = Array.from(edCetak.options).map(o => parseInt(o.value, 10));
-      const closest = opts.reduce((a,b) => Math.abs(b-d.cetakStatementDay) < Math.abs(a-d.cetakStatementDay) ? b : a, opts[0]);
-      edCetak.value = String(closest);
+      setDayOptions(edCetak, d.cetakStatementDay);
     }
   }
 
@@ -7191,14 +7256,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const colorMap = { 'Kartu Kredit':'coral', 'KTA':'mint', 'KPR':'amber', 'Paylater':'violet', 'Pinjaman Online':'ink', 'Pinjaman':'violet', 'Gadai':'amber' };
     const logoColor = colorMap[category] || 'ink';
 
-    // Compute biaya from fee list
-    let biaya = 0;
-    document.querySelectorAll('#fee-list .fee-row').forEach(row => {
-      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value);
-      const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
-      if (unit === '%') biaya += Math.round(nominal * v / 100);
-      else biaya += v;
-    });
+    // Compute biaya from fee list.
+    // added   = biaya yang menambah hutang berjalan
+    // deducted= biaya dipotong saat pencairan, sehingga nominal diterima berkurang tetapi sisa hutang tidak bertambah
+    const feeInfo = getFeeBreakdown(nominal);
+    const biaya = feeInfo.total;
+    const biayaAdded = feeInfo.added;
+    const biayaDeducted = feeInfo.deducted;
+    const nominalDiterima = Math.max(0, nominal - biayaDeducted);
 
     // Build the debt object based on method
     let newDebt;
@@ -7212,7 +7277,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         dueKey = fmtKey(due);
       }
       const dueDate = parseKey(dueKey);
-      const stmt = statement || nominal;
+      const stmt = statement || (nominal + biayaAdded);
       newDebt = {
         id, logo, logoColor, company, product: productLabel, accountNo,
         category, isCC: true, method: 'revolving',
@@ -7220,7 +7285,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         statement: stmt,
         sisa: stmt, // for revolving, sisa starts at statement amount
         limit: limitVal > 0 ? limitVal : nominal,
-        bunga, bungaUnit, biaya,
+        bunga, bungaUnit, biaya, biayaAdded, biayaDeducted, nominalDiterima,
         minPayment: Math.round(stmt * 0.10),
         cetakStatementDay: cetakDay,
         startDate,
@@ -7230,11 +7295,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       };
     } else {
       // Installment
-      const sisa = sisaInstallment > 0 ? sisaInstallment : nominal;
-      // Build dueDate: next occurrence of dueDayOfMonth
-      const today = new Date(TODAY);
-      let nextDue = new Date(today.getFullYear(), today.getMonth(), dueDayOfMonth);
-      if (nextDue < today) nextDue = new Date(today.getFullYear(), today.getMonth()+1, dueDayOfMonth);
+      const sisa = sisaInstallment > 0 ? sisaInstallment : (nominal + biayaAdded);
+      // Build dueDate: next occurrence of dueDayOfMonth (clamped to end-of-month when needed)
+      const nextDue = getMonthlyDueDate(dueDayOfMonth, TODAY);
       newDebt = {
         id, logo, logoColor, company, product: productLabel, accountNo,
         category, isCC: false, method: 'installment',
@@ -7242,7 +7305,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         statement: null,
         sisa,
         limit: nominal,
-        bunga, bungaUnit, biaya,
+        bunga, bungaUnit, biaya, biayaAdded, biayaDeducted, nominalDiterima,
         minPayment: installmentAmount,
         installmentAmount,
         tenorMonths,
@@ -7257,6 +7320,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (typeof window.__pvwTrackAction === 'function') window.__pvwTrackAction();
     flash(`✓ Hutang ${company} (${method === 'revolving' ? 'Revolving' : 'Cicilan Tetap'}) berhasil ditambahkan.`);
     f.reset();
+    setDayOptions(f.querySelector('[name="cetakStatementDay"]'), 5);
+    setDayOptions(f.querySelector('[name="dueDayOfMonth"]'), 10);
     // Reset fee list
     const feeList = document.getElementById('fee-list');
     if (feeList) feeList.innerHTML = '';
@@ -7303,14 +7368,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       if (tenorMonths <= 0){ flash('⚠ Tenor (jumlah bulan) wajib diisi.'); return; }
     }
 
-    // Compute biaya from fee list
-    let biaya = 0;
-    document.querySelectorAll('#fee-list .fee-row').forEach(row => {
-      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value);
-      const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
-      if (unit === '%') biaya += Math.round(nominal * v / 100);
-      else biaya += v;
-    });
+    // Compute biaya from fee list.
+    // added   = biaya yang menambah hutang berjalan
+    // deducted= biaya dipotong saat pencairan, sehingga nominal diterima berkurang tetapi sisa hutang tidak bertambah
+    const feeInfo = getFeeBreakdown(nominal);
+    const biaya = feeInfo.total;
+    const biayaAdded = feeInfo.added;
+    const biayaDeducted = feeInfo.deducted;
+    const nominalDiterima = Math.max(0, nominal - biayaDeducted);
 
     // Apply all changes — preserve id, status, history; update everything else.
     d.company = company;
@@ -7322,6 +7387,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     d.bungaUnit = bungaUnit;
     d.startDate = startDate;
     d.biaya = biaya;
+    d.biayaAdded = biayaAdded;
+    d.biayaDeducted = biayaDeducted;
+    d.nominalDiterima = nominalDiterima;
     // Re-derive logo
     d.logo = (company.split(' ')[1] || company).slice(0,3).toUpperCase();
     const colorMap = { 'Kartu Kredit':'coral', 'KTA':'mint', 'KPR':'amber', 'Paylater':'violet', 'Pinjaman Online':'ink', 'Pinjaman':'violet', 'Gadai':'amber' };
@@ -7330,7 +7398,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (method === 'revolving'){
       d.method = 'revolving';
       d.isCC = true;
-      d.statement = statement > 0 ? statement : (d.statement || nominal);
+      d.statement = statement > 0 ? statement : (d.statement || nominal + biayaAdded);
       d.limit = limitVal > 0 ? limitVal : (d.limit || nominal);
       d.cetakStatementDay = cetakDay;
       d.minPayment = Math.round((d.statement || 0) * 0.10);
@@ -7347,15 +7415,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       d.installmentAmount = installmentAmount;
       d.tenorMonths = tenorMonths;
       d.minPayment = installmentAmount;
-      d.sisa = sisaInstallment > 0 ? sisaInstallment : (d.sisa || nominal);
+      d.sisa = sisaInstallment > 0 ? sisaInstallment : (d.sisa || nominal + biayaAdded);
       d.dueDayOfMonth = dueDayOfMonth;
       d.statement = null;
       // Clean up revolving-only fields
       delete d.cetakStatementDay;
-      // Recompute next due date based on dueDayOfMonth
-      const today = new Date(TODAY);
-      let nextDue = new Date(today.getFullYear(), today.getMonth(), dueDayOfMonth);
-      if (nextDue < today) nextDue = new Date(today.getFullYear(), today.getMonth()+1, dueDayOfMonth);
+      // Recompute next due date based on dueDayOfMonth (clamped to end-of-month when needed)
+      const nextDue = getMonthlyDueDate(dueDayOfMonth, TODAY);
       d.dueDate = fmtKey(nextDue);
     }
     normalizeDebt(d);
@@ -7512,40 +7578,48 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const row = document.createElement('div');
     row.className = 'fee-row grid grid-cols-12 gap-2 items-center';
     row.innerHTML = `
-      <select name="feeType" class="input-field col-span-4 px-3 py-2 rounded-md text-sm">
+      <select name="feeType" class="input-field col-span-3 px-3 py-2 rounded-md text-sm" title="Jenis biaya">
         <option>Biaya Admin</option>
+        <option>Biaya Provisi</option>
         <option>Biaya Tahunan</option>
         <option>Denda</option>
         <option>Materai</option>
         <option>Asuransi</option>
+        <option>Lainnya</option>
       </select>
-      <select name="feeUnit" class="input-field col-span-2 px-3 py-2 rounded-md text-sm">
+      <select name="feeUnit" class="input-field col-span-2 px-3 py-2 rounded-md text-sm" title="Satuan biaya">
         <option>Rp</option>
         <option>%</option>
       </select>
-      <input name="feeAmount" class="input-field col-span-5 px-3 py-2 rounded-md text-sm mono" value="${opts?.amount || ''}" placeholder="Nominal">
+      <select name="feeTreatment" class="input-field col-span-3 px-3 py-2 rounded-md text-sm" title="Perlakuan biaya">
+        <option value="add">Tambah ke hutang</option>
+        <option value="deduct">Potong di awal</option>
+      </select>
+      <input name="feeAmount" class="input-field col-span-3 px-3 py-2 rounded-md text-sm mono" value="${opts?.amount || ''}" placeholder="Nominal">
       <button type="button" class="col-span-1 text-ink-400 hover:text-accent-coral flex justify-center remove-fee">
         <i data-lucide="trash-2" class="w-4 h-4"></i>
       </button>`;
     list.appendChild(row);
+    if (opts?.type) row.querySelector('[name="feeType"]').value = opts.type;
+    if (opts?.unit) row.querySelector('[name="feeUnit"]').value = opts.unit;
+    if (opts?.treatment) row.querySelector('[name="feeTreatment"]').value = opts.treatment;
     lucide.createIcons();
     row.querySelector('.remove-fee').addEventListener('click', () => {
       row.remove();
       renderAddFormPreview();
     });
     row.querySelectorAll('input,select').forEach(el => el.addEventListener('input', renderAddFormPreview));
+    renderAddFormPreview();
   }
 
   function renderAddFormPreview(){
     const f = document.getElementById('add-form');
     if (!f) return;
     const nominal = parseIDR(f.querySelector('[name="nominalAwal"]')?.value) || 0;
-    let biaya = 0;
-    document.querySelectorAll('#fee-list .fee-row').forEach(row => {
-      const v = parseIDR(row.querySelector('[name="feeAmount"]')?.value) || 0;
-      const unit = row.querySelector('[name="feeUnit"]')?.value || 'Rp';
-      biaya += unit === '%' ? Math.round(nominal * v / 100) : v;
-    });
+    const feeInfo = getFeeBreakdown(nominal);
+    const biaya = feeInfo.added;
+    const biayaPotongAwal = feeInfo.deducted;
+    const nominalDiterima = Math.max(0, nominal - biayaPotongAwal);
     const startDate = f.querySelector('[name="startDate"]')?.value || fmtKey(TODAY);
     const bunga = parseFloat(f.querySelector('[name="bunga"]')?.value || '0') || 0;
     const bungaUnit = f.querySelector('[name="bungaUnit"]')?.value || 'bln';
@@ -7559,10 +7633,12 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     }
     setHTML('preview-nominal', fmtIDRc(nominal));
     setHTML('preview-biaya', fmtIDRc(biaya, {sign:'+'}));
+    setHTML('preview-fee-deducted', fmtIDRc(biayaPotongAwal, {sign:'−'}));
+    setHTML('preview-net-disbursed', fmtIDRc(nominalDiterima));
     setHTML('preview-bunga', fmtIDRc(bungaBerjalan, {sign:'+'}));
     setText('preview-bunga-days', `+ Biaya Bunga Berjalan (${days} hari)`);
     setHTML('preview-current', fmtIDRc(nominal + biaya + bungaBerjalan));
-    setText('preview-fee-total', '+ ' + fmtIDR(biaya));
+    setText('preview-fee-total', `+ ${fmtIDR(biaya)} · potong ${fmtIDR(biayaPotongAwal)}`);
 
     // Installment summary preview (only meaningful when installment method active)
     const method = f.querySelector('[name="method"]')?.value || 'revolving';
@@ -7673,6 +7749,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const f = document.getElementById('add-form');
     if (!f) return;
     f.reset();
+    setDayOptions(f.querySelector('[name="cetakStatementDay"]'), 5);
+    setDayOptions(f.querySelector('[name="dueDayOfMonth"]'), 10);
     const feeList = document.getElementById('fee-list');
     if (feeList) feeList.innerHTML = '';
     addFeeRow();
@@ -7711,34 +7789,24 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       f.querySelector('[name="limit"]').value = (d.limit || 0).toLocaleString('id-ID');
       const csd = d.cetakStatementDay || 5;
       const csdSel = f.querySelector('[name="cetakStatementDay"]');
-      if (csdSel){
-        // Pick closest matching option
-        const opts = Array.from(csdSel.options).map(o => parseInt(o.value, 10));
-        const closest = opts.reduce((a,b) => Math.abs(b-csd) < Math.abs(a-csd) ? b : a, opts[0]);
-        csdSel.value = String(closest);
-      }
+      if (csdSel) setDayOptions(csdSel, csd);
       if (d.dueDate) f.querySelector('[name="dueDate"]').value = d.dueDate;
     } else {
       f.querySelector('[name="installmentAmount"]').value = (d.installmentAmount || d.minPayment || 0).toLocaleString('id-ID');
       f.querySelector('[name="tenorMonths"]').value = d.tenorMonths || 24;
       const ddSel = f.querySelector('[name="dueDayOfMonth"]');
-      if (ddSel){
-        const dd = d.dueDayOfMonth || 10;
-        const opts = Array.from(ddSel.options).map(o => parseInt(o.value, 10));
-        const closest = opts.reduce((a,b) => Math.abs(b-dd) < Math.abs(a-dd) ? b : a, opts[0]);
-        ddSel.value = String(closest);
-      }
+      if (ddSel) setDayOptions(ddSel, d.dueDayOfMonth || 10);
       f.querySelector('[name="sisaInstallment"]').value = (d.sisa || 0).toLocaleString('id-ID');
     }
-    // Repopulate fee list — single row with current biaya
+    // Repopulate fee list. Older debts only have d.biaya, so treat it as "Tambah ke hutang".
     const feeList = document.getElementById('fee-list');
     if (feeList){
       feeList.innerHTML = '';
-      if ((d.biaya || 0) > 0){
-        addFeeRow({ amount: (d.biaya || 0).toLocaleString('id-ID') });
-      } else {
-        addFeeRow();
-      }
+      const added = (typeof d.biayaAdded === 'number') ? d.biayaAdded : (d.biaya || 0);
+      const deducted = (typeof d.biayaDeducted === 'number') ? d.biayaDeducted : 0;
+      if (added > 0) addFeeRow({ amount: added.toLocaleString('id-ID'), treatment:'add' });
+      if (deducted > 0) addFeeRow({ type:'Biaya Provisi', amount: deducted.toLocaleString('id-ID'), treatment:'deduct' });
+      if (added <= 0 && deducted <= 0) addFeeRow();
     }
     renderAddFormPreview();
   }
@@ -8527,7 +8595,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       }
     });
 
-    // Initialize: ensure default mode and method are set, fee row exists
+    // Initialize: ensure day dropdowns, default mode and method are set, fee row exists
+    initDaySelectOptions();
     setInputManualMethod('revolving');
     setInputManualMode('new');
     if (!document.querySelector('#fee-list .fee-row')) addFeeRow();
@@ -8842,10 +8911,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   function _nextDueLabel(d){
     const today = new Date();
     const day = d.dueDayOfMonth || 1;
-    let due = new Date(today.getFullYear(), today.getMonth(), day);
-    if (due < today) due = new Date(today.getFullYear(), today.getMonth() + 1, day);
+    const due = getMonthlyDueDate(day, today);
     const mon = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-    return day + ' ' + mon[due.getMonth()];
+    return due.getDate() + ' ' + mon[due.getMonth()];
   }
   function _fmtRate(d){
     const v = d.bunga.toFixed(2).replace(/\.?0+$/,'').replace('.', ',');
@@ -12365,5 +12433,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
 </script>
 
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
