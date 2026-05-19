@@ -5479,7 +5479,44 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   lucide.createIcons();
 
   // ───── Helpers ─────
-  const TODAY = new Date('2026-05-19'); // demo "today" — updated to current date
+  // App date is pinned to Indonesia time (WIB) so hosting/server timezone
+  // cannot make "hari ini" fall back to yesterday (e.g. 20 detected as 19).
+  const APP_TIMEZONE = 'Asia/Jakarta';
+  function appDateParts(date = new Date()){
+    try {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: APP_TIMEZONE,
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(date);
+      const pick = t => Number((parts.find(p => p.type === t) || {}).value);
+      return { year: pick('year'), month: pick('month'), day: pick('day') };
+    } catch(e){
+      const d = new Date(date);
+      return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+    }
+  }
+  function todayInAppTimezone(){
+    const p = appDateParts();
+    return new Date(p.year, p.month - 1, p.day);
+  }
+  function appTimeString(){
+    try {
+      return new Intl.DateTimeFormat('id-ID', {
+        timeZone: APP_TIMEZONE,
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+      }).format(new Date());
+    } catch(e){ return appTimeString(); }
+  }
+  function appDateTimeString(){
+    try {
+      return new Intl.DateTimeFormat('id-ID', {
+        timeZone: APP_TIMEZONE,
+        year: 'numeric', month: 'long', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+      }).format(new Date());
+    } catch(e){ return appDateTimeString(); }
+  }
+  let TODAY = todayInAppTimezone(); // real today in WIB
   const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const monthsFull = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const daysShort = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -5700,12 +5737,33 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     inputManualEditId: null, // id of debt currently being edited via Input Manual (full edit)
     calMode: 'week',
     calRefDate: new Date(TODAY),
-    calSelected: '2026-05-19',
+    calSelected: fmtKey(TODAY),
     currencyDisplay: 'rp', // 'rp' | 'idr' | 'rupiah' | 'plain'
     dashSort: { key: null, dir: null }, // dir: 'asc'|'desc'|null
     demoLoaded: false,
     allowEmptySync: false, // becomes true only when user explicitly clears data
   };
+
+
+  // Keep long-running/open tabs aligned when the date changes at midnight WIB.
+  function refreshTodayReference(opts){
+    opts = opts || {};
+    const oldKey = fmtKey(TODAY);
+    const fresh = todayInAppTimezone();
+    const newKey = fmtKey(fresh);
+    if (opts.force || newKey !== oldKey){
+      TODAY = fresh;
+      if (opts.force || state.calSelected === oldKey) state.calSelected = newKey;
+      if (opts.force || !state.calRefDate || fmtKey(state.calRefDate) === oldKey) state.calRefDate = new Date(TODAY);
+      return true;
+    }
+    return false;
+  }
+  setInterval(() => {
+    if (refreshTodayReference()){
+      try { if (typeof renderAll === 'function') renderAll(); } catch(e){}
+    }
+  }, 60 * 1000);
 
   // ───── Demo data load / clear ─────
   function loadDemoData(){
@@ -8981,7 +9039,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     return 'Rp ' + Math.round(n).toLocaleString('id-ID');
   }
   function _nextDueLabel(d){
-    const today = new Date();
+    const today = new Date(TODAY);
     const day = d.dueDayOfMonth || 1;
     const due = getMonthlyDueDate(day, today);
     const mon = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -9777,6 +9835,22 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   // Without config → falls back to localStorage on this device only.
   // With config → real authentication + cross-device sync via Firestore.
 
+  function getSyncClientId(){
+    const key = 'df_sync_client_id';
+    try {
+      let id = localStorage.getItem(key);
+      if (!id){
+        id = (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : ('client_' + Date.now() + '_' + Math.random().toString(36).slice(2));
+        localStorage.setItem(key, id);
+      }
+      return id;
+    } catch(e){
+      return 'client_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    }
+  }
+
   const AUTH = {
     user: null,                 // { uid, email, displayName, photoURL } when logged in
     firebaseApp: null,
@@ -9786,6 +9860,10 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     config: null,
     isConnected: false,
     remoteLoading: false,       // true while fetching cloud data on login (blocks accidental empty overwrite)
+    clientId: getSyncClientId(), // stable per browser/device; lets us ignore our own Firestore echoes
+    lastRemoteUpdatedAt: 0,
+    pendingRemoteSnapshot: null,
+    remoteSavePromise: null,
   };
   window.AUTH = AUTH;
   if (typeof refreshDemoButton === 'function') refreshDemoButton();
@@ -9888,34 +9966,46 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     return v;
   }
   async function saveStateRemote(){
-    if (!AUTH.db || !AUTH.user) return;
-    // Don't write while a remote load is in progress (login) — prevents the
-    // empty default state from clobbering the user's real cloud data.
-    if (AUTH.remoteLoading) return;
+    if (!AUTH.db || !AUTH.user) return false;
+    // Don't write while a remote load is in progress (login / incoming snapshot) — prevents
+    // older local state from clobbering the user's real cloud data.
+    if (AUTH.remoteLoading) return false;
     // Never silently overwrite the cloud with a completely empty portfolio
     // unless the user explicitly cleared their data.
-    if ((!state.debts || state.debts.length === 0) && !state.allowEmptySync) return;
-    try {
+    if ((!state.debts || state.debts.length === 0) && !state.allowEmptySync) return false;
+
+    // Queue the latest snapshot. If multiple renderAll() calls happen quickly,
+    // only the newest data is written after the current Firestore write finishes.
+    AUTH.pendingRemoteSnapshot = sanitizeForFirestore({
+      debts: state.debts || [],
+      payments: state.payments || [],
+      transactions: state.transactions || [],
+      user: state.user || {},
+      currencyDisplay: state.currencyDisplay,
+      nextDebtId: state.nextDebtId,
+      allowEmptySync: !!state.allowEmptySync,
+      updatedAt: Date.now(),
+      syncClientId: AUTH.clientId,
+    });
+
+    if (AUTH.remoteSavePromise) return AUTH.remoteSavePromise;
+
+    AUTH.remoteSavePromise = (async () => {
       const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
       const ref = doc(AUTH.db, 'users', AUTH.user.uid);
-      const snapshot = sanitizeForFirestore({
-        debts: state.debts,
-        payments: state.payments,
-        transactions: state.transactions,
-        user: state.user,
-        currencyDisplay: state.currencyDisplay,
-        nextDebtId: state.nextDebtId,
-        updatedAt: Date.now(),
-      });
-      await setDoc(ref, snapshot, { merge: true });
-      updateSyncBadge('connected', '✓ Tersinkron · ' + new Date().toLocaleTimeString('id-ID'));
-    } catch(e){
+
+      while (AUTH.pendingRemoteSnapshot){
+        const snapshot = AUTH.pendingRemoteSnapshot;
+        AUTH.pendingRemoteSnapshot = null;
+        await setDoc(ref, snapshot, { merge: true });
+        AUTH.lastRemoteUpdatedAt = Math.max(AUTH.lastRemoteUpdatedAt || 0, snapshot.updatedAt || 0);
+      }
+      updateSyncBadge('connected', '✓ Tersinkron realtime · ' + appTimeString());
+      return true;
+    })().catch(e => {
       console.error('Remote save failed', e);
       const code = (e && (e.code || e.name)) || 'unknown';
-      const msg  = (e && e.message) || String(e);
       updateSyncBadge('local', '⚠ Sync gagal: ' + code);
-      // Surface the failure to the user — silent failure is exactly what
-      // caused "data hilang di device lain". Use flash() if available.
       try {
         if (typeof flash === 'function'){
           flash('⚠ Sinkronisasi cloud gagal: ' + code + (code === 'permission-denied'
@@ -9923,85 +10013,101 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             : ' · Cek koneksi internet.'));
         }
       } catch(_){}
-    }
+      return false;
+    }).finally(() => {
+      AUTH.remoteSavePromise = null;
+      // If a new render queued data right after the loop ended, write it next tick.
+      if (AUTH.pendingRemoteSnapshot && AUTH.db && AUTH.user && !AUTH.remoteLoading){
+        setTimeout(() => saveStateRemote(), 0);
+      }
+    });
+
+    return AUTH.remoteSavePromise;
   }
+
+  function applyRemoteStateData(data){
+    if (!data || typeof data !== 'object') return false;
+    const canApplyPortfolio = Array.isArray(data.debts)
+      && (data.debts.length > 0 || data.allowEmptySync === true);
+
+    // Profile/preferences are safe to merge even when the portfolio is empty.
+    if (data.user) state.user = { ...state.user, ...data.user };
+    if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
+    if (typeof data.nextDebtId === 'number' && data.nextDebtId > state.nextDebtId){
+      state.nextDebtId = data.nextDebtId;
+    }
+
+    if (!canApplyPortfolio) return false;
+
+    state.debts = Array.isArray(data.debts) ? data.debts : [];
+    state.payments = Array.isArray(data.payments) ? data.payments : [];
+    state.transactions = Array.isArray(data.transactions) ? data.transactions : [];
+    state.allowEmptySync = data.debts.length === 0 && data.allowEmptySync === true;
+    if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
+    try { saveStateLocal(); } catch(_){}
+    return true;
+  }
+
   async function loadStateRemote(){
     if (!AUTH.db || !AUTH.user) return false;
     try {
       const { doc, getDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
       const ref = doc(AUTH.db, 'users', AUTH.user.uid);
       const snap = await getDoc(ref);
-      const remoteHasDebts = snap.exists()
-        && Array.isArray(snap.data().debts) && snap.data().debts.length > 0;
-      if (remoteHasDebts){
+
+      let appliedRemote = false;
+      if (snap.exists()){
         const data = snap.data();
-        state.debts = data.debts;
-        if (Array.isArray(data.payments)) state.payments = data.payments;
-        if (Array.isArray(data.transactions)) state.transactions = data.transactions;
-        if (data.user) state.user = { ...state.user, ...data.user };
-        if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
-        if (typeof data.nextDebtId === 'number' && data.nextDebtId > state.nextDebtId){
-          state.nextDebtId = data.nextDebtId;
-        }
-        if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
-        // CRITICAL: persist the loaded cloud data to localStorage so this device
-        // has an offline copy and won't show "empty" on next refresh before
-        // Firebase reconnects.
-        try { saveStateLocal(); } catch(_){}
-      } else if (snap.exists()){
-        // Cloud doc exists but has no portfolio. Keep whatever we already have
-        // locally (don't wipe the screen) and merge any saved profile prefs.
-        const data = snap.data();
-        if (data.user) state.user = { ...state.user, ...data.user };
-        if (data.currencyDisplay) state.currencyDisplay = data.currencyDisplay;
+        AUTH.lastRemoteUpdatedAt = Math.max(AUTH.lastRemoteUpdatedAt || 0, data.updatedAt || 0);
+        appliedRemote = applyRemoteStateData(data);
       }
+
       // Done loading — future renders are allowed to sync again.
       AUTH.remoteLoading = false;
+
       // If the cloud had nothing but this device has real data, push it up so
       // the account gets seeded instead of the data appearing to vanish.
-      if (!remoteHasDebts && state.debts && state.debts.length > 0){
-        saveStateRemote();
+      if (!appliedRemote && state.debts && state.debts.length > 0){
+        await saveStateRemote();
       }
-      // Realtime listen — pick up changes from other devices
+
+      // Realtime listen — pick up changes from other devices immediately.
       if (AUTH.unsubSnap) AUTH.unsubSnap();
       AUTH.unsubSnap = onSnapshot(ref, ds => {
         if (!ds.exists()) return;
         const data = ds.data();
-        // Only adopt remote portfolio if it actually has debts — never let an
-        // empty/partial remote snapshot wipe non-empty local data.
-        if (Array.isArray(data.debts) && data.debts.length > 0){
-          state.debts = data.debts;
-          if (Array.isArray(data.payments)) state.payments = data.payments;
-          if (Array.isArray(data.transactions)) state.transactions = data.transactions;
-          if (data.user) state.user = { ...state.user, ...data.user };
-          if (typeof data.nextDebtId === 'number' && data.nextDebtId > state.nextDebtId){
-            state.nextDebtId = data.nextDebtId;
-          }
-          if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
-          try { saveStateLocal(); } catch(_){}
-          // Use the fully patched renderAll (via window) so renderRecentActivity
-          // and renderUserUI also refresh — _origRenderAll would skip those.
-          if (typeof window.renderAll === 'function'){
-            // Mark as loading briefly so the patched renderAll's saveStateRemote
-            // doesn't echo this exact same data back to the cloud.
-            const wasLoading = AUTH.remoteLoading;
-            AUTH.remoteLoading = true;
-            try { window.renderAll(); } finally { AUTH.remoteLoading = wasLoading; }
-          } else {
-            _origRenderAll();
-          }
-          updateSyncBadge('connected', '↻ Update masuk dari device lain · ' + new Date().toLocaleTimeString('id-ID'));
+        const remoteUpdatedAt = typeof data.updatedAt === 'number' ? data.updatedAt : 0;
+        const fromThisDevice = data.syncClientId && data.syncClientId === AUTH.clientId;
+
+        // Ignore our own Firestore acknowledgement; the UI is already current.
+        if (fromThisDevice && remoteUpdatedAt && remoteUpdatedAt <= (AUTH.lastRemoteUpdatedAt || 0)){
+          AUTH.lastRemoteUpdatedAt = Math.max(AUTH.lastRemoteUpdatedAt || 0, remoteUpdatedAt);
+          updateSyncBadge('connected', '✓ Tersinkron realtime · ' + appTimeString());
+          return;
         }
+
+        const applied = applyRemoteStateData(data);
+        AUTH.lastRemoteUpdatedAt = Math.max(AUTH.lastRemoteUpdatedAt || 0, remoteUpdatedAt);
+        if (!applied) return;
+
+        // Use the fully patched renderAll (via window) so every UI surface refreshes.
+        if (typeof window.renderAll === 'function'){
+          const wasLoading = AUTH.remoteLoading;
+          AUTH.remoteLoading = true;
+          try { window.renderAll(); } finally { AUTH.remoteLoading = wasLoading; }
+        } else {
+          _origRenderAll();
+        }
+        updateSyncBadge('connected', '↻ Update realtime dari device lain · ' + appTimeString());
       }, err => {
         console.error('onSnapshot error', err);
         const code = (err && (err.code || err.name)) || 'unknown';
         updateSyncBadge('local', '⚠ Listener gagal: ' + code);
         try { if (typeof flash === 'function') flash('⚠ Realtime sync gagal: ' + code); } catch(_){}
       });
+
       // First render after login: use the FULL patched renderAll so every
-      // UI surface (dashboard, list, recent activity, user card, sidebar)
-      // reflects the loaded cloud data. _origRenderAll would skip the QA
-      // layer additions.
+      // UI surface reflects the loaded cloud data.
       if (typeof window.renderAll === 'function'){
         const wasLoading = AUTH.remoteLoading;
         AUTH.remoteLoading = true;
@@ -10015,8 +10121,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       AUTH.remoteLoading = false;
       const code = (e && (e.code || e.name)) || 'unknown';
       updateSyncBadge('local', '⚠ Gagal memuat cloud: ' + code);
-      // This is the EXACT failure mode that makes data appear "hilang/zero"
-      // on a different device. Tell the user instead of silently failing.
       try {
         if (typeof flash === 'function'){
           flash('⚠ Gagal memuat data dari cloud: ' + code + (code === 'permission-denied'
@@ -10884,7 +10988,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 <head><meta charset="utf-8"><style>td,th{padding:6px 10px;border:1px solid #ddd;font-family:Arial,sans-serif;font-size:12px;}th{background:#1F2E48;color:white;}</style></head>
 <body>
 <h2>DEBT FREE — Daftar Hutang</h2>
-<p>Diekspor: ${new Date().toLocaleString('id-ID')}</p>
+<p>Diekspor: ${appDateTimeString()}</p>
 <table>
 <thead><tr>
 <th>Kreditur</th><th>Kategori</th><th>Metode</th><th>Nominal Awal</th><th>Bunga</th><th>Biaya</th>
@@ -10900,7 +11004,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const lines = [];
     lines.push('═══════════════════════════════════════════════════');
     lines.push('  DEBT FREE — DAFTAR HUTANG');
-    lines.push('  Diekspor: ' + new Date().toLocaleString('id-ID'));
+    lines.push('  Diekspor: ' + appDateTimeString());
     lines.push('  Total hutang: ' + debts.length);
     lines.push('═══════════════════════════════════════════════════');
     lines.push('');
@@ -10949,7 +11053,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       printHead.style.cssText = 'padding:16px 0;border-bottom:2px solid #2563EB;margin-bottom:16px;';
       printHead.innerHTML = `<div style="font-family:Fraunces,serif;font-size:22px;font-weight:600;color:#2563EB;">DEBT<span style="color:#0F172A;">FREE</span></div>
         <div id="print-doc-title" style="font-size:14px;color:#334155;margin-top:4px;"></div>
-        <div style="font-size:11px;color:#64748B;margin-top:2px;">Dicetak: ${new Date().toLocaleString('id-ID')}</div>`;
+        <div style="font-size:11px;color:#64748B;margin-top:2px;">Dicetak: ${appDateTimeString()}</div>`;
       view.prepend(printHead);
     } else {
       view.prepend(printHead);
@@ -12509,6 +12613,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 
 </script>
 
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
