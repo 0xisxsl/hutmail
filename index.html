@@ -6867,17 +6867,20 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   const calTitle = document.getElementById('cal-title');
 
   // Payment-status helper: is this debt's current cycle paid / partial / unpaid?
-  // Looks at state.payments within the cycle window ending at the dueDate.
+  // Looks at state.payments within the cycle window centered on the dueDate.
+  // FIX: also count late payments (up to 7 days AFTER dueDate) so that a debt
+  // paid right after going overdue is no longer flagged as TERLAMBAT.
   function paymentStatusForCycle(debt){
     const due = parseKey(debt.dueDate);
-    const windowDays = 35; // covers typical monthly cycle
+    const windowBefore = 35; // covers typical monthly cycle (pre-due)
+    const windowAfter  = 7;  // grace window for late payments
     const min = debt.minPayment || 0;
     let totalPaid = 0;
     state.payments.forEach(p => {
       if (p.debtId !== debt.id) return;
       const pDate = parseKey(p.date);
       const diff = (due - pDate) / (1000 * 60 * 60 * 24);
-      if (diff >= 0 && diff <= windowDays) totalPaid += p.amount;
+      if (diff >= -windowAfter && diff <= windowBefore) totalPaid += p.amount;
     });
     if (totalPaid <= 0) return { status: 'unpaid', paid: 0 };
     if (totalPaid >= min) return { status: 'paid', paid: totalPaid };
@@ -7330,6 +7333,20 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     if (d.sisa <= 0){
       d.status = 'lunas';
       d.sisa = 0;
+    }
+
+    // FIX: Roll dueDate forward to next cycle when this cycle's minimum
+    // installment is satisfied (and the debt isn't lunas). Without this,
+    // a debt that was paid stays "TERLAMBAT" in the Warning Status forever
+    // because daysToDue() still points at the old (past) dueDate.
+    if (!willLunas && actualAmt >= (d.minPayment || 0)) {
+      const cur = parseKey(d.dueDate);
+      const dom = d.dueDayOfMonth || cur.getDate();
+      // Jump to next month, clamped to its last day (e.g. Jan 31 → Feb 28)
+      const nextMonth = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+      const lastDayOfNext = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).getDate();
+      nextMonth.setDate(Math.min(dom, lastDayOfNext));
+      d.dueDate = fmtKey(nextMonth);
     }
 
     // Record payment
@@ -9459,8 +9476,12 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     const debts = activeDebts();
     const items = [];
 
-    // A) Overdue debts
-    const overdue = debts.filter(d => daysToDue(d) < 0);
+    // A) Overdue debts — FIX: skip jika cicilan untuk cycle ini sudah dibayar lunas
+    const overdue = debts.filter(d => {
+      if (daysToDue(d) >= 0) return false;
+      const ps = paymentStatusForCycle(d);
+      return ps.status !== 'paid';
+    });
     if (overdue.length) {
       const total = overdue.reduce((s,d) => s + d.minPayment, 0);
       items.push({
@@ -9470,8 +9491,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       });
     }
 
-    // B) Due within 7 days
-    const soon = debts.filter(d => { const dd = daysToDue(d); return dd >= 0 && dd <= 7; });
+    // B) Due within 7 days — FIX: skip jika cicilan untuk cycle ini sudah dibayar lunas
+    const soon = debts.filter(d => {
+      const dd = daysToDue(d);
+      if (dd < 0 || dd > 7) return false;
+      const ps = paymentStatusForCycle(d);
+      return ps.status !== 'paid';
+    });
     if (soon.length) {
       const total = soon.reduce((s,d) => s + d.minPayment, 0);
       items.push({
