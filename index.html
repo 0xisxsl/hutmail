@@ -4061,12 +4061,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
               <button data-filter="warning" class="px-3 py-1.5 rounded text-ink-400">Warning</button>
             </div>
 
-            <div class="flex items-center gap-2 px-2 py-1.5 rounded-md bg-ink-900/60 border border-ink-700/40 text-[11px] mono text-ink-400">
-              <span>Sort</span>
-              <span id="daftar-sort-status" class="text-ink-200">Default</span>
-              <button id="daftar-sort-reset" class="text-accent-lime hover:underline" type="button">Reset</button>
-            </div>
-
             <div class="flex gap-1">
               <button id="export-xls" class="btn-ghost px-3 py-1.5 rounded-md text-xs flex items-center gap-1.5">
                 <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> XLS
@@ -4089,13 +4083,13 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-ink-900/60 text-xs text-ink-300 uppercase tracking-wider">
-                <th class="text-left p-3 font-medium sortable-th" data-daftar-sort-key="perusahaan"><span class="th-inner">Perusahaan<span class="th-sort-icon"></span></span></th>
-                <th class="text-left p-3 font-medium sortable-th" data-daftar-sort-key="kategori"><span class="th-inner">Kategori<span class="th-sort-icon"></span></span></th>
-                <th class="text-right p-3 font-medium sortable-th" data-daftar-sort-key="nominalAwal"><span class="th-inner">Nominal Awal<span class="th-sort-icon"></span></span></th>
-                <th class="text-right p-3 font-medium sortable-th" data-daftar-sort-key="bunga"><span class="th-inner">Bunga<span class="th-sort-icon"></span></span></th>
-                <th class="text-right p-3 font-medium sortable-th" data-daftar-sort-key="biaya"><span class="th-inner">Biaya<span class="th-sort-icon"></span></span></th>
-                <th class="text-left p-3 font-medium sortable-th" data-daftar-sort-key="tanggalAwal"><span class="th-inner">Tanggal Awal<span class="th-sort-icon"></span></span></th>
-                <th class="text-right p-3 font-medium sortable-th" data-daftar-sort-key="nominalSaatIni"><span class="th-inner">Nominal Saat Ini<span class="th-sort-icon"></span></span></th>
+                <th class="text-left p-3 font-medium">Perusahaan</th>
+                <th class="text-left p-3 font-medium">Kategori</th>
+                <th class="text-right p-3 font-medium">Nominal Awal</th>
+                <th class="text-right p-3 font-medium">Bunga</th>
+                <th class="text-right p-3 font-medium">Biaya</th>
+                <th class="text-left p-3 font-medium">Tanggal Awal</th>
+                <th class="text-right p-3 font-medium">Nominal Saat Ini</th>
                 <th class="text-center p-3 font-medium">Status</th>
                 <th class="text-center p-3 font-medium">Aksi</th>
               </tr>
@@ -5734,7 +5728,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     transactions: [],
     nextDebtId: 1,
     daftarFilter: 'aktif',
-    daftarSort: { key: null, dir: null }, // dir: 'asc'|'desc'|null — sort tabel Daftar Hutang
     paySelectedId: null,
     payMode: 'cicil', // lunas | cicil | custom
     editCompanyId: null,
@@ -5767,21 +5760,9 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     return false;
   }
   setInterval(() => {
-    const dateChanged = refreshTodayReference();
-    try {
-      if (dateChanged && typeof renderAll === 'function') {
-        renderAll();
-      } else {
-        // Keep time-sensitive surfaces fresh even when the date has not changed:
-        // warning badges, due-date status, totals, and the Daftar Hutang table.
-        if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
-        if (typeof renderDashboardSummary === 'function') renderDashboardSummary();
-        if (typeof renderWarningStatus === 'function') renderWarningStatus();
-        if (typeof renderDaftar === 'function') renderDaftar();
-        if (typeof refreshNavBadges === 'function') refreshNavBadges();
-        if (window.lucide && lucide.createIcons) lucide.createIcons();
-      }
-    } catch(e){}
+    if (refreshTodayReference()){
+      try { if (typeof renderAll === 'function') renderAll(); } catch(e){}
+    }
   }, 60 * 1000);
 
   // ───── Demo data load / clear ─────
@@ -5887,29 +5868,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     (state.debts || []).forEach(normalizeDebt);
   }
 
-  function runningInterestToDate(debt){
-    if (!debt || debt.status === 'lunas') return 0;
-    const principal = Math.max(0, isRevolving(debt) ? (debt.statement || debt.sisa || 0) : (debt.sisa || 0));
-    const rate = (parseFloat(debt.bunga || 0) || 0) / 100;
-    if (!principal || !rate) return 0;
-    const start = debt.lastInterestCalcDate || debt.startDate || fmtKey(TODAY);
-    const days = Math.max(0, diffDays(TODAY, parseKey(start)));
-    if (!days) return 0;
-    const unit = debt.bungaUnit || 'bln';
-    let interest = 0;
-    if (unit === 'bln') interest = principal * rate * (days / 30);
-    else if (unit === 'thn') interest = principal * rate * (days / 365);
-    else if (unit === '15hari') interest = principal * rate * (days / 15);
-    else interest = principal * rate * days; // hari
-    return Math.max(0, Math.round(interest));
-  }
-
-  function nominalSaatIni(debt){
-    if (!debt || debt.status === 'lunas') return 0;
-    return Math.max(0, Math.round((debt.sisa || 0) + runningInterestToDate(debt)));
-  }
-
-  function totalHutang(){ return activeDebts().reduce((s,d) => s + nominalSaatIni(d), 0); }
+  function totalHutang(){ return activeDebts().reduce((s,d) => s + d.sisa, 0); }
   function totalNominalAwal(){ return state.debts.reduce((s,d) => s + d.nominalAwal, 0); }
   function totalBiaya(){ return state.debts.reduce((s,d) => s + d.biaya, 0); }
   function totalMinPayment(){ return activeDebts().reduce((s,d) => s + d.minPayment, 0); }
@@ -5984,15 +5943,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       setText('dash-total-dec', '');
     }
 
-    const trend = document.getElementById('dash-total-trend');
-    if (trend){
-      const interestNow = activeDebts().reduce((s,d) => s + runningInterestToDate(d), 0);
-      trend.className = activeDebts().length ? 'pill pill-info' : 'pill pill-info';
-      trend.innerHTML = activeDebts().length
-        ? `<i data-lucide="refresh-cw" class="w-3 h-3"></i>Real-time${interestNow ? ' · +' + fmtIDRshort(interestNow) + ' bunga' : ''}`
-        : `<i data-lucide="minus" class="w-3 h-3"></i>—`;
-    }
-
     // Tagihan bulanan (sum of min payments for active debts)
     const tagihan = totalMinPayment();
     const tStr = tagihan.toLocaleString('id-ID');
@@ -6057,7 +6007,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     switch (key){
       case 'kreditur': return (d.company || d.name || '').toLowerCase();
       case 'kategori': return (d.category || '').toLowerCase();
-      case 'sisa':     return nominalSaatIni(d);
+      case 'sisa':     return d.sisa || 0;
       case 'bunga': {
         // Normalize every unit to annualized rate for fair sorting.
         return _normAnnualRate(d);
@@ -6162,7 +6112,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             <div class="text-[9px] ${isRevolving(d) ? 'text-accent-coral' : 'text-accent-mint'} mt-1">${isRevolving(d) ? '⟳ Revolving' : '📅 Cicilan' + (d.tenorMonths ? ' · ' + d.tenorMonths + 'bln' : '')}</div>
           </td>
           <td class="p-2.5 text-right ha-sisa-cell">
-            <div class="mono text-sm text-ink-100" data-amt="${nominalSaatIni(d)}">${fmtIDRc(nominalSaatIni(d))}</div>
+            <div class="mono text-sm text-ink-100" data-amt="${d.sisa}">${fmtIDRc(d.sisa)}</div>
             <div class="text-[10px] text-ink-400">
               ${d.isCC ? 'stat. ' : 'awal '}<span data-amt="${d.isCC ? (d.statement||0) : d.nominalAwal}">${fmtIDRshort(d.isCC ? (d.statement||0) : d.nominalAwal)}</span>
             </div>
@@ -6229,48 +6179,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   }
 
   // ── Daftar (full table) ──
-  function _daftarSortValue(d, key){
-    switch (key){
-      case 'perusahaan':     return (d.company || '').toLowerCase();
-      case 'kategori':       return (d.category || '').toLowerCase();
-      case 'nominalAwal':    return d.nominalAwal || 0;
-      case 'bunga':          return _normAnnualRate(d);
-      case 'biaya':          return d.biaya || 0;
-      case 'tanggalAwal':    return d.startDate ? parseKey(d.startDate).getTime() : 0;
-      case 'nominalSaatIni': return nominalSaatIni(d);
-      default:               return 0;
-    }
-  }
-
-  function applyDaftarSort(debts){
-    const srt = state.daftarSort || { key:null, dir:null };
-    if (!srt.key || !srt.dir) return debts;
-    return [...debts].sort((a,b) => {
-      const va = _daftarSortValue(a, srt.key);
-      const vb = _daftarSortValue(b, srt.key);
-      let cmp = 0;
-      if (typeof va === 'string') cmp = va.localeCompare(vb, 'id', { sensitivity:'base' });
-      else cmp = va < vb ? -1 : va > vb ? 1 : 0;
-      return srt.dir === 'asc' ? cmp : -cmp;
-    });
-  }
-
-  function updateDaftarSortHeaderUI(){
-    const srt = state.daftarSort || { key:null, dir:null };
-    document.querySelectorAll('#view-daftar [data-daftar-sort-key]').forEach(th => {
-      th.classList.remove('sort-asc','sort-desc');
-      if (th.dataset.daftarSortKey === srt.key && srt.dir) th.classList.add('sort-' + srt.dir);
-    });
-    const status = document.getElementById('daftar-sort-status');
-    if (status){
-      const labels = {
-        perusahaan:'Perusahaan', kategori:'Kategori', nominalAwal:'Nominal Awal',
-        bunga:'Bunga', biaya:'Biaya', tanggalAwal:'Tanggal Awal', nominalSaatIni:'Nominal Saat Ini'
-      };
-      status.textContent = (!srt.key || !srt.dir) ? 'Default' : `${labels[srt.key] || srt.key} ${srt.dir === 'asc' ? '↑ Asc' : '↓ Desc'}`;
-    }
-  }
-
   function renderDaftar(){
     const tbody = document.getElementById('daftar-tbody');
     if (!tbody) return;
@@ -6279,8 +6187,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     else if (state.daftarFilter === 'lunas')   debts = lunasDebts();
     else if (state.daftarFilter === 'warning') debts = state.debts.filter(d => d.status==='active' && (urgencyOf(d)==='urgent' || urgencyOf(d)==='warn'));
     else debts = state.debts;
-    debts = applyDaftarSort(debts);
-    updateDaftarSortHeaderUI();
 
     tbody.innerHTML = debts.map(d => {
       const sp = statusPill(d);
@@ -6313,7 +6219,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
           <td class="p-3 text-right mono ${rateColor}">${_rateLabel(d, { includeMonthly: false })}</td>
           <td class="p-3 text-right mono text-ink-300">${fmtIDRc(d.biaya, {cls:'cur-sm'})}</td>
           <td class="p-3 text-ink-300 mono text-xs">${fmtDateID(parseKey(d.startDate))}</td>
-          <td class="p-3 text-right mono">${fmtIDRc(nominalSaatIni(d))}</td>
+          <td class="p-3 text-right mono">${fmtIDRc(d.sisa)}</td>
           <td class="p-3 text-center"><span class="pill ${sp.cls}">${sp.label.split('·')[0].trim()}</span></td>
           <td class="p-3">
             <div class="flex gap-1 justify-center">
@@ -6329,7 +6235,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     setText('daftar-total-label', `TOTAL · ${debts.length} hutang`);
     setHTML('daftar-total-awal',  fmtIDRc(debts.reduce((s,d) => s + d.nominalAwal, 0)));
     setHTML('daftar-total-biaya', fmtIDRc(debts.reduce((s,d) => s + d.biaya, 0), {cls:'cur-sm'}));
-    setHTML('daftar-total-now',   fmtIDRc(debts.reduce((s,d) => s + nominalSaatIni(d), 0)));
+    setHTML('daftar-total-now',   fmtIDRc(debts.reduce((s,d) => s + d.sisa, 0)));
 
     setText('daftar-subtitle',
       `${activeDebts().length} hutang aktif · bunga real-time · klik baris untuk Edit/Cicil/Update.`);
@@ -8159,21 +8065,14 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     document.querySelector(`.nav-item[data-view="${target}"]`)?.classList.add('active');
     views.forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${target}`)?.classList.add('active');
-    const nextTitle = titles[target] || 'DEBT FREE';
-    pageTitle.textContent = (typeof nextTitle === 'function') ? nextTitle() : nextTitle;
+    pageTitle.textContent = titles[target] || 'DEBT FREE';
     pageTitle.previousElementSibling.textContent = prefixes[target] ? prefixes[target]() : '';
     // Sync mobile bottom nav
     document.querySelectorAll('.mobile-bottom-nav .mbn-item').forEach(b => {
       b.classList.toggle('active', b.dataset.mbnView === target);
     });
     // Also re-render the target view to ensure freshness
-    if (target === 'dashboard'){
-      renderDashboardSummary();
-      renderDashboardList();
-      renderCalendar();
-      if (typeof renderWarningStatus === 'function') renderWarningStatus();
-      if (typeof renderFinancialInsight === 'function') renderFinancialInsight();
-    }
+    if (target === 'dashboard'){ renderDashboardSummary(); renderDashboardList(); renderCalendar(); }
     if (target === 'daftar')  renderDaftar();
     if (target === 'pembayaran') renderPaymentView();
     if (target === 'tambah') renderEditExisting();
@@ -8323,28 +8222,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     renderDaftar();
   });
 
-  // Daftar sort headers (cycle: none → asc → desc → none)
-  document.addEventListener('click', e => {
-    const th = e.target.closest('[data-daftar-sort-key]');
-    if (!th) return;
-    e.preventDefault();
-    const key = th.dataset.daftarSortKey;
-    const srt = state.daftarSort || (state.daftarSort = { key:null, dir:null });
-    if (srt.key !== key){
-      srt.key = key; srt.dir = 'asc';
-    } else if (srt.dir === 'asc') {
-      srt.dir = 'desc';
-    } else {
-      srt.key = null; srt.dir = null;
-    }
-    renderDaftar();
-  });
-  document.getElementById('daftar-sort-reset')?.addEventListener('click', e => {
-    e.preventDefault();
-    state.daftarSort = { key:null, dir:null };
-    renderDaftar();
-  });
-
   // Daftar export buttons (CSV works in-browser; others alert)
   document.getElementById('export-csv')?.addEventListener('click', () => {
     const debts = activeDebts();
@@ -8352,7 +8229,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
       ['Perusahaan','Produk','Kategori','Nominal Awal','Bunga','Biaya','Tanggal Awal','Sisa','Status'].join(','),
       ...debts.map(d => [
         d.company, d.product, d.category, d.nominalAwal, d.bunga + '% /' + d.bungaUnit,
-        d.biaya, d.startDate, nominalSaatIni(d), d.status
+        d.biaya, d.startDate, d.sisa, d.status
       ].join(','))
     ].join('\n');
     const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
@@ -8501,7 +8378,6 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
   // MAIN RENDER + INIT
   // ─────────────────────────────────────────────────────
   function renderAll(){
-    if (typeof normalizeAllDebts === 'function') normalizeAllDebts();
     applyCurrencyDisplay();
     renderDashboardSummary();
     renderDashboardList();
@@ -11100,7 +10976,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         <td>${d.biaya}</td>
         <td>${cicilan}</td>
         <td>${d.startDate}</td>
-        <td>${nominalSaatIni(d)}</td>
+        <td>${d.sisa}</td>
         <td>${d.status}</td>
         <td>${d.dueDate}</td>
       </tr>`;
@@ -12672,7 +12548,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
             ['Perusahaan','Produk','Kategori','Nominal Awal','Bunga','Biaya','Tanggal Awal','Sisa','Status'].join(','),
             ...filteredDebts.map(d => [
               '"' + (d.company || '') + '"', '"' + (d.product || '') + '"', d.category,
-              d.nominalAwal, d.bunga + '% /' + d.bungaUnit, d.biaya, d.startDate, nominalSaatIni(d), d.status
+              d.nominalAwal, d.bunga + '% /' + d.bungaUnit, d.biaya, d.startDate, d.sisa, d.status
             ].join(','))
           ].join('\n');
           downloadBlob('debtfree-debts-' + Date.now() + '.csv', csv, 'text/csv;charset=utf-8');
@@ -12741,6 +12617,28 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
+
+
+function urgencyOf(d){
+  // Jika hutang sudah lunas → normal
+  if (d.status === 'lunas') return 'normal';
+
+  // CEK STATUS PEMBAYARAN SIKLUS
+  const pay = paymentStatusForCycle(d);
+
+  // Jika tagihan pada siklus ini SUDAH DIBAYAR
+  // jangan tampilkan overdue / urgent lagi
+  if (pay.status === 'paid'){
+    return 'normal';
+  }
+
+  const dd = daysToDue(d);
+
+  if (dd < 0) return 'overdue';
+  if (dd <= 3) return 'urgent';
+  if (dd <= 7) return 'warn';
+
+  return 'normal';
+}
