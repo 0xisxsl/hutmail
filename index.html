@@ -3225,10 +3225,8 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
                 </div>
                 <div class="num-prefix">SARAN AI</div>
               </div>
-              <p class="text-sm text-ink-200 leading-relaxed">
-                Bayar <strong>lunas</strong> BCA Card sekarang (Rp 42.3jt) — hemat
-                <span class="mono text-accent-lime">Rp 1.475.000</span> bunga bulan depan.
-                Sisa dana bisa dialokasikan ke Kredivo (bunga lebih rendah).
+              <p id="ai-suggestion-text" class="text-sm text-ink-200 leading-relaxed">
+                Menghitung saran terbaik berdasarkan daftar hutang Anda…
               </p>
               <button id="ai-apply-suggestion" class="btn-primary w-full mt-4 py-2 rounded-md text-sm flex items-center justify-center gap-2">
                 Terapkan saran <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
@@ -6651,6 +6649,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     renderPaymentSource();
     renderPaymentUpcoming();
     renderPaymentHistory();
+    renderAISuggestion();
     // Always sync date input to current demo today
     const dateEl = document.getElementById('pay-date');
     if (dateEl && !dateEl.dataset.userEdited) dateEl.value = fmtKey(TODAY);
@@ -6791,6 +6790,7 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
     setActiveTab('pay-mode-custom', state.payMode === 'custom');
 
     renderPaymentSim();
+    renderAISuggestion();
     lucide.createIcons();
   }
 
@@ -6846,6 +6846,68 @@ window.__pvwTrackAction = window.__pvwTrackAction || function(){};
         note.style.display = 'none';
       }
     }
+  }
+
+  // ── AI Suggestion (dynamic) ──
+  // Generates a personalized recommendation from the actual debt list,
+  // instead of showing a hardcoded placeholder.
+  function renderAISuggestion(){
+    const el = document.getElementById('ai-suggestion-text');
+    const btn = document.getElementById('ai-apply-suggestion');
+    if (!el) return;
+
+    const debts = activeDebts();
+    if (!debts.length){
+      el.innerHTML = 'Belum ada hutang aktif — tambahkan hutang dulu untuk mendapatkan saran AI yang dipersonalisasi.';
+      if (btn) btn.style.display = 'none';
+      return;
+    }
+    if (btn) btn.style.display = '';
+
+    // Strategy 1 — find the debt where paying LUNAS saves the most interest next period.
+    // Prefer the currently-selected debt if it's a meaningful candidate; otherwise pick the
+    // best across all debts.
+    const candidates = debts
+      .filter(d => d.sisa > 0 && (d.isCC || isRevolving(d)))
+      .map(d => ({ d, saving: bungaPeriode(d) }))
+      .filter(x => x.saving > 0)
+      .sort((a,b) => b.saving - a.saving);
+
+    const sel = getDebt(state.paySelectedId);
+    let target = null;
+    if (sel && sel.sisa > 0 && (sel.isCC || isRevolving(sel)) && bungaPeriode(sel) > 0){
+      target = { d: sel, saving: bungaPeriode(sel) };
+    } else if (candidates.length){
+      target = candidates[0];
+    }
+
+    if (target){
+      // Suggest moving freed cash flow to the lowest-rate active debt as next destination.
+      const others = debts.filter(d => d.id !== target.d.id);
+      const lowest = others.slice().sort((a,b) => _normMonthlyRate(a) - _normMonthlyRate(b))[0];
+      const altLine = lowest
+        ? ` Sisa dana bisa dialokasikan ke <strong>${lowest.company} ${lowest.product}</strong> (bunga lebih rendah).`
+        : '';
+      el.innerHTML =
+        `Bayar <strong>lunas</strong> ${target.d.company} ${target.d.product} sekarang ` +
+        `(${fmtIDR(target.d.sisa)}) — hemat ` +
+        `<span class="mono text-accent-lime">${fmtIDR(target.saving)}</span> bunga bulan depan.` +
+        altLine;
+      return;
+    }
+
+    // Strategy 2 — no revolving/CC bunga to save. Recommend focusing on highest-rate debt.
+    const focus = debts.slice().sort((a,b) => _normMonthlyRate(b) - _normMonthlyRate(a))[0];
+    if (focus && focus.sisa > 0){
+      el.innerHTML =
+        `Fokus cicilan ke <strong>${focus.company} ${focus.product}</strong> — ` +
+        `bunga ${focus.bunga}%/${focus.bungaUnit} adalah yang tertinggi di portfolio Anda. ` +
+        `Pertimbangkan menambah cicilan di atas minimum (${fmtIDR(focus.minPayment)}) ` +
+        `untuk mempercepat pelunasan.`;
+      return;
+    }
+
+    el.innerHTML = 'Tidak ada saran khusus saat ini — status pembayaran Anda terlihat sehat. ✓';
   }
 
   function renderPaymentUpcoming(){
